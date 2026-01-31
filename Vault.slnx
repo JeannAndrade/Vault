@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="VaultWebApp.Client/VaultWebApp.Client.csproj" />
+  <Project Path="VaultWebApp/VaultWebApp.csproj" />
+</Solution>
