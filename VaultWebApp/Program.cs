@@ -1,4 +1,3 @@
-using VaultWebApp.Client.Pages;
 using VaultWebApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
