@@ -1,4 +1,3 @@
-using Domain.Bancos;
 using Domain.ValueObjects;
 using LumiaFoundation.EFRepository.Domain;
 
@@ -13,9 +12,8 @@ namespace Domain.Objetivos
         public string FontePagadora { get; private set; }
         public AporteMensal AporteMensal { get; private set; }
         public string OndeAplicar { get; private set; }
-        public Banco Banco { get; private set; }
 
-        public Objetivo(string nome, string? descricao, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar, Banco banco)
+        public Objetivo(string nome, string? descricao, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar)
         {
             Nome = nome;
             Descricao = descricao;
@@ -23,10 +21,9 @@ namespace Domain.Objetivos
             FontePagadora = fontePagadora;
             AporteMensal = aporteMensal;
             OndeAplicar = ondeAplicar;
-            Banco = banco;
         }
 
-        public Objetivo(string nome, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar, Banco banco) : this(nome, null, meta, fontePagadora, aporteMensal, ondeAplicar, banco)
+        public Objetivo(string nome, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar) : this(nome, null, meta, fontePagadora, aporteMensal, ondeAplicar)
         {
 
         }

@@ -1,8 +1,8 @@
 using LumiaFoundation.EFRepository.Domain;
 
-namespace Domain.Bancos
+namespace Domain.Produtos
 {
-    public class Banco(string nome) : Entity
+    public class Produto(string nome) : Entity
     {
         public string Nome { get; private set; } = nome ?? throw new ArgumentNullException(nameof(nome));
     }
