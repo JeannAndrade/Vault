@@ -1,7 +1,12 @@
 <Solution>
+  <Project Path="Application.Test/Application.Test.csproj" />
   <Project Path="Application/Application.csproj" />
+  <Project Path="Domain.Test/Domain.Test.csproj" />
   <Project Path="Domain/Domain.csproj" />
+  <Project Path="Persistence.Test/Persistence.Test.csproj" />
   <Project Path="Persistence/Persistence.csproj" />
+  <Project Path="Presentation.Test/Presentation.Test.csproj" />
   <Project Path="Presentation/Presentation.csproj" />
+  <Project Path="Service.Test/Service.Test.csproj" />
   <Project Path="Service/Service.csproj" />
 </Solution>
