@@ -1,7 +1,7 @@
 <Solution>
-  <Project Path="AspnetCore.Tests/AspnetCore.Tests.csproj" />
-  <Project Path="AspnetCore/AspnetCore.csproj" />
+  <Project Path="Application/Application.csproj" />
   <Project Path="Domain/Domain.csproj" />
-  <Project Path="VaultWebApp.Client/VaultWebApp.Client.csproj" />
-  <Project Path="VaultWebApp/VaultWebApp.csproj" />
+  <Project Path="Persistence/Persistence.csproj" />
+  <Project Path="Presentation/Presentation.csproj" />
+  <Project Path="Service/Service.csproj" />
 </Solution>
