@@ -13,6 +13,6 @@ namespace Persistence.Context
             base.OnModelCreating(modelBuilder);
         }
 
-        public DbSet<Banco> Companies => Set<Banco>();
+        public DbSet<Banco> Bancos => Set<Banco>();
     }
 }
