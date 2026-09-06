@@ -1,0 +1,64 @@
+volumes:
+  codemaze-db-data:
+networks:
+  codemaze-net:
+services:
+  service:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5001:8080"
+    networks:
+      - codemaze-net
+    environment:
+      DBHOST: mysqldb
+      DBPORT: 3306
+      CODEMAZE_DB_USER: ${CODEMAZE_DB_USER:-example-user}
+      CODEMAZE_DB_PASS: ${CODEMAZE_DB_PASS:-my_cool_secret}
+      CODEMAZE_DB_NAME: ${CODEMAZE_DB_NAME:-my_database}
+      DBMAJORVERSION: ${DBMAJORVERSION:-9}
+      DBMINORVERSION: ${DBMINORVERSION:-7}
+      DBBUILDVERSION: ${DBBUILDVERSION:-2}
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+  migrations:
+    container_name: migrations
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrations
+    networks:
+      - codemaze-net
+    environment:
+      DBHOST: mysqldb
+      DBPORT: 3306
+      CODEMAZE_DB_USER: ${CODEMAZE_DB_USER:-example-user}
+      CODEMAZE_DB_PASS: ${CODEMAZE_DB_PASS:-my_cool_secret}
+      CODEMAZE_DB_NAME: ${CODEMAZE_DB_NAME:-my_database}
+      DBMAJORVERSION: ${DBMAJORVERSION:-9}
+      DBMINORVERSION: ${DBMINORVERSION:-7}
+      DBBUILDVERSION: ${DBBUILDVERSION:-2}
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+  mysqldb:
+    image: mysql:9.7.2
+    container_name: mysqldb
+    networks:
+      - codemaze-net
+    volumes:
+      - codemaze-db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${CODEMAZE_DB_ROOT:-my-secret-pw}
+      MYSQL_DATABASE: ${CODEMAZE_DB_NAME:-my_database}
+      MYSQL_USER: ${CODEMAZE_DB_USER:-example-user}
+      MYSQL_PASSWORD: ${CODEMAZE_DB_PASS:-my_cool_secret}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
