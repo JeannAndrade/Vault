@@ -1,4 +1,4 @@
-using LumiaFoundation.Core.Domain;
+using LumiaFoundation.Core.Domain.ValueObjects;
 
 namespace Domain.ValueObjects
 {
