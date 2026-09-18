@@ -1,4 +1,4 @@
-using LumiaFoundation.EFRepository.Domain;
+using LumiaFoundation.Core.Domain;
 
 namespace Domain.TiposRenda
 {

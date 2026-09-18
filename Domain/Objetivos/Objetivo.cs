@@ -1,5 +1,5 @@
 using Domain.ValueObjects;
-using LumiaFoundation.EFRepository.Domain;
+using LumiaFoundation.Core.Domain;
 
 namespace Domain.Objetivos
 {

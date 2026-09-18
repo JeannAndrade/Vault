@@ -4,7 +4,7 @@ using Domain.Objetivos;
 using Domain.Produtos;
 using Domain.TiposRenda;
 using Domain.ValueObjects;
-using LumiaFoundation.EFRepository.Domain;
+using LumiaFoundation.Core.Domain;
 
 namespace Domain.Movimentos
 {
