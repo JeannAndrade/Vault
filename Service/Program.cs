@@ -1,16 +1,16 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-//builder.Services.AddOpenApi();
+IConfiguration configuration = new ConfigurationBuilder()
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddEnvironmentVariables()
+    .Build();
 
-var app = builder.Build();
+# region Configure Domain Database
+builder.Services.ConfigureDatabase(configuration);
+builder.Services.ConfigureRepositoryManager();
+#endregion
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    //app.MapOpenApi();
-}
+builder.Services.AddValidationFilters();
 
 var summaries = new[]
 {

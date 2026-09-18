@@ -2,17 +2,16 @@ using Domain.Bancos;
 using LumiaFoundation.EFRepository.Repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace Persistence.Context
+namespace Persistence.Context;
+
+public class VaultDbContext(DbContextOptions<VaultDbContext> options) : RepositoryContext(options)
 {
-    public class VaultDbContext(DbContextOptions options) : RepositoryContext(options)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(VaultDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(VaultDbContext).Assembly);
 
-            base.OnModelCreating(modelBuilder);
-        }
-
-        public DbSet<Banco> Bancos => Set<Banco>();
+        base.OnModelCreating(modelBuilder);
     }
+
+    public DbSet<Banco> Bancos => Set<Banco>();
 }
