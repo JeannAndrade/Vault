@@ -1,12 +1,11 @@
 using LumiaFoundation.Core.Domain.ValueObjects;
 
-namespace Domain.ValueObjects
+namespace Domain.ValueObjects;
+
+public sealed class ValorLiquidoAtual : GenericSingleValueObject<decimal>
 {
-    public sealed class ValorLiquidoAtual : GenericSingleValueObject<decimal>
+    public ValorLiquidoAtual(decimal value) : base(value)
     {
-        public ValorLiquidoAtual(decimal value) : base(value)
-        {
-            if (value < 0M) throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(ValorLiquidoAtual)} must be equal or greater than 0");
-        }
+        if (value < 0M) throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(ValorLiquidoAtual)} must be equal or greater than 0");
     }
 }

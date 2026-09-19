@@ -1,3 +1,13 @@
+using LumiaFoundation.AspNetCore.Commons.Extensions;
+using LumiaFoundation.AspNetCore.ExceptionHandlers;
+using LumiaFoundation.AspNetCore.Extensions;
+using LumiaFoundation.Logger.Extensions;
+using LumiaFoundation.Logger.LoggerService;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
+using Persistence.Extensions;
+using Service.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 IConfiguration configuration = new ConfigurationBuilder()
@@ -12,28 +22,51 @@ builder.Services.ConfigureRepositoryManager();
 
 builder.Services.AddValidationFilters();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+#region Configurando logs
+LoggerManager.LoadConfigurationFromFile(
+    Path.Combine(builder.Environment.ContentRootPath, "nlog.config"));
+builder.Services.ConfigureLoggerService();
+#endregion
 
-app.MapGet("/weatherforecast", () =>
+builder.Services.ConfigureCors();
+builder.Services.AddControllers();
+
+#region Configurando comportamento tratamento de exceções
+builder.Services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
+builder.Services.AddDomainExceptionMappingFilter();
+builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+builder.Services.AddExceptionHandler<UnhandledExceptionHandler>();
+#endregion
+
+#region Configurando OpenAPI
+builder.Services.ConfigureOpenApi("CompanyEmployees API", "v1");
+builder.Services.AddOpenApi(options =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Info = new()
+        {
+            Title = "CompanyEmployees API",
+            Version = "v1"
+        };
+        return Task.CompletedTask;
+    });
+});
+#endregion
+
+var app = builder.Build();
+
+app.UseExceptionHandler(opt => { });
+app.UseHsts();
+//app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All });
+app.UseCors("CorsPolicy");
+// Authentication and Authorization
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapOpenApiDevTools();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

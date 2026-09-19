@@ -6,9 +6,9 @@ using Persistence.Extensions;
 
 namespace Persistence.ContextFactory;
 
-public class PersistenceContextFactory : IDesignTimeDbContextFactory<VaultDbContext>
+public class IdentityContextFactory : IDesignTimeDbContextFactory<VaultIdentityDbContext>
 {
-    public VaultDbContext CreateDbContext(string[] args)
+    public VaultIdentityDbContext CreateDbContext(string[] args)
     {
         var configuration = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
@@ -17,8 +17,8 @@ public class PersistenceContextFactory : IDesignTimeDbContextFactory<VaultDbCont
 
         var services = new ServiceCollection();
 
-        services.ConfigureDatabase(configuration);
+        services.ConfigureIdentityDatabase(configuration);
 
-        return services.BuildServiceProvider().GetRequiredService<VaultDbContext>();
+        return services.BuildServiceProvider().GetRequiredService<VaultIdentityDbContext>();
     }
 }

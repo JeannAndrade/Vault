@@ -16,4 +16,4 @@ csharp_preserve_single_line_statements = true
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
-csharp_style_namespace_declarations = file_scoped:warningcd
+csharp_style_namespace_declarations = file_scoped:warning

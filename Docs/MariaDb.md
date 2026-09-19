@@ -10,7 +10,7 @@ docker run --name vault-local \
   -e MARIADB_DATABASE=$VAULT_DB_NAME \
   -e MARIADB_USER=$VAULT_DB_USER \
   -e MARIADB_PASSWORD=$VAULT_DB_PASS \
-  -p 3306:3306 \
+  -p 3307:3306 \
   -v vault-db-data:/var/lib/mariaDb \
   -d mariadb:latest
 ```

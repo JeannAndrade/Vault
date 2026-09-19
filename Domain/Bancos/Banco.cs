@@ -1,9 +1,12 @@
 using LumiaFoundation.Core.Domain;
 
-namespace Domain.Bancos
+namespace Domain.Bancos;
+
+public class Banco : Entity
 {
-    public class Banco : Entity
-    {
-        public string Nome { get; set; } = string.Empty;
-    }
+    public string Nome { get; set; } = string.Empty;
+
+    public Guid UserId { get; set; }
+
+    public User? User { get; set; }
 }

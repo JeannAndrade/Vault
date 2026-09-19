@@ -1,31 +1,30 @@
 using Domain.ValueObjects;
 using LumiaFoundation.Core.Domain;
 
-namespace Domain.Objetivos
+namespace Domain.Objetivos;
+
+public class Objetivo : Entity
 {
-    public class Objetivo : Entity
+
+    public string Nome { get; private set; }
+    public string? Descricao { get; private set; }
+    public Meta Meta { get; private set; }
+    public string FontePagadora { get; private set; }
+    public AporteMensal AporteMensal { get; private set; }
+    public string OndeAplicar { get; private set; }
+
+    public Objetivo(string nome, string? descricao, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar)
+    {
+        Nome = nome;
+        Descricao = descricao;
+        Meta = meta;
+        FontePagadora = fontePagadora;
+        AporteMensal = aporteMensal;
+        OndeAplicar = ondeAplicar;
+    }
+
+    public Objetivo(string nome, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar) : this(nome, null, meta, fontePagadora, aporteMensal, ondeAplicar)
     {
 
-        public string Nome { get; private set; }
-        public string? Descricao { get; private set; }
-        public Meta Meta { get; private set; }
-        public string FontePagadora { get; private set; }
-        public AporteMensal AporteMensal { get; private set; }
-        public string OndeAplicar { get; private set; }
-
-        public Objetivo(string nome, string? descricao, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar)
-        {
-            Nome = nome;
-            Descricao = descricao;
-            Meta = meta;
-            FontePagadora = fontePagadora;
-            AporteMensal = aporteMensal;
-            OndeAplicar = ondeAplicar;
-        }
-
-        public Objetivo(string nome, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar) : this(nome, null, meta, fontePagadora, aporteMensal, ondeAplicar)
-        {
-
-        }
     }
 }

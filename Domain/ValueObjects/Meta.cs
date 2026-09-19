@@ -1,12 +1,11 @@
 using LumiaFoundation.Core.Domain.ValueObjects;
 
-namespace Domain.ValueObjects
+namespace Domain.ValueObjects;
+
+public sealed class Meta : GenericSingleValueObject<decimal>
 {
-    public sealed class Meta : GenericSingleValueObject<decimal>
+    public Meta(decimal value) : base(value)
     {
-        public Meta(decimal value) : base(value)
-        {
-            if (value <= 0M) throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(Meta)} must be greater than 0");
-        }
+        if (value <= 0M) throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(Meta)} must be greater than 0");
     }
 }
