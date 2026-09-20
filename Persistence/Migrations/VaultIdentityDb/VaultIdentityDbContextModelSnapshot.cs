@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Context;
 
 #nullable disable
 
-namespace Persistence.Migrations
+namespace Persistence.Migrations.VaultIdentityDb
 {
     [DbContext(typeof(VaultIdentityDbContext))]
-    [Migration("20260918033305_CreatingIdentityTables")]
-    partial class CreatingIdentityTables
+    partial class VaultIdentityDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -131,8 +128,8 @@ namespace Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3de7e754-70e6-4f0c-be1b-e99a425fde75",
-                            ConcurrencyStamp = "8389af47-7e68-423b-9437-03fb452ad955",
+                            Id = "a6555a52-0a06-44c6-977b-3183faa171d9",
+                            ConcurrencyStamp = "7729cb8f-9cd8-4292-8f0d-67810bd24e5c",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });

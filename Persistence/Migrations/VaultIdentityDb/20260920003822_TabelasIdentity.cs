@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Persistence.Migrations;
+namespace Persistence.Migrations.VaultIdentityDb;
 
 /// <inheritdoc />
-public partial class CreatingIdentityTables : Migration
+public partial class TabelasIdentity : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -205,7 +206,7 @@ public partial class CreatingIdentityTables : Migration
         migrationBuilder.InsertData(
             table: "AspNetRoles",
             columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-            values: new object[] { "3de7e754-70e6-4f0c-be1b-e99a425fde75", "8389af47-7e68-423b-9437-03fb452ad955", "Administrator", "ADMINISTRATOR" });
+            values: new object[] { "a6555a52-0a06-44c6-977b-3183faa171d9", "7729cb8f-9cd8-4292-8f0d-67810bd24e5c", "Administrator", "ADMINISTRATOR" });
 
         migrationBuilder.CreateIndex(
             name: "IX_AspNetRoleClaims_RoleId",

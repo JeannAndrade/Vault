@@ -1,6 +1,8 @@
 using LumiaFoundation.AspNetCore.Commons.Extensions;
 using LumiaFoundation.AspNetCore.ExceptionHandlers;
 using LumiaFoundation.AspNetCore.Extensions;
+using LumiaFoundation.Auth.Config;
+using LumiaFoundation.Auth.Extensions;
 using LumiaFoundation.Logger.Extensions;
 using LumiaFoundation.Logger.LoggerService;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -22,6 +24,16 @@ builder.Services.ConfigureRepositoryManager();
 
 builder.Services.AddValidationFilters();
 
+#region Authentication and Authorization
+builder.Services.ConfigureIdentity();
+builder.Services.ConfigureIdentityDatabase(configuration);
+builder.Services.ConfigureIdentityServiceManager();
+var appConfigurationParameter = new AppConfigurationParameter(configuration);
+builder.Services.ConfigureAppSettingsReader(appConfigurationParameter);
+builder.Services.ConfigureJWT(appConfigurationParameter);
+builder.Services.AddAuthentication();
+#endregion
+
 #region Configurando logs
 LoggerManager.LoadConfigurationFromFile(
     Path.Combine(builder.Environment.ContentRootPath, "nlog.config"));
@@ -39,14 +51,14 @@ builder.Services.AddExceptionHandler<UnhandledExceptionHandler>();
 #endregion
 
 #region Configurando OpenAPI
-builder.Services.ConfigureOpenApi("CompanyEmployees API", "v1");
+builder.Services.ConfigureOpenApi("Vault API", "v1");
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>
     {
         document.Info = new()
         {
-            Title = "CompanyEmployees API",
+            Title = "Vault API",
             Version = "v1"
         };
         return Task.CompletedTask;
