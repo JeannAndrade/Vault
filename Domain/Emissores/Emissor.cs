@@ -2,7 +2,11 @@ using LumiaFoundation.Core.Domain;
 
 namespace Domain.Emissores;
 
-public class Emissor(string nome) : Entity
+public class Emissor : Entity
 {
-    public string Nome { get; private set; } = nome ?? throw new ArgumentNullException(nameof(nome));
+    public string Nome { get; set; } = string.Empty;
+
+    public Guid UserId { get; set; }
+
+    public User? User { get; set; }
 }
