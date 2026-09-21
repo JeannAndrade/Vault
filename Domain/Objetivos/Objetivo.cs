@@ -5,13 +5,21 @@ namespace Domain.Objetivos;
 
 public class Objetivo : Entity
 {
+    public string Nome { get; set; } = string.Empty;
+    public string? Descricao { get; set; }
+    public Meta Meta { get; set; }
+    public string FontePagadora { get; set; } = string.Empty;
+    public AporteMensal AporteMensal { get; set; }
+    public string OndeAplicar { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
 
-    public string Nome { get; private set; }
-    public string? Descricao { get; private set; }
-    public Meta Meta { get; private set; }
-    public string FontePagadora { get; private set; }
-    public AporteMensal AporteMensal { get; private set; }
-    public string OndeAplicar { get; private set; }
+    public User? User { get; set; }
+
+    public Objetivo()
+    {
+        Meta = new Meta(0);
+        AporteMensal = new AporteMensal(0);
+    }
 
     public Objetivo(string nome, string? descricao, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar)
     {
@@ -23,8 +31,8 @@ public class Objetivo : Entity
         OndeAplicar = ondeAplicar;
     }
 
-    public Objetivo(string nome, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar) : this(nome, null, meta, fontePagadora, aporteMensal, ondeAplicar)
+    public Objetivo(string nome, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar)
+        : this(nome, null, meta, fontePagadora, aporteMensal, ondeAplicar)
     {
-
     }
 }
