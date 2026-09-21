@@ -1,4 +1,5 @@
 using Domain.Bancos;
+using Domain.Corretoras;
 using LumiaFoundation.EFRepository.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,4 +15,5 @@ public class VaultDbContext(DbContextOptions<VaultDbContext> options) : Reposito
     }
 
     public DbSet<Banco> Bancos => Set<Banco>();
+    public DbSet<Corretora> Corretoras => Set<Corretora>();
 }
