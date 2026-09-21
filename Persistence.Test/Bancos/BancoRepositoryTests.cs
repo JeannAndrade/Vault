@@ -7,61 +7,64 @@ namespace Persistence.Test;
 
 public class BancoRepositoryTests
 {
-  [Fact]
-  public async Task GetAllBancosAsync_ReturnsBancosOrderedByName()
-  {
-    await using var context = CreateContext();
-    context.Bancos.AddRange(
-        new Banco { Nome = "Zeta" },
-        new Banco { Nome = "Alfa" },
-        new Banco { Nome = "Beta" });
-    await context.SaveChangesAsync();
-    context.ChangeTracker.Clear();
+    [Fact]
+    public async Task GetAllBancosAsync_ReturnsBancosOrderedByName()
+    {
+        await using var context = CreateContext();
+        var ownerId = Guid.NewGuid();
 
-    var repository = new BancoRepository(context);
+        context.Bancos.AddRange(
+            new Banco { Nome = "Zeta", UserId = ownerId },
+            new Banco { Nome = "Alfa", UserId = ownerId },
+            new Banco { Nome = "Beta", UserId = ownerId });
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
 
-    var bancos = (await repository.GetAllBancosAsync(trackChanges: false)).ToList();
+        var repository = new BancoRepository(context);
 
-    Assert.Equal(["Alfa", "Beta", "Zeta"], bancos.Select(banco => banco.Nome));
-    Assert.Empty(context.ChangeTracker.Entries<Banco>());
-  }
+        var bancos = (await repository.GetAllBancosAsync(ownerId, trackChanges: false)).ToList();
 
-  [Fact]
-  public async Task GetBancoAsync_ReturnsMatchingBancoAndHonorsTrackingOption()
-  {
-    await using var context = CreateContext();
-    var banco = new Banco { Nome = "Inter" };
-    context.Bancos.Add(banco);
-    await context.SaveChangesAsync();
-    var repository = new BancoRepository(context);
+        Assert.Equal(["Alfa", "Beta", "Zeta"], bancos.Select(banco => banco.Nome));
+        Assert.Empty(context.ChangeTracker.Entries<Banco>());
+    }
 
-    var result = await repository.GetBancoAsync(banco.Id, trackChanges: true);
-    var missing = await repository.GetBancoAsync(Guid.NewGuid(), trackChanges: false);
+    [Fact]
+    public async Task GetBancoAsync_ReturnsMatchingBancoAndHonorsTrackingOption()
+    {
+        await using var context = CreateContext();
+        var ownerId = Guid.NewGuid();
+        var banco = new Banco { Nome = "Inter", UserId = ownerId };
+        context.Bancos.Add(banco);
+        await context.SaveChangesAsync();
+        var repository = new BancoRepository(context);
 
-    Assert.Equal(banco.Id, result!.Id);
-    Assert.Null(missing);
-    Assert.Equal(EntityState.Unchanged, context.Entry(result!).State);
-  }
+        var result = await repository.GetBancoAsync(ownerId, banco.Id, trackChanges: true);
+        var missing = await repository.GetBancoAsync(ownerId, Guid.NewGuid(), trackChanges: false);
 
-  [Fact]
-  public async Task CreateBanco_AddsBancoToContext()
-  {
-    await using var context = CreateContext();
-    var repository = new BancoRepository(context);
-    var banco = new Banco { Nome = "Nubank" };
+        Assert.Equal(banco.Id, result!.Id);
+        Assert.Null(missing);
+        Assert.Equal(EntityState.Unchanged, context.Entry(result!).State);
+    }
 
-    repository.CreateBanco(banco);
-    await context.SaveChangesAsync();
+    [Fact]
+    public async Task CreateBanco_AddsBancoToContext()
+    {
+        await using var context = CreateContext();
+        var repository = new BancoRepository(context);
+        var banco = new Banco { Nome = "Nubank" };
 
-    Assert.Same(banco, await context.Bancos.SingleAsync());
-  }
+        repository.CreateBanco(banco);
+        await context.SaveChangesAsync();
 
-  private static VaultDbContext CreateContext()
-  {
-    var options = new DbContextOptionsBuilder<VaultDbContext>()
-        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-        .Options;
+        Assert.Same(banco, await context.Bancos.SingleAsync());
+    }
 
-    return new VaultDbContext(options);
-  }
+    private static VaultDbContext CreateContext()
+    {
+        var options = new DbContextOptionsBuilder<VaultDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new VaultDbContext(options);
+    }
 }
