@@ -12,7 +12,7 @@ public class GetCorretorasListQuery(IRepositoryManager repositoryManager, ILogge
   {
     try
     {
-      var corretoras = await _repository.Corretora.GetAllCorretorasAsync(ownerId, trackChanges: false);
+      var corretoras = await _repository.Corretora.GetAllAsync(ownerId, trackChanges: false);
 
       return [.. corretoras.Select(c => new CorretoraModel
             {

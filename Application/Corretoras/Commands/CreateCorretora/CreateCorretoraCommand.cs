@@ -12,7 +12,7 @@ public class CreateCorretoraCommand(IRepositoryManager repositoryManager) : ICre
         CommandValidator.Validate(corretoraModel);
 
         var corretora = corretoraModel.ToDomain(userId);
-        _repositoryManager.Corretora.CreateCorretora(corretora);
+        _repositoryManager.Corretora.Create(corretora);
         await _repositoryManager.SaveAsync();
 
         return CorretoraModel.FromDomain(corretora);
