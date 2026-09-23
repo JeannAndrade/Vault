@@ -9,7 +9,7 @@ public class GetEmissorQuery(IRepositoryManager repositoryManager) : IGetEmissor
 
   public async Task<EmissorModel> ExecuteAsync(Guid ownerId, Guid emissorId)
   {
-    var emissor = await _repository.Emissor.GetEmissorAsync(ownerId, emissorId, trackChanges: false)
+    var emissor = await _repository.Emissor.GetAsync(ownerId, emissorId, trackChanges: false)
         ?? throw new EntityNotFoundException("Emissor not found");
 
     return new EmissorModel

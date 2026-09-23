@@ -12,7 +12,7 @@ public class CreateEmissorCommand(IRepositoryManager repositoryManager) : ICreat
     CommandValidator.Validate(emissorModel);
 
     var emissor = emissorModel.ToDomain();
-    _repositoryManager.Emissor.CreateEmissor(emissor);
+    _repositoryManager.Emissor.Create(emissor);
     await _repositoryManager.SaveAsync();
 
     return EmissorModel.FromDomain(emissor);

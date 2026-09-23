@@ -12,7 +12,7 @@ public class GetEmissoresListQuery(IRepositoryManager repositoryManager, ILogger
   {
     try
     {
-      var emissores = await _repository.Emissor.GetAllEmissoresAsync(ownerId, trackChanges: false);
+      var emissores = await _repository.Emissor.GetAllAsync(ownerId, trackChanges: false);
 
       return [.. emissores.Select(e => new EmissorModel
             {
