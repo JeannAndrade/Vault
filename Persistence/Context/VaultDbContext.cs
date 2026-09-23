@@ -1,8 +1,8 @@
-using Domain.Bancos;
 using Domain.Corretoras;
 using Domain.Emissores;
 using Domain.Objetivos;
 using Domain.Produtos;
+using Domain.TiposRenda;
 using LumiaFoundation.EFRepository.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,9 +17,9 @@ public class VaultDbContext(DbContextOptions<VaultDbContext> options) : Reposito
         base.OnModelCreating(modelBuilder);
     }
 
-    public DbSet<Banco> Bancos => Set<Banco>();
     public DbSet<Corretora> Corretoras => Set<Corretora>();
     public DbSet<Emissor> Emissores => Set<Emissor>();
     public DbSet<Produto> Produtos => Set<Produto>();
     public DbSet<Objetivo> Objetivos => Set<Objetivo>();
+    public DbSet<TipoRenda> TiposRenda => Set<TipoRenda>();
 }
