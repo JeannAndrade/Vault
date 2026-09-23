@@ -1,3 +1,4 @@
+using Domain.Movimentos;
 using LumiaFoundation.Core.Domain;
 
 namespace Domain.Produtos;
@@ -10,12 +11,5 @@ public class Produto : Entity
 
     public User? User { get; set; }
 
-    public static Produto GetDefault()
-    {
-        return new Produto
-        {
-            Nome = "Produto Padrão",
-            UserId = Guid.Empty
-        };
-    }
+    public ICollection<Movimento> Movimentos { get; set; } = [];
 }

@@ -9,6 +9,7 @@ namespace Domain.Movimentos;
 
 public class Movimento : Entity
 {
+    public Guid UserId { get; set; }
     public Guid ObjetivoId { get; set; }
     public Guid TipoRendaId { get; set; }
     public Guid CorretoraId { get; set; }
@@ -22,11 +23,10 @@ public class Movimento : Entity
     public bool EstaAtivo { get; set; }
     public decimal ValorLiquidoAtual { get; set; } = 0M;
 
-    public Guid UserId { get; set; }
-    public User? User { get; set; }
-    public Objetivo Objetivo { get; set; } = Objetivo.GetDefault();
-    public TipoRenda TipoRenda { get; set; } = TipoRenda.GetDefault();
-    public Corretora Corretora { get; set; } = Corretora.GetDefault();
-    public Produto Produto { get; set; } = Produto.GetDefault();
-    public Emissor Emissor { get; set; } = Emissor.GetDefault();
+    public User User { get; set; } = null!;
+    public Objetivo Objetivo { get; set; } = null!;
+    public TipoRenda TipoRenda { get; set; } = null!;
+    public Corretora Corretora { get; set; } = null!;
+    public Produto Produto { get; set; } = null!;
+    public Emissor Emissor { get; set; } = null!;
 }

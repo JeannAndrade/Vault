@@ -1,3 +1,4 @@
+using Domain.Movimentos;
 using LumiaFoundation.Core.Domain;
 
 namespace Domain.Emissores;
@@ -10,12 +11,5 @@ public class Emissor : Entity
 
     public User? User { get; set; }
 
-    public static Emissor GetDefault()
-    {
-        return new Emissor
-        {
-            Nome = "Emissor Padrão",
-            UserId = Guid.Empty
-        };
-    }
+    public ICollection<Movimento> Movimentos { get; set; } = [];
 }

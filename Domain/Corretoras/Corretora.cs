@@ -1,3 +1,4 @@
+using Domain.Movimentos;
 using LumiaFoundation.Core.Domain;
 
 namespace Domain.Corretoras;
@@ -10,12 +11,5 @@ public class Corretora : Entity
 
     public User? User { get; set; }
 
-    public static Corretora GetDefault()
-    {
-        return new Corretora
-        {
-            Nome = "Corretora Padrão",
-            UserId = Guid.Empty
-        };
-    }
+    public ICollection<Movimento> Movimentos { get; set; } = [];
 }

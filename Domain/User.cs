@@ -1,5 +1,6 @@
 using Domain.Corretoras;
 using Domain.Emissores;
+using Domain.Movimentos;
 using Domain.Objetivos;
 using Domain.Produtos;
 using Domain.TiposRenda;
@@ -14,4 +15,5 @@ public class User : Entity
     public ICollection<Produto> Produtos { get; set; } = [];
     public ICollection<Objetivo> Objetivos { get; set; } = [];
     public ICollection<TipoRenda> TiposRenda { get; set; } = [];
+    public ICollection<Movimento> Movimentos { get; set; } = [];
 }

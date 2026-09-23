@@ -1,3 +1,4 @@
+using Domain.Movimentos;
 using LumiaFoundation.Core.Domain;
 
 namespace Domain.TiposRenda;
@@ -10,12 +11,5 @@ public class TipoRenda : Entity
 
     public User? User { get; set; }
 
-    public static TipoRenda GetDefault()
-    {
-        return new TipoRenda
-        {
-            Nome = "Renda Padrão",
-            UserId = Guid.Empty
-        };
-    }
+    public ICollection<Movimento> Movimentos { get; set; } = [];
 }

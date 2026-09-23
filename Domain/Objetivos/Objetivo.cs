@@ -16,18 +16,4 @@ public class Objetivo : Entity
     public User? User { get; set; }
 
     public ICollection<Movimento> Movimentos { get; set; } = [];
-
-    public static Objetivo GetDefault()
-    {
-        return new Objetivo
-        {
-            Nome = "Objetivo Padrão",
-            Descricao = "Este é o objetivo padrão.",
-            Meta = 10000M,
-            FontePagadora = "Salário",
-            AporteMensal = 500M,
-            OndeAplicar = "Investimentos Diversos",
-            UserId = Guid.Empty
-        };
-    }
 }
