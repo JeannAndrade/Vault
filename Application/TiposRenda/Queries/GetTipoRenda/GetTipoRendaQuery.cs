@@ -9,7 +9,7 @@ public class GetTipoRendaQuery(IRepositoryManager repositoryManager) : IGetTipoR
 
   public async Task<TipoRendaModel> ExecuteAsync(Guid ownerId, Guid tipoRendaId)
   {
-    var tipoRenda = await _repository.TipoRenda.GetTipoRendaAsync(ownerId, tipoRendaId, trackChanges: false)
+    var tipoRenda = await _repository.TipoRenda.GetAsync(ownerId, tipoRendaId, trackChanges: false)
         ?? throw new EntityNotFoundException("Tipo de renda not found");
 
     return new TipoRendaModel

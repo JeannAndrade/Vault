@@ -4,8 +4,8 @@ namespace Persistence.TiposRenda;
 
 public interface ITipoRendaRepository
 {
-  Task<IEnumerable<TipoRenda>> GetAllTiposRendaAsync(Guid ownerId, bool trackChanges);
-  Task<TipoRenda?> GetTipoRendaAsync(Guid ownerId, Guid tipoRendaId, bool trackChanges);
-  Task DeleteTipoRendaAsync(Guid ownerId, Guid tipoRendaId);
-  void CreateTipoRenda(TipoRenda tipoRenda);
+    Task<IEnumerable<TipoRenda>> GetAllAsync(Guid ownerId, bool trackChanges);
+    Task<TipoRenda?> GetAsync(Guid ownerId, Guid tipoRendaId, bool trackChanges);
+    Task DeleteAsync(Guid ownerId, Guid tipoRendaId);
+    void Create(TipoRenda tipoRenda);
 }

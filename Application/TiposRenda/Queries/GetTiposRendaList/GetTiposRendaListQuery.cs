@@ -12,7 +12,7 @@ public class GetTiposRendaListQuery(IRepositoryManager repositoryManager, ILogge
   {
     try
     {
-      var tiposRenda = await _repository.TipoRenda.GetAllTiposRendaAsync(ownerId, trackChanges: false);
+      var tiposRenda = await _repository.TipoRenda.GetAllAsync(ownerId, trackChanges: false);
 
       return [.. tiposRenda.Select(t => new TipoRendaModel
             {

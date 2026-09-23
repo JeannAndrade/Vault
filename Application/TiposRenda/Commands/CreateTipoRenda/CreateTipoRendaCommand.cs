@@ -12,7 +12,7 @@ public class CreateTipoRendaCommand(IRepositoryManager repositoryManager) : ICre
     CommandValidator.Validate(tipoRendaModel);
 
     var tipoRenda = tipoRendaModel.ToDomain();
-    _repositoryManager.TipoRenda.CreateTipoRenda(tipoRenda);
+    _repositoryManager.TipoRenda.Create(tipoRenda);
     await _repositoryManager.SaveAsync();
 
     return TipoRendaModel.FromDomain(tipoRenda);
