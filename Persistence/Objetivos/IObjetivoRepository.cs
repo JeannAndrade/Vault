@@ -4,8 +4,8 @@ namespace Persistence.Objetivos;
 
 public interface IObjetivoRepository
 {
-  Task<IEnumerable<Objetivo>> GetAllObjetivosAsync(Guid ownerId, bool trackChanges);
-  Task<Objetivo?> GetObjetivoAsync(Guid ownerId, Guid objetivoId, bool trackChanges);
-  Task DeleteObjetivoAsync(Guid ownerId, Guid objetivoId);
-  void CreateObjetivo(Objetivo objetivo);
+    Task<IEnumerable<Objetivo>> GetAllAsync(Guid ownerId, bool trackChanges);
+    Task<Objetivo?> GetAsync(Guid ownerId, Guid objetivoId, bool trackChanges);
+    Task DeleteAsync(Guid ownerId, Guid objetivoId);
+    void Create(Objetivo objetivo);
 }

@@ -12,7 +12,7 @@ public class GetObjetivosListQuery(IRepositoryManager repositoryManager, ILogger
     {
         try
         {
-            var objetivos = await _repository.Objetivo.GetAllObjetivosAsync(ownerId, trackChanges: false);
+            var objetivos = await _repository.Objetivo.GetAllAsync(ownerId, trackChanges: false);
 
             return [.. objetivos.Select(o => new ObjetivoModel
             {

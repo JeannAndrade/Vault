@@ -12,7 +12,7 @@ public class CreateObjetivoCommand(IRepositoryManager repositoryManager) : ICrea
     CommandValidator.Validate(objetivoModel);
 
     var objetivo = objetivoModel.ToDomain();
-    _repositoryManager.Objetivo.CreateObjetivo(objetivo);
+    _repositoryManager.Objetivo.Create(objetivo);
     await _repositoryManager.SaveAsync();
 
     return ObjetivoModel.FromDomain(objetivo);
