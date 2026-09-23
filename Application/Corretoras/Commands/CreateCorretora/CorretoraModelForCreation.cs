@@ -9,10 +9,7 @@ public record CorretoraModelForCreation
     [MaxLength(60, ErrorMessage = "Nome da Corretora não deve exceder 60 caracteres")]
     public string Nome { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "O usuário é obrigatório")]
-    public Guid UserId { get; set; }
-
-    public Corretora ToDomain() => new()
+    public Corretora ToDomain(Guid UserId) => new()
     {
         Nome = Nome,
         UserId = UserId

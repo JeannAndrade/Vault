@@ -9,4 +9,13 @@ public class Produto : Entity
     public Guid UserId { get; set; }
 
     public User? User { get; set; }
+
+    public static Produto GetDefault()
+    {
+        return new Produto
+        {
+            Nome = "Produto Padrão",
+            UserId = Guid.Empty
+        };
+    }
 }

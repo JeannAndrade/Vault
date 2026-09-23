@@ -54,8 +54,7 @@ public class CorretorasController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<CorretoraDto>> CreateCorretora([FromBody] CorretoraModelForCreation corretora)
     {
-        corretora.UserId = GetCurrentUserId();
-        var createdCorretora = await _createCorretoraCommand.ExecuteAsync(corretora);
+        var createdCorretora = await _createCorretoraCommand.ExecuteAsync(corretora, GetCurrentUserId());
 
         return CreatedAtRoute("CorretoraById", new { id = createdCorretora.Id }, createdCorretora);
     }

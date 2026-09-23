@@ -17,9 +17,9 @@ public class GetObjetivoQuery(IRepositoryManager repositoryManager) : IGetObjeti
       Id = objetivo.Id,
       Nome = objetivo.Nome,
       Descricao = objetivo.Descricao,
-      Meta = objetivo.Meta.Value,
+      Meta = objetivo.Meta,
       FontePagadora = objetivo.FontePagadora,
-      AporteMensal = objetivo.AporteMensal.Value,
+      AporteMensal = objetivo.AporteMensal,
       OndeAplicar = objetivo.OndeAplicar,
       UserId = objetivo.UserId
     };

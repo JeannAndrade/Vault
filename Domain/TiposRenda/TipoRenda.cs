@@ -9,4 +9,13 @@ public class TipoRenda : Entity
     public Guid UserId { get; set; }
 
     public User? User { get; set; }
+
+    public static TipoRenda GetDefault()
+    {
+        return new TipoRenda
+        {
+            Nome = "Renda Padrão",
+            UserId = Guid.Empty
+        };
+    }
 }

@@ -9,4 +9,13 @@ public class Emissor : Entity
     public Guid UserId { get; set; }
 
     public User? User { get; set; }
+
+    public static Emissor GetDefault()
+    {
+        return new Emissor
+        {
+            Nome = "Emissor Padrão",
+            UserId = Guid.Empty
+        };
+    }
 }

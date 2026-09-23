@@ -1,4 +1,4 @@
-using Domain.ValueObjects;
+using Domain.Movimentos;
 using LumiaFoundation.Core.Domain;
 
 namespace Domain.Objetivos;
@@ -7,32 +7,27 @@ public class Objetivo : Entity
 {
     public string Nome { get; set; } = string.Empty;
     public string? Descricao { get; set; }
-    public Meta Meta { get; set; }
+    public decimal Meta { get; set; } = 0M;
     public string FontePagadora { get; set; } = string.Empty;
-    public AporteMensal AporteMensal { get; set; }
+    public decimal AporteMensal { get; set; } = 0M;
     public string OndeAplicar { get; set; } = string.Empty;
     public Guid UserId { get; set; }
 
     public User? User { get; set; }
 
-    public Objetivo()
-    {
-        Meta = new Meta(0);
-        AporteMensal = new AporteMensal(0);
-    }
+    public ICollection<Movimento> Movimentos { get; set; } = [];
 
-    public Objetivo(string nome, string? descricao, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar)
+    public static Objetivo GetDefault()
     {
-        Nome = nome;
-        Descricao = descricao;
-        Meta = meta;
-        FontePagadora = fontePagadora;
-        AporteMensal = aporteMensal;
-        OndeAplicar = ondeAplicar;
-    }
-
-    public Objetivo(string nome, Meta meta, string fontePagadora, AporteMensal aporteMensal, string ondeAplicar)
-        : this(nome, null, meta, fontePagadora, aporteMensal, ondeAplicar)
-    {
+        return new Objetivo
+        {
+            Nome = "Objetivo Padrão",
+            Descricao = "Este é o objetivo padrão.",
+            Meta = 10000M,
+            FontePagadora = "Salário",
+            AporteMensal = 500M,
+            OndeAplicar = "Investimentos Diversos",
+            UserId = Guid.Empty
+        };
     }
 }

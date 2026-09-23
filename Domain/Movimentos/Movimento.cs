@@ -3,23 +3,30 @@ using Domain.Emissores;
 using Domain.Objetivos;
 using Domain.Produtos;
 using Domain.TiposRenda;
-using Domain.ValueObjects;
 using LumiaFoundation.Core.Domain;
 
 namespace Domain.Movimentos;
 
 public class Movimento : Entity
 {
-    public Objetivo Objetivo { get; private set; }
-    public TipoRenda TipoRenda { get; private set; }
-    public Corretora Corretora { get; private set; }
-    public Produto Produto { get; private set; }
-    public Emissor Emissor { get; private set; }
-    public string? RentabilidadeContratada { get; private set; }
-    public string? CotacaoNaCompra { get; private set; }
-    public DataInvestimento DataInvestimento { get; private set; }
-    public ValorAporte ValorAporte { get; private set; }
-    public bool EhReinvestimento { get; private set; }
-    public bool EstaAtivo { get; private set; }
-    public ValorLiquidoAtual ValorLiquidoAtual { get; private set; }
+    public Guid ObjetivoId { get; set; }
+    public Guid TipoRendaId { get; set; }
+    public Guid CorretoraId { get; set; }
+    public Guid ProdutoId { get; set; }
+    public Guid EmissorId { get; set; }
+    public string? RentabilidadeContratada { get; set; }
+    public string? CotacaoNaCompra { get; set; }
+    public DateTime DataInvestimento { get; set; }
+    public decimal ValorAporte { get; set; } = 0M;
+    public bool EhReinvestimento { get; set; }
+    public bool EstaAtivo { get; set; }
+    public decimal ValorLiquidoAtual { get; set; } = 0M;
+
+    public Guid UserId { get; set; }
+    public User? User { get; set; }
+    public Objetivo Objetivo { get; set; } = Objetivo.GetDefault();
+    public TipoRenda TipoRenda { get; set; } = TipoRenda.GetDefault();
+    public Corretora Corretora { get; set; } = Corretora.GetDefault();
+    public Produto Produto { get; set; } = Produto.GetDefault();
+    public Emissor Emissor { get; set; } = Emissor.GetDefault();
 }

@@ -9,4 +9,13 @@ public class Corretora : Entity
     public Guid UserId { get; set; }
 
     public User? User { get; set; }
+
+    public static Corretora GetDefault()
+    {
+        return new Corretora
+        {
+            Nome = "Corretora Padrão",
+            UserId = Guid.Empty
+        };
+    }
 }
