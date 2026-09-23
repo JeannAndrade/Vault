@@ -4,8 +4,8 @@ namespace Persistence.Produtos;
 
 public interface IProdutoRepository
 {
-  Task<IEnumerable<Produto>> GetAllProdutosAsync(Guid ownerId, bool trackChanges);
-  Task<Produto?> GetProdutoAsync(Guid ownerId, Guid produtoId, bool trackChanges);
-  Task DeleteProdutoAsync(Guid ownerId, Guid produtoId);
-  void CreateProduto(Produto produto);
+    Task<IEnumerable<Produto>> GetAllAsync(Guid ownerId, bool trackChanges);
+    Task<Produto?> GetAsync(Guid ownerId, Guid produtoId, bool trackChanges);
+    Task DeleteAsync(Guid ownerId, Guid produtoId);
+    void Create(Produto produto);
 }

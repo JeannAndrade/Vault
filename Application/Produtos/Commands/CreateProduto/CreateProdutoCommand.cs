@@ -12,7 +12,7 @@ public class CreateProdutoCommand(IRepositoryManager repositoryManager) : ICreat
     CommandValidator.Validate(produtoModel);
 
     var produto = produtoModel.ToDomain();
-    _repositoryManager.Produto.CreateProduto(produto);
+    _repositoryManager.Produto.Create(produto);
     await _repositoryManager.SaveAsync();
 
     return ProdutoModel.FromDomain(produto);

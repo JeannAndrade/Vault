@@ -12,7 +12,7 @@ public class GetProdutosListQuery(IRepositoryManager repositoryManager, ILoggerM
   {
     try
     {
-      var produtos = await _repository.Produto.GetAllProdutosAsync(ownerId, trackChanges: false);
+      var produtos = await _repository.Produto.GetAllAsync(ownerId, trackChanges: false);
 
       return [.. produtos.Select(p => new ProdutoModel
             {
