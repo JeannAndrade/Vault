@@ -62,7 +62,8 @@ public class CorretorasController(
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(CorretoraDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(CorretoraDto), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<CorretoraDto>> UpdateCorretora(Guid id, [FromBody] CorretoraForUpdateDto corretora)
@@ -70,15 +71,5 @@ public class CorretorasController(
         _ = await _updateCorretoraCommand.ExecuteAsync(corretora.ToUpdateCorretoraCommand(), GetCurrentUserId(), id);
 
         return NoContent();
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userId = HttpContext.Items["UserId"]?.ToString();
-
-        if (Guid.TryParse(userId, out var currentUserId))
-            return currentUserId;
-
-        throw new InvalidOperationException("Não foi possível identificar o usuário autenticado.");
     }
 }
