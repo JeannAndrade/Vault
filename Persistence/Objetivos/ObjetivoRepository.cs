@@ -15,7 +15,7 @@ public class ObjetivoRepository(VaultDbContext repositoryContext) : BaseReposito
 
     public async Task DeleteAsync(Guid ownerId, Guid objetivoId)
     {
-        var objetivo = await GetAsync(ownerId, objetivoId, false);
+        var objetivo = await GetAsync(ownerId, objetivoId, true);
 
         if (objetivo is not null)
             Delete(objetivo);

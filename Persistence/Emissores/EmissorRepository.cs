@@ -15,7 +15,7 @@ public class EmissorRepository(VaultDbContext repositoryContext) : BaseRepositor
 
     public async Task DeleteAsync(Guid ownerId, Guid emissorId)
     {
-        var emissor = await GetAsync(ownerId, emissorId, false);
+        var emissor = await GetAsync(ownerId, emissorId, true);
 
         if (emissor is not null)
             Delete(emissor);

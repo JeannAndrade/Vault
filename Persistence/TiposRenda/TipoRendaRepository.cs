@@ -15,7 +15,7 @@ public class TipoRendaRepository(VaultDbContext repositoryContext) : BaseReposit
 
     public async Task DeleteAsync(Guid ownerId, Guid tipoRendaId)
     {
-        var tipoRenda = await GetAsync(ownerId, tipoRendaId, false);
+        var tipoRenda = await GetAsync(ownerId, tipoRendaId, true);
 
         if (tipoRenda is not null)
             Delete(tipoRenda);

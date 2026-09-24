@@ -15,7 +15,7 @@ public class CorretoraRepository(VaultDbContext repositoryContext) : BaseReposit
 
     public async Task DeleteAsync(Guid ownerId, Guid corretoraId)
     {
-        var corretora = await GetAsync(ownerId, corretoraId, false);
+        var corretora = await GetAsync(ownerId, corretoraId, true);
 
         if (corretora is not null)
             Delete(corretora);
