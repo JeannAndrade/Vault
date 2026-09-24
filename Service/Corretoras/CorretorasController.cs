@@ -1,4 +1,5 @@
 using Application.Corretoras.Commands.CreateCorretora;
+using Application.Corretoras.Commands.UpdateCorretora;
 using Application.Corretoras.Queries.GetCorretora;
 using Application.Corretoras.Queries.GetCorretoraList;
 using LumiaFoundation.Abstractions.ErrorModel;
@@ -17,11 +18,13 @@ namespace Service.Corretoras;
 public class CorretorasController(
     IGetCorretorasListQuery getCorretorasListQuery,
     IGetCorretoraQuery getCorretoraQuery,
-    ICreateCorretoraCommand createCorretoraCommand) : BaseApiController
+    ICreateCorretoraCommand createCorretoraCommand,
+    IUpdateCorretoraCommand updateCorretoraCommand) : BaseApiController
 {
     private readonly IGetCorretorasListQuery _getCorretorasListQuery = getCorretorasListQuery;
     private readonly IGetCorretoraQuery _getCorretoraQuery = getCorretoraQuery;
     private readonly ICreateCorretoraCommand _createCorretoraCommand = createCorretoraCommand;
+    private readonly IUpdateCorretoraCommand _updateCorretoraCommand = updateCorretoraCommand;
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<CorretoraDto>), StatusCodes.Status200OK)]
@@ -49,14 +52,24 @@ public class CorretorasController(
 
     [HttpPost]
     [ProducesResponseType(typeof(CorretoraDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<CorretoraDto>> CreateCorretora([FromBody] CorretoraModelForCreation corretora)
+    public async Task<ActionResult<CorretoraDto>> CreateCorretora([FromBody] CorretoraForCreationDto corretora)
     {
-        var createdCorretora = await _createCorretoraCommand.ExecuteAsync(corretora, GetCurrentUserId());
+        var createdCorretora = await _createCorretoraCommand.ExecuteAsync(corretora.ToCreateCorretoraCommand(), GetCurrentUserId());
 
         return CreatedAtRoute("CorretoraById", new { id = createdCorretora.Id }, createdCorretora);
+    }
+
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(CorretoraDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<CorretoraDto>> UpdateCorretora(Guid id, [FromBody] CorretoraForUpdateDto corretora)
+    {
+        _ = await _updateCorretoraCommand.ExecuteAsync(corretora.ToUpdateCorretoraCommand(), GetCurrentUserId(), id);
+
+        return NoContent();
     }
 
     private Guid GetCurrentUserId()

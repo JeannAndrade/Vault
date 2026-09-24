@@ -2,9 +2,7 @@ using Application.Corretoras.Commands.CreateCorretora;
 
 namespace Service.Corretoras.DTOs;
 
-public record CorretoraForCreationDto(string Nome, Guid UserId);
-
-public static class CorretoraForCreationDtoExtensions
+public record CorretoraForCreationDto(string Nome)
 {
-    public static CorretoraModelForCreation ToCreateCorretoraCommand(this CorretoraForCreationDto dto) => new() { Nome = dto.Nome };
+    public CorretoraModelForCreation ToCreateCorretoraCommand() => new() { Nome = Nome };
 }
