@@ -5,23 +5,13 @@ namespace Application.Objetivos.Queries.GetObjetivo;
 
 public class GetObjetivoQuery(IRepositoryManager repositoryManager) : IGetObjetivoQuery
 {
-  private readonly IRepositoryManager _repository = repositoryManager;
+    private readonly IRepositoryManager _repository = repositoryManager;
 
-  public async Task<ObjetivoModel> ExecuteAsync(Guid ownerId, Guid objetivoId)
-  {
-    var objetivo = await _repository.Objetivo.GetAsync(ownerId, objetivoId, trackChanges: false)
-        ?? throw new EntityNotFoundException("Objetivo not found");
-
-    return new ObjetivoModel
+    public async Task<ObjetivoModel> ExecuteAsync(Guid ownerId, Guid objetivoId)
     {
-      Id = objetivo.Id,
-      Nome = objetivo.Nome,
-      Descricao = objetivo.Descricao,
-      Meta = objetivo.Meta,
-      FontePagadora = objetivo.FontePagadora,
-      AporteMensal = objetivo.AporteMensal,
-      OndeAplicar = objetivo.OndeAplicar,
-      UserId = objetivo.UserId
-    };
-  }
+        var objetivo = await _repository.Objetivo.GetAsync(ownerId, objetivoId, trackChanges: false)
+            ?? throw new EntityNotFoundException("Objetivo not found");
+
+        return ObjetivoModel.FromDomain(objetivo);
+    }
 }

@@ -5,26 +5,21 @@ namespace Application.Emissores.Queries.GetEmissorList;
 
 public class GetEmissoresListQuery(IRepositoryManager repositoryManager, ILoggerManager logger) : IGetEmissoresListQuery
 {
-  private readonly IRepositoryManager _repository = repositoryManager;
-  private readonly ILoggerManager _logger = logger;
+    private readonly IRepositoryManager _repository = repositoryManager;
+    private readonly ILoggerManager _logger = logger;
 
-  public async Task<List<EmissorModel>> ExecuteAsync(Guid ownerId)
-  {
-    try
+    public async Task<List<EmissorModel>> ExecuteAsync(Guid ownerId)
     {
-      var emissores = await _repository.Emissor.GetAllAsync(ownerId, trackChanges: false);
+        try
+        {
+            var emissores = await _repository.Emissor.GetAllAsync(ownerId, trackChanges: false);
 
-      return [.. emissores.Select(e => new EmissorModel
-            {
-                Id = e.Id,
-                Nome = e.Nome,
-                UserId = e.UserId
-            })];
+            return [.. emissores.Select(EmissorModel.FromDomain)];
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Something went wrong in the {nameof(GetEmissoresListQuery)} service method {ex}");
+            throw;
+        }
     }
-    catch (Exception ex)
-    {
-      _logger.LogError($"Something went wrong in the {nameof(GetEmissoresListQuery)} service method {ex}");
-      throw;
-    }
-  }
 }

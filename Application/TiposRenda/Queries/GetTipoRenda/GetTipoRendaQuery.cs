@@ -5,18 +5,13 @@ namespace Application.TiposRenda.Queries.GetTipoRenda;
 
 public class GetTipoRendaQuery(IRepositoryManager repositoryManager) : IGetTipoRendaQuery
 {
-  private readonly IRepositoryManager _repository = repositoryManager;
+    private readonly IRepositoryManager _repository = repositoryManager;
 
-  public async Task<TipoRendaModel> ExecuteAsync(Guid ownerId, Guid tipoRendaId)
-  {
-    var tipoRenda = await _repository.TipoRenda.GetAsync(ownerId, tipoRendaId, trackChanges: false)
-        ?? throw new EntityNotFoundException("Tipo de renda not found");
-
-    return new TipoRendaModel
+    public async Task<TipoRendaModel> ExecuteAsync(Guid ownerId, Guid tipoRendaId)
     {
-      Id = tipoRenda.Id,
-      Nome = tipoRenda.Nome,
-      UserId = tipoRenda.UserId
-    };
-  }
+        var tipoRenda = await _repository.TipoRenda.GetAsync(ownerId, tipoRendaId, trackChanges: false)
+            ?? throw new EntityNotFoundException("Tipo de renda not found");
+
+        return TipoRendaModel.FromDomain(tipoRenda);
+    }
 }

@@ -14,17 +14,7 @@ public class GetObjetivosListQuery(IRepositoryManager repositoryManager, ILogger
         {
             var objetivos = await _repository.Objetivo.GetAllAsync(ownerId, trackChanges: false);
 
-            return [.. objetivos.Select(o => new ObjetivoModel
-            {
-                Id = o.Id,
-                Nome = o.Nome,
-                Descricao = o.Descricao,
-                Meta = o.Meta,
-                FontePagadora = o.FontePagadora,
-                AporteMensal = o.AporteMensal,
-                OndeAplicar = o.OndeAplicar,
-                UserId = o.UserId
-            })];
+            return [.. objetivos.Select(ObjetivoModel.FromDomain)];
         }
         catch (Exception ex)
         {

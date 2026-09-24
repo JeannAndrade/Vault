@@ -5,18 +5,13 @@ namespace Application.Emissores.Queries.GetEmissor;
 
 public class GetEmissorQuery(IRepositoryManager repositoryManager) : IGetEmissorQuery
 {
-  private readonly IRepositoryManager _repository = repositoryManager;
+    private readonly IRepositoryManager _repository = repositoryManager;
 
-  public async Task<EmissorModel> ExecuteAsync(Guid ownerId, Guid emissorId)
-  {
-    var emissor = await _repository.Emissor.GetAsync(ownerId, emissorId, trackChanges: false)
-        ?? throw new EntityNotFoundException("Emissor not found");
-
-    return new EmissorModel
+    public async Task<EmissorModel> ExecuteAsync(Guid ownerId, Guid emissorId)
     {
-      Id = emissor.Id,
-      Nome = emissor.Nome,
-      UserId = emissor.UserId
-    };
-  }
+        var emissor = await _repository.Emissor.GetAsync(ownerId, emissorId, trackChanges: false)
+            ?? throw new EntityNotFoundException("Emissor not found");
+
+        return EmissorModel.FromDomain(emissor);
+    }
 }

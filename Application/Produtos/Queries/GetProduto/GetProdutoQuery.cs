@@ -5,18 +5,13 @@ namespace Application.Produtos.Queries.GetProduto;
 
 public class GetProdutoQuery(IRepositoryManager repositoryManager) : IGetProdutoQuery
 {
-  private readonly IRepositoryManager _repository = repositoryManager;
+    private readonly IRepositoryManager _repository = repositoryManager;
 
-  public async Task<ProdutoModel> ExecuteAsync(Guid ownerId, Guid produtoId)
-  {
-    var produto = await _repository.Produto.GetAsync(ownerId, produtoId, trackChanges: false)
-        ?? throw new EntityNotFoundException("Produto not found");
-
-    return new ProdutoModel
+    public async Task<ProdutoModel> ExecuteAsync(Guid ownerId, Guid produtoId)
     {
-      Id = produto.Id,
-      Nome = produto.Nome,
-      UserId = produto.UserId
-    };
-  }
+        var produto = await _repository.Produto.GetAsync(ownerId, produtoId, trackChanges: false)
+            ?? throw new EntityNotFoundException("Produto not found");
+
+        return ProdutoModel.FromDomain(produto);
+    }
 }
