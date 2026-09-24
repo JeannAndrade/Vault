@@ -8,4 +8,5 @@ public interface IProdutoRepository
     Task<Produto?> GetAsync(Guid ownerId, Guid produtoId, bool trackChanges);
     Task DeleteAsync(Guid ownerId, Guid produtoId);
     void Create(Produto produto);
+    void Update(Produto produto);
 }

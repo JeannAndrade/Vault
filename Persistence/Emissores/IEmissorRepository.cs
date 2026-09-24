@@ -8,4 +8,5 @@ public interface IEmissorRepository
     Task<Emissor?> GetAsync(Guid ownerId, Guid emissorId, bool trackChanges);
     Task DeleteAsync(Guid ownerId, Guid emissorId);
     void Create(Emissor emissor);
+    void Update(Emissor emissor);
 }

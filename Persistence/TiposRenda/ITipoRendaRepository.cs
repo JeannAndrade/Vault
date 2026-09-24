@@ -8,4 +8,5 @@ public interface ITipoRendaRepository
     Task<TipoRenda?> GetAsync(Guid ownerId, Guid tipoRendaId, bool trackChanges);
     Task DeleteAsync(Guid ownerId, Guid tipoRendaId);
     void Create(TipoRenda tipoRenda);
+    void Update(TipoRenda tipoRenda);
 }
