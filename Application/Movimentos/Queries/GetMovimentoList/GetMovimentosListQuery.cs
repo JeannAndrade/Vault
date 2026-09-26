@@ -12,7 +12,7 @@ public class GetMovimentosListQuery(IRepositoryManager repositoryManager, ILogge
     {
         try
         {
-            var movimentos = await _repository.Movimento.GetAllAsync(ownerId, trackChanges: false);
+            var movimentos = await _repository.Movimento.GetAllWithRelatedEntitiesAsync(ownerId);
 
             return [.. movimentos.Select(MovimentoModel.FromDomain)];
         }

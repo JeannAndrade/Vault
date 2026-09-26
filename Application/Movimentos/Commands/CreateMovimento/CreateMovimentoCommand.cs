@@ -1,20 +1,32 @@
+using Application.Movimentos.Validation;
 using LumiaFoundation.Core.Validators;
 using Persistence.Managment;
 
 namespace Application.Movimentos.Commands.CreateMovimento;
 
-public class CreateMovimentoCommand(IRepositoryManager repositoryManager) : ICreateMovimentoCommand
+public class CreateMovimentoCommand(
+    IRepositoryManager repositoryManager,
+    IMovimentoReferenciasValidator referenciasValidator) : ICreateMovimentoCommand
 {
-  private readonly IRepositoryManager _repositoryManager = repositoryManager;
+    private readonly IRepositoryManager _repositoryManager = repositoryManager;
+    private readonly IMovimentoReferenciasValidator _referenciasValidator = referenciasValidator;
 
-  public async Task<MovimentoModel> ExecuteAsync(MovimentoModelForCreation movimentoModel, Guid userId)
-  {
-    CommandValidator.Validate(movimentoModel);
+    public async Task<MovimentoModel> ExecuteAsync(MovimentoModelForCreation movimentoModel, Guid userId)
+    {
+        CommandValidator.Validate(movimentoModel);
 
-    var movimento = movimentoModel.ToDomain(userId);
-    _repositoryManager.Movimento.Create(movimento);
-    await _repositoryManager.SaveAsync();
+        await _referenciasValidator.ValidarAsync(
+            userId,
+            movimentoModel.ObjetivoId,
+            movimentoModel.TipoRendaId,
+            movimentoModel.CorretoraId,
+            movimentoModel.ProdutoId,
+            movimentoModel.EmissorId);
 
-    return MovimentoModel.FromDomain(movimento);
-  }
+        var movimento = movimentoModel.ToDomain(userId);
+        _repositoryManager.Movimento.Create(movimento);
+        await _repositoryManager.SaveAsync();
+
+        return MovimentoModel.FromDomain(movimento);
+    }
 }

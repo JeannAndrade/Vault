@@ -11,10 +11,19 @@ public record MovimentoModel
     public Guid CorretoraId { get; set; }
     public Guid ProdutoId { get; set; }
     public Guid EmissorId { get; set; }
+
+    // Preenchidos apenas quando o Movimento é lido via GetWithRelatedEntitiesAsync
+    // (GetMovimentoQuery / GetMovimentosListQuery). Em Create/Update ficam null,
+    // pois a entidade recém-persistida não carrega as navigation properties.
+    public string? ObjetivoNome { get; set; }
+    public string? TipoRendaNome { get; set; }
+    public string? CorretoraNome { get; set; }
+    public string? ProdutoNome { get; set; }
+    public string? EmissorNome { get; set; }
+
     public string? RentabilidadeContratada { get; set; }
     public string? CotacaoNaCompra { get; set; }
     public DateTime DataInvestimento { get; set; }
-    public DateTime? DataVencimento { get; set; }
     public decimal ValorAporte { get; set; }
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
@@ -31,10 +40,14 @@ public record MovimentoModel
             CorretoraId = movimento.CorretoraId,
             ProdutoId = movimento.ProdutoId,
             EmissorId = movimento.EmissorId,
+            ObjetivoNome = movimento.Objetivo?.Nome,
+            TipoRendaNome = movimento.TipoRenda?.Nome,
+            CorretoraNome = movimento.Corretora?.Nome,
+            ProdutoNome = movimento.Produto?.Nome,
+            EmissorNome = movimento.Emissor?.Nome,
             RentabilidadeContratada = movimento.RentabilidadeContratada,
             CotacaoNaCompra = movimento.CotacaoNaCompra,
             DataInvestimento = movimento.DataInvestimento,
-            DataVencimento = movimento.DataVencimento,
             ValorAporte = movimento.ValorAporte,
             EhReinvestimento = movimento.EhReinvestimento,
             EstaAtivo = movimento.EstaAtivo,
