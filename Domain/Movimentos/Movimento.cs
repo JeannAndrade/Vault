@@ -18,6 +18,7 @@ public class Movimento : Entity
     public string? RentabilidadeContratada { get; set; }
     public string? CotacaoNaCompra { get; set; }
     public DateTime DataInvestimento { get; set; }
+    public DateTime? DataVencimento { get; set; }
     public decimal ValorAporte { get; set; } = 0M;
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
