@@ -89,6 +89,94 @@ public class MovimentoRepositoryTests
         Assert.Null(resultado);
     }
 
+    [Fact]
+    public async Task ExistemPorObjetivoAsync_WhenExisteMovimentoParaOObjetivo_ReturnsTrue()
+    {
+        // Arrange
+        var objetivoId = Guid.NewGuid();
+        var movimento = new Movimento
+        {
+            ObjetivoId = objetivoId,
+            TipoRendaId = Guid.NewGuid(),
+            CorretoraId = Guid.NewGuid(),
+            ProdutoId = Guid.NewGuid(),
+            EmissorId = Guid.NewGuid(),
+            DataInvestimento = DateTime.UtcNow,
+            ValorAporte = 100m,
+            ValorLiquidoAtual = 100m
+        };
+
+        await using var context = CreateContext();
+        context.Add(movimento);
+        await context.SaveChangesAsync();
+
+        var repository = new MovimentoRepository(context);
+
+        // Act
+        var resultado = await repository.ExistemPorObjetivoAsync(objetivoId);
+
+        // Assert
+        Assert.True(resultado);
+    }
+
+    [Fact]
+    public async Task ExistemPorObjetivoAsync_WhenNaoExisteMovimentoParaOObjetivo_ReturnsFalse()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var repository = new MovimentoRepository(context);
+
+        // Act
+        var resultado = await repository.ExistemPorObjetivoAsync(Guid.NewGuid());
+
+        // Assert
+        Assert.False(resultado);
+    }
+
+    [Fact]
+    public async Task ExistemPorObjetivoAsync_WhenExisteMovimentoParaACorretora_ReturnsTrue()
+    {
+        // Arrange
+        var corretoraId = Guid.NewGuid();
+        var movimento = new Movimento
+        {
+            ObjetivoId = Guid.NewGuid(),
+            TipoRendaId = Guid.NewGuid(),
+            CorretoraId = corretoraId,
+            ProdutoId = Guid.NewGuid(),
+            EmissorId = Guid.NewGuid(),
+            DataInvestimento = DateTime.UtcNow,
+            ValorAporte = 100m,
+            ValorLiquidoAtual = 100m
+        };
+
+        await using var context = CreateContext();
+        context.Add(movimento);
+        await context.SaveChangesAsync();
+
+        var repository = new MovimentoRepository(context);
+
+        // Act
+        var resultado = await repository.ExistemPorCorretoraAsync(corretoraId);
+
+        // Assert
+        Assert.True(resultado);
+    }
+
+    [Fact]
+    public async Task ExistemPorCorretoraAsync_WhenNaoExisteMovimentoParaACorretora_ReturnsFalse()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var repository = new MovimentoRepository(context);
+
+        // Act
+        var resultado = await repository.ExistemPorCorretoraAsync(Guid.NewGuid());
+
+        // Assert
+        Assert.False(resultado);
+    }
+
     private static VaultDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<VaultDbContext>()

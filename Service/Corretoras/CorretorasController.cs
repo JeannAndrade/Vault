@@ -1,4 +1,5 @@
 using Application.Corretoras.Commands.CreateCorretora;
+using Application.Corretoras.Commands.DeleteCorretora;
 using Application.Corretoras.Commands.UpdateCorretora;
 using Application.Corretoras.Queries.GetCorretora;
 using Application.Corretoras.Queries.GetCorretoraList;
@@ -19,12 +20,15 @@ public class CorretorasController(
     IGetCorretorasListQuery getCorretorasListQuery,
     IGetCorretoraQuery getCorretoraQuery,
     ICreateCorretoraCommand createCorretoraCommand,
-    IUpdateCorretoraCommand updateCorretoraCommand) : BaseApiController
+    IUpdateCorretoraCommand updateCorretoraCommand,
+    IDeleteCorretoraCommand deleteCorretoraCommand) : BaseApiController
 {
     private readonly IGetCorretorasListQuery _getCorretorasListQuery = getCorretorasListQuery;
     private readonly IGetCorretoraQuery _getCorretoraQuery = getCorretoraQuery;
     private readonly ICreateCorretoraCommand _createCorretoraCommand = createCorretoraCommand;
     private readonly IUpdateCorretoraCommand _updateCorretoraCommand = updateCorretoraCommand;
+    private readonly IDeleteCorretoraCommand _deleteCorretoraCommand = deleteCorretoraCommand;
+
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<CorretoraDto>), StatusCodes.Status200OK)]
@@ -69,6 +73,18 @@ public class CorretorasController(
     public async Task<ActionResult<CorretoraDto>> UpdateCorretora(Guid id, [FromBody] CorretoraForUpdateDto corretora)
     {
         _ = await _updateCorretoraCommand.ExecuteAsync(corretora.ToUpdateCorretoraCommand(), GetCurrentUserId(), id);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteCorretora(Guid id)
+    {
+        await _deleteCorretoraCommand.ExecuteAsync(GetCurrentUserId(), id);
 
         return NoContent();
     }

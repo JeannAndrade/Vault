@@ -18,7 +18,7 @@ public class GetCorretorasListQuery(IRepositoryManager repositoryManager, ILogge
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Something went wrong in the {nameof(GetCorretorasListQuery)} service method {ex}");
+            _logger.LogError($"Algo deu errado no método de serviço {nameof(GetCorretorasListQuery)}: {ex}");
             throw;
         }
     }

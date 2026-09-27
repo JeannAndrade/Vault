@@ -12,12 +12,4 @@ public class TipoRendaRepository(VaultDbContext repositoryContext) : BaseReposit
 
     public async Task<TipoRenda?> GetAsync(Guid ownerId, Guid tipoRendaId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId && c.Id == tipoRendaId, trackChanges).SingleOrDefaultAsync();
-
-    public async Task DeleteAsync(Guid ownerId, Guid tipoRendaId)
-    {
-        var tipoRenda = await GetAsync(ownerId, tipoRendaId, true);
-
-        if (tipoRenda is not null)
-            Delete(tipoRenda);
-    }
 }

@@ -18,7 +18,7 @@ public class GetProdutosListQuery(IRepositoryManager repositoryManager, ILoggerM
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Something went wrong in the {nameof(GetProdutosListQuery)} service method {ex}");
+            _logger.LogError($"Algo deu errado no método de serviço {nameof(GetProdutosListQuery)}: {ex}");
             throw;
         }
     }

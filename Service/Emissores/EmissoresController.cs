@@ -1,4 +1,5 @@
 using Application.Emissores.Commands.CreateEmissor;
+using Application.Emissores.Commands.DeleteEmissor;
 using Application.Emissores.Commands.UpdateEmissor;
 using Application.Emissores.Queries.GetEmissor;
 using Application.Emissores.Queries.GetEmissorList;
@@ -19,12 +20,15 @@ public class EmissoresController(
     IGetEmissoresListQuery getEmissoresListQuery,
     IGetEmissorQuery getEmissorQuery,
     ICreateEmissorCommand createEmissorCommand,
-    IUpdateEmissorCommand updateEmissorCommand) : BaseApiController
+    IUpdateEmissorCommand updateEmissorCommand,
+    IDeleteEmissorCommand deleteEmissorCommand) : BaseApiController
 {
     private readonly IGetEmissoresListQuery _getEmissoresListQuery = getEmissoresListQuery;
     private readonly IGetEmissorQuery _getEmissorQuery = getEmissorQuery;
     private readonly ICreateEmissorCommand _createEmissorCommand = createEmissorCommand;
     private readonly IUpdateEmissorCommand _updateEmissorCommand = updateEmissorCommand;
+    private readonly IDeleteEmissorCommand _deleteEmissorCommand = deleteEmissorCommand;
+
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<EmissorDto>), StatusCodes.Status200OK)]
@@ -69,6 +73,18 @@ public class EmissoresController(
     public async Task<ActionResult<EmissorDto>> UpdateEmissor(Guid id, [FromBody] EmissorForUpdateDto emissor)
     {
         _ = await _updateEmissorCommand.ExecuteAsync(emissor.ToUpdateEmissorCommand(), GetCurrentUserId(), id);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteEmissor(Guid id)
+    {
+        await _deleteEmissorCommand.ExecuteAsync(GetCurrentUserId(), id);
 
         return NoContent();
     }

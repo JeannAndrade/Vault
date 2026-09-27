@@ -23,16 +23,21 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
         await QueryWithRelatedEntities()
             .SingleOrDefaultAsync(m => m.UserId == ownerId && m.Id == movimentoId);
 
-    public async Task DeleteAsync(Guid ownerId, Guid movimentoId)
-    {
-        var movimento = await GetAsync(ownerId, movimentoId, true);
+    public async Task<bool> ExistemPorObjetivoAsync(Guid objetivoId) =>
+        await FindByCondition(m => m.ObjetivoId == objetivoId, trackChanges: false).AnyAsync();
 
-        if (movimento is not null)
-            Delete(movimento);
-    }
+    public async Task<bool> ExistemPorTipoRendaAsync(Guid tipoRendaId) =>
+        await FindByCondition(m => m.TipoRendaId == tipoRendaId, trackChanges: false).AnyAsync();
 
-    // Somente leitura — usada pelas Queries de apresentação. O fluxo de escrita
-    // (Update/Delete) continua em GetAsync, sem pagar o custo dos 5 Includes.
+    public async Task<bool> ExistemPorCorretoraAsync(Guid corretoraId) =>
+        await FindByCondition(m => m.CorretoraId == corretoraId, trackChanges: false).AnyAsync();
+
+    public async Task<bool> ExistemPorProdutoAsync(Guid produtoId) =>
+        await FindByCondition(m => m.ProdutoId == produtoId, trackChanges: false).AnyAsync();
+
+    public async Task<bool> ExistemPorEmissorAsync(Guid emissorId) =>
+        await FindByCondition(m => m.EmissorId == emissorId, trackChanges: false).AnyAsync();
+
     private IQueryable<Movimento> QueryWithRelatedEntities() =>
         RepositoryContext.Set<Movimento>()
             .AsNoTracking()

@@ -12,12 +12,4 @@ public class CorretoraRepository(VaultDbContext repositoryContext) : BaseReposit
 
     public async Task<Corretora?> GetAsync(Guid ownerId, Guid corretoraId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId && c.Id == corretoraId, trackChanges).SingleOrDefaultAsync();
-
-    public async Task DeleteAsync(Guid ownerId, Guid corretoraId)
-    {
-        var corretora = await GetAsync(ownerId, corretoraId, true);
-
-        if (corretora is not null)
-            Delete(corretora);
-    }
 }

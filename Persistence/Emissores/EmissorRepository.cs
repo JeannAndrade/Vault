@@ -12,12 +12,4 @@ public class EmissorRepository(VaultDbContext repositoryContext) : BaseRepositor
 
     public async Task<Emissor?> GetAsync(Guid ownerId, Guid emissorId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId && c.Id == emissorId, trackChanges).SingleOrDefaultAsync();
-
-    public async Task DeleteAsync(Guid ownerId, Guid emissorId)
-    {
-        var emissor = await GetAsync(ownerId, emissorId, true);
-
-        if (emissor is not null)
-            Delete(emissor);
-    }
 }

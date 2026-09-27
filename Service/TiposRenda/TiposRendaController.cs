@@ -1,4 +1,5 @@
 using Application.TiposRenda.Commands.CreateTipoRenda;
+using Application.TiposRenda.Commands.DeleteTipoRenda;
 using Application.TiposRenda.Commands.UpdateTipoRenda;
 using Application.TiposRenda.Queries.GetTipoRenda;
 using Application.TiposRenda.Queries.GetTiposRendaList;
@@ -19,12 +20,14 @@ public class TiposRendaController(
     IGetTiposRendaListQuery getTiposRendaListQuery,
     IGetTipoRendaQuery getTipoRendaQuery,
     ICreateTipoRendaCommand createTipoRendaCommand,
-    IUpdateTipoRendaCommand updateTipoRendaCommand) : BaseApiController
+    IUpdateTipoRendaCommand updateTipoRendaCommand,
+    IDeleteTipoRendaCommand deleteTipoRendaCommand) : BaseApiController
 {
     private readonly IGetTiposRendaListQuery _getTiposRendaListQuery = getTiposRendaListQuery;
     private readonly IGetTipoRendaQuery _getTipoRendaQuery = getTipoRendaQuery;
     private readonly ICreateTipoRendaCommand _createTipoRendaCommand = createTipoRendaCommand;
     private readonly IUpdateTipoRendaCommand _updateTipoRendaCommand = updateTipoRendaCommand;
+    private readonly IDeleteTipoRendaCommand _deleteTipoRendaCommand = deleteTipoRendaCommand;
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<TipoRendaDto>), StatusCodes.Status200OK)]
@@ -69,6 +72,18 @@ public class TiposRendaController(
     public async Task<ActionResult<TipoRendaDto>> UpdateTipoRenda(Guid id, [FromBody] TipoRendaForUpdateDto tipoRenda)
     {
         _ = await _updateTipoRendaCommand.ExecuteAsync(tipoRenda.ToUpdateTipoRendaCommand(), GetCurrentUserId(), id);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteTipoRenda(Guid id)
+    {
+        await _deleteTipoRendaCommand.ExecuteAsync(GetCurrentUserId(), id);
 
         return NoContent();
     }

@@ -18,7 +18,7 @@ public class GetMovimentosListQuery(IRepositoryManager repositoryManager, ILogge
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Something went wrong in the {nameof(GetMovimentosListQuery)} service method {ex}");
+            _logger.LogError($"Algo deu errado no método de serviço {nameof(GetMovimentosListQuery)}: {ex}");
             throw;
         }
     }

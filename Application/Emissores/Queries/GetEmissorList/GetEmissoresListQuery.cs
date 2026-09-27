@@ -18,7 +18,7 @@ public class GetEmissoresListQuery(IRepositoryManager repositoryManager, ILogger
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Something went wrong in the {nameof(GetEmissoresListQuery)} service method {ex}");
+            _logger.LogError($"Algo deu errado no método de serviço {nameof(GetEmissoresListQuery)}: {ex}");
             throw;
         }
     }

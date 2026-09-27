@@ -1,4 +1,5 @@
 using Application.Objetivos.Commands.CreateObjetivo;
+using Application.Objetivos.Commands.DeleteObjetivo;
 using Application.Objetivos.Commands.UpdateObjetivo;
 using Application.Objetivos.Queries.GetObjetivo;
 using Application.Objetivos.Queries.GetObjetivoList;
@@ -19,12 +20,14 @@ public class ObjetivosController(
     IGetObjetivosListQuery getObjetivosListQuery,
     IGetObjetivoQuery getObjetivoQuery,
     ICreateObjetivoCommand createObjetivoCommand,
-    IUpdateObjetivoCommand updateObjetivoCommand) : BaseApiController
+    IUpdateObjetivoCommand updateObjetivoCommand,
+    IDeleteObjetivoCommand deleteObjetivoCommand) : BaseApiController
 {
     private readonly IGetObjetivosListQuery _getObjetivosListQuery = getObjetivosListQuery;
     private readonly IGetObjetivoQuery _getObjetivoQuery = getObjetivoQuery;
     private readonly ICreateObjetivoCommand _createObjetivoCommand = createObjetivoCommand;
     private readonly IUpdateObjetivoCommand _updateObjetivoCommand = updateObjetivoCommand;
+    private readonly IDeleteObjetivoCommand _deleteObjetivoCommand = deleteObjetivoCommand;
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ObjetivoDto>), StatusCodes.Status200OK)]
@@ -69,6 +72,18 @@ public class ObjetivosController(
     public async Task<ActionResult<ObjetivoDto>> UpdateObjetivo(Guid id, [FromBody] ObjetivoForUpdateDto objetivo)
     {
         _ = await _updateObjetivoCommand.ExecuteAsync(objetivo.ToUpdateObjetivoCommand(), GetCurrentUserId(), id);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteObjetivo(Guid id)
+    {
+        await _deleteObjetivoCommand.ExecuteAsync(GetCurrentUserId(), id);
 
         return NoContent();
     }

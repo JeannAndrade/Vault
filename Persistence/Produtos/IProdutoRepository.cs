@@ -6,7 +6,7 @@ public interface IProdutoRepository
 {
     Task<IEnumerable<Produto>> GetAllAsync(Guid ownerId, bool trackChanges);
     Task<Produto?> GetAsync(Guid ownerId, Guid produtoId, bool trackChanges);
-    Task DeleteAsync(Guid ownerId, Guid produtoId);
+    void Delete(Produto produto);
     void Create(Produto produto);
     void Update(Produto produto);
 }

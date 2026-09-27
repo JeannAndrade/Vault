@@ -1,4 +1,5 @@
 using Application.Produtos.Commands.CreateProduto;
+using Application.Produtos.Commands.DeleteProduto;
 using Application.Produtos.Commands.UpdateProduto;
 using Application.Produtos.Queries.GetProduto;
 using Application.Produtos.Queries.GetProdutoList;
@@ -19,12 +20,15 @@ public class ProdutosController(
     IGetProdutosListQuery getProdutosListQuery,
     IGetProdutoQuery getProdutoQuery,
     ICreateProdutoCommand createProdutoCommand,
-    IUpdateProdutoCommand updateProdutoCommand) : BaseApiController
+    IUpdateProdutoCommand updateProdutoCommand,
+    IDeleteProdutoCommand deleteProdutoCommand) : BaseApiController
 {
     private readonly IGetProdutosListQuery _getProdutosListQuery = getProdutosListQuery;
     private readonly IGetProdutoQuery _getProdutoQuery = getProdutoQuery;
     private readonly ICreateProdutoCommand _createProdutoCommand = createProdutoCommand;
     private readonly IUpdateProdutoCommand _updateProdutoCommand = updateProdutoCommand;
+    private readonly IDeleteProdutoCommand _deleteProdutoCommand = deleteProdutoCommand;
+
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ProdutoDto>), StatusCodes.Status200OK)]
@@ -69,6 +73,18 @@ public class ProdutosController(
     public async Task<ActionResult<ProdutoDto>> UpdateProduto(Guid id, [FromBody] ProdutoForUpdateDto produto)
     {
         _ = await _updateProdutoCommand.ExecuteAsync(produto.ToUpdateProdutoCommand(), GetCurrentUserId(), id);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteProduto(Guid id)
+    {
+        await _deleteProdutoCommand.ExecuteAsync(GetCurrentUserId(), id);
 
         return NoContent();
     }

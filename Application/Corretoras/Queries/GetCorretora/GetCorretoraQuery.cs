@@ -10,7 +10,7 @@ public class GetCorretoraQuery(IRepositoryManager repositoryManager) : IGetCorre
     public async Task<CorretoraModel> ExecuteAsync(Guid ownerId, Guid corretoraId)
     {
         var corretora = await _repository.Corretora.GetAsync(ownerId, corretoraId, trackChanges: false)
-            ?? throw new EntityNotFoundException("Corretora not found");
+            ?? throw new EntityNotFoundException("Corretora não encontrada");
 
         return CorretoraModel.FromDomain(corretora);
     }
