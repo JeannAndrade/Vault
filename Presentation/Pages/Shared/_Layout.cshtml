@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@ViewData["Title"] - Vault</title>
+  <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+</head>
+
+<body>
+  <nav class="navbar bg-body-tertiary">
+    <div class="container">
+      <a class="navbar-brand" asp-page="/Index">Vault</a>
+      @if (User.Identity?.IsAuthenticated == true)
+      {
+        <form method="post" asp-page="/Logout" class="d-flex align-items-center gap-2 mb-0">
+          <span class="navbar-text">@User.Identity.Name</span>
+          <button type="submit" class="btn btn-outline-secondary btn-sm">Sair</button>
+        </form>
+      }
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    @RenderBody()
+  </main>
+
+  <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+  @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

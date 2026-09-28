@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Lumia.Foundation.Http.Client" Version="0.3.1" />
+  </ItemGroup>
+
 </Project>
