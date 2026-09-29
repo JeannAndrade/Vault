@@ -21,6 +21,7 @@ builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/");
     options.Conventions.AllowAnonymousToPage("/Login");
+    options.Conventions.AllowAnonymousToPage("/Register");
     options.Conventions.AllowAnonymousToPage("/Error");
 });
 #endregion
@@ -60,6 +61,7 @@ builder.Services.AddLumiaApiClient(
     vaultApiAddress,
     configureAuthentication: options => options.RefreshPath = "/api/token/refresh");
 builder.Services.AddScoped<IApiSignInService, ApiSignInService>();
+builder.Services.AddScoped<IApiRegistrationService, ApiRegistrationService>();
 #endregion
 
 #region Tratamento de exceções

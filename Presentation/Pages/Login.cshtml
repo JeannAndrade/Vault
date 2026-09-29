@@ -13,6 +13,11 @@
       <div class="alert alert-warning" role="alert">Sua sessão expirou. Entre novamente.</div>
     }
 
+    @if (Model.Registered)
+    {
+      <div class="alert alert-success" role="alert">Conta criada. Faça login para continuar.</div>
+    }
+
     @if (Model.ErrorMessage is not null)
     {
       <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
@@ -35,5 +40,8 @@
 
       <button type="submit" class="btn btn-primary w-100">Entrar</button>
     </form>
+    <p class="mt-3 text-center">
+      <a asp-page="/Register">Criar uma conta</a>
+    </p>
   </div>
 </div>

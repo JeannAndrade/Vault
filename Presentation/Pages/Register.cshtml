@@ -1,0 +1,62 @@
+@page
+@model RegisterModel
+@{
+  ViewData["Title"] = "Criar conta";
+}
+
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <h1 class="h3 mb-3">Criar conta</h1>
+
+    @if (Model.ErrorMessage is not null)
+    {
+      <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+    }
+
+    <form method="post">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label asp-for="Input.FirstName" class="form-label">Nome</label>
+          <input asp-for="Input.FirstName" class="form-control" autofocus />
+          <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label asp-for="Input.LastName" class="form-label">Sobrenome</label>
+          <input asp-for="Input.LastName" class="form-control" />
+          <span asp-validation-for="Input.LastName" class="text-danger"></span>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label asp-for="Input.UserName" class="form-label">Usuário</label>
+        <input asp-for="Input.UserName" class="form-control" autocomplete="username" />
+        <span asp-validation-for="Input.UserName" class="text-danger"></span>
+      </div>
+
+      <div class="mb-3">
+        <label asp-for="Input.Email" class="form-label">E-mail</label>
+        <input asp-for="Input.Email" class="form-control" autocomplete="email" />
+        <span asp-validation-for="Input.Email" class="text-danger"></span>
+      </div>
+
+      <div class="mb-3">
+        <label asp-for="Input.Password" class="form-label">Senha</label>
+        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
+        <div class="form-text">Mínimo de 10 caracteres, com maiúscula, minúscula, número e símbolo.</div>
+        <span asp-validation-for="Input.Password" class="text-danger"></span>
+      </div>
+
+      <div class="mb-3">
+        <label asp-for="Input.ConfirmPassword" class="form-label">Confirmar senha</label>
+        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" />
+        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Criar conta</button>
+    </form>
+
+    <p class="mt-3 text-center">
+      <a asp-page="/Login">Já tenho conta</a>
+    </p>
+  </div>
+</div>

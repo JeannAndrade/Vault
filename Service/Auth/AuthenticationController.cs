@@ -1,5 +1,6 @@
 using LumiaFoundation.AspNetCore.ActionFilters;
 using LumiaFoundation.AspNetCore.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Commons.Exceptions;
 using LumiaFoundation.Auth.DTO;
 using LumiaFoundation.Auth.Persistence;
 using Microsoft.AspNetCore.Mvc;
@@ -19,13 +20,9 @@ public class AuthenticationController(IServiceManager service) : BaseApiControll
         var result = await _service.AuthenticationService.RegisterUser(userForRegistration);
 
         if (!result.Succeeded)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.TryAddModelError(error.Code, error.Description);
-            }
-            return BadRequest(ModelState);
-        }
+            throw new HttpBaseException(
+                StatusCodes.Status422UnprocessableEntity,
+                string.Join("; ", result.Errors.Select(e => e.Description)));
 
         return StatusCode(StatusCodes.Status201Created);
     }

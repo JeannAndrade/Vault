@@ -16,6 +16,9 @@ public class LoginModel(IApiSignInService signInService) : PageModel
     [BindProperty(SupportsGet = true)]
     public bool Expired { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public bool Registered { get; set; }
+
     public string? ErrorMessage { get; private set; }
 
     public void OnGet()
