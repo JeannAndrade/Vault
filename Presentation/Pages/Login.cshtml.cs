@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Presentation.Authentication;
+using LumiaFoundation.AspNetCore.ClientAuthentication;
 
 namespace Presentation.Pages;
 
-public class LoginModel(ISignInService signInService) : PageModel
+public class LoginModel(IApiSignInService signInService) : PageModel
 {
     [BindProperty]
     public InputModel Input { get; set; } = new();

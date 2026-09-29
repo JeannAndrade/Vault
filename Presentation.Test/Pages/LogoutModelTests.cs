@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Presentation.Authentication;
+using LumiaFoundation.AspNetCore.ClientAuthentication;
 using Presentation.Pages;
 using Presentation.Test.TestDoubles;
 
@@ -12,7 +12,7 @@ public class LogoutModelTests
     public async Task OnPostAsync_SignsOutAndRedirectsToLogin()
     {
         // Arrange
-        var signInService = new Mock<ISignInService>();
+        var signInService = new Mock<IApiSignInService>();
         var model = new LogoutModel(signInService.Object)
         {
             PageContext = PageModelTestHelper.CreatePageContext()
@@ -31,7 +31,7 @@ public class LogoutModelTests
     public void OnGet_RedirectsToHome()
     {
         // Arrange
-        var model = new LogoutModel(new Mock<ISignInService>().Object);
+        var model = new LogoutModel(new Mock<IApiSignInService>().Object);
 
         // Act
         var result = model.OnGet();

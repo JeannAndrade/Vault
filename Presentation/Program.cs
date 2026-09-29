@@ -1,12 +1,20 @@
+using LumiaFoundation.AspNetCore.ClientAuthentication;
 using LumiaFoundation.Http.Client.Authentication;
 using LumiaFoundation.Http.Client.Extensions;
+using LumiaFoundation.Logger.Extensions;
+using LumiaFoundation.Logger.LoggerService;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Presentation.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var vaultApiAddress = builder.Configuration["VaultApi:BaseAddress"]
     ?? throw new InvalidOperationException("Configuração 'VaultApi:BaseAddress' não encontrada.");
+
+#region Log (NLog via Lumia.Foundation.Logger)
+LoggerManager.LoadConfigurationFromFile(
+    Path.Combine(builder.Environment.ContentRootPath, "nlog.config"));
+builder.Services.ConfigureLoggerService();
+#endregion
 
 #region Razor Pages (tudo exige login, exceto /Login e /Error)
 builder.Services.AddRazorPages(options =>
@@ -26,9 +34,11 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.Configure<SessionTokenStoreOptions>(o => o.SessionKey = "Vault.ApiToken");
 #endregion
 
-#region Autenticação do site (cookie)
+#region Autenticação do site (cookie) + validação contra a sessão da API
+builder.Services.AddScoped<ApiSessionCookieEvents>();
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -36,6 +46,7 @@ builder.Services
         options.LoginPath = "/Login";
         options.ExpireTimeSpan = TimeSpan.FromDays(7); // alinhado ao refresh token da API
         options.SlidingExpiration = false;
+        options.EventsType = typeof(ApiSessionCookieEvents);
         options.Cookie.Name = "Vault.Auth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
@@ -48,7 +59,7 @@ builder.Services.AddSingleton<ITokenStore, SessionTokenStore>();
 builder.Services.AddLumiaApiClient(
     vaultApiAddress,
     configureAuthentication: options => options.RefreshPath = "/api/token/refresh");
-builder.Services.AddScoped<ISignInService, SignInService>();
+builder.Services.AddScoped<IApiSignInService, ApiSignInService>();
 #endregion
 
 #region Tratamento de exceções
@@ -59,9 +70,7 @@ var app = builder.Build();
 
 app.UseStaticFiles();
 
-// A ordem importa: o UseExceptionHandler fica DEPOIS do UseSession. O middleware de sessão
-// descarta a sessão da requisição quando uma exceção passa por ele; se o handler de exceções
-// ficasse antes, ele não conseguiria mais limpar o token da sessão.
+// UseSession antes de UseExceptionHandler: o handler de 401 precisa limpar a sessão.
 app.UseSession();
 app.UseExceptionHandler("/Error");
 

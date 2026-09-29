@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
-using Presentation.Authentication;
+using LumiaFoundation.AspNetCore.ClientAuthentication;
 using Presentation.Pages;
 using Presentation.Test.TestDoubles;
 
@@ -10,7 +10,7 @@ namespace Presentation.Test.Pages;
 
 public class LoginModelTests
 {
-    private readonly Mock<ISignInService> _signInService = new();
+    private readonly Mock<IApiSignInService> _signInService = new();
 
     private LoginModel CreateModel(string userName = "ana", string password = "senha", string? returnUrl = null)
     {

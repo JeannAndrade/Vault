@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Presentation.Authentication;
+using LumiaFoundation.AspNetCore.ClientAuthentication;
 
 namespace Presentation.Pages;
 
-public class LogoutModel(ISignInService signInService) : PageModel
+public class LogoutModel(IApiSignInService signInService) : PageModel
 {
     public IActionResult OnGet() => RedirectToPage("/Index");
 
