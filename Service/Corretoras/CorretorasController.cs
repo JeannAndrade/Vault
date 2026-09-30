@@ -39,7 +39,7 @@ public class CorretorasController(
         var userId = GetCurrentUserId();
         var corretoras = await _getCorretorasListQuery.ExecuteAsync(userId);
 
-        return Ok(corretoras);
+        return Ok(CorretoraDto.FromApplication(corretoras));
     }
 
     [HttpGet("{id:guid}", Name = "CorretoraById")]
@@ -51,7 +51,7 @@ public class CorretorasController(
         var userId = GetCurrentUserId();
         var corretora = await _getCorretoraQuery.ExecuteAsync(userId, id);
 
-        return Ok(corretora);
+        return Ok(CorretoraDto.FromApplication(corretora));
     }
 
     [HttpPost]
@@ -62,7 +62,7 @@ public class CorretorasController(
     {
         var createdCorretora = await _createCorretoraCommand.ExecuteAsync(corretora.ToCreateCorretoraCommand(), GetCurrentUserId());
 
-        return CreatedAtRoute("CorretoraById", new { id = createdCorretora.Id }, createdCorretora);
+        return CreatedAtRoute("CorretoraById", new { id = createdCorretora.Id }, CorretoraDto.FromApplication(createdCorretora));
     }
 
     [HttpPut("{id:guid}")]

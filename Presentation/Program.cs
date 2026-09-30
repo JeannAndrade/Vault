@@ -4,6 +4,7 @@ using LumiaFoundation.Http.Client.Extensions;
 using LumiaFoundation.Logger.Extensions;
 using LumiaFoundation.Logger.LoggerService;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Presentation.Corretoras;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +63,7 @@ builder.Services.AddLumiaApiClient(
     configureAuthentication: options => options.RefreshPath = "/api/token/refresh");
 builder.Services.AddScoped<IApiSignInService, ApiSignInService>();
 builder.Services.AddScoped<IApiRegistrationService, ApiRegistrationService>();
+builder.Services.AddApiResourceClient<ICorretoraApi, CorretoraApi>();
 #endregion
 
 #region Tratamento de exceções
