@@ -9,6 +9,11 @@
   <a class="btn btn-primary btn-sm" asp-page="Create">Nova corretora</a>
 </div>
 
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
 @if (Model.Corretoras.Count == 0)
 {
   <p class="text-muted">Nenhuma corretora cadastrada.</p>
@@ -29,6 +34,10 @@ else
           <td>@corretora.Nome</td>
           <td class="text-end">
             <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@corretora.Id">Editar</a>
+            <form method="post" asp-page-handler="Delete" asp-route-id="@corretora.Id" class="d-inline"
+                  onsubmit="return confirm('Excluir esta corretora?');">
+              <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+            </form>
           </td>
         </tr>
       }

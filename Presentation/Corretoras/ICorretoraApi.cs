@@ -6,4 +6,5 @@ public interface ICorretoraApi
     Task<CorretoraDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<CorretoraDto> CreateAsync(CorretoraForCreationDto corretora, CancellationToken cancellationToken = default);
     Task UpdateAsync(Guid id, CorretoraForUpdateDto corretora, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

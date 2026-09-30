@@ -77,4 +77,14 @@ public class CorretoraApiTests
 
         _connection.Verify(c => c.SendAsync(HttpMethod.Put, $"api/corretoras/{id}", body, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task DeleteAsync_SendsDeleteToCorretoraPath()
+    {
+        var id = Guid.NewGuid();
+
+        await _api.DeleteAsync(id);
+
+        _connection.Verify(c => c.SendAsync(HttpMethod.Delete, $"api/corretoras/{id}", null, It.IsAny<CancellationToken>()), Times.Once);
+    }
 }

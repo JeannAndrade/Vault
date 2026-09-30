@@ -43,10 +43,8 @@ public class CorretorasControllerTests
         var corretoras = new List<CorretoraModel> { new() { Id = Guid.NewGuid(), Nome = "XP", UserId = _userId } };
         _getCorretorasListQuery.Setup(q => q.ExecuteAsync(_userId)).ReturnsAsync(corretoras);
 
-        // Act
         var result = await _controller.GetCorretoras();
 
-        // Assert
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dtos = Assert.IsType<List<CorretoraDto>>(ok.Value);
         Assert.Single(dtos);
@@ -56,15 +54,12 @@ public class CorretorasControllerTests
     [Fact]
     public async Task GetCorretora_ReturnsDtoMappedFromApplicationModel()
     {
-        // Arrange
         var corretoraId = Guid.NewGuid();
         var corretora = new CorretoraModel { Id = corretoraId, Nome = "XP", UserId = _userId };
         _getCorretoraQuery.Setup(q => q.ExecuteAsync(_userId, corretoraId)).ReturnsAsync(corretora);
 
-        // Act
         var result = await _controller.GetCorretora(corretoraId);
 
-        // Assert
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dto = Assert.IsType<CorretoraDto>(ok.Value);
         Assert.Equal("XP", dto.Nome);
@@ -73,18 +68,26 @@ public class CorretorasControllerTests
     [Fact]
     public async Task CreateCorretora_ReturnsDtoMappedFromApplicationModel()
     {
-        // Arrange
         var created = new CorretoraModel { Id = Guid.NewGuid(), Nome = "XP", UserId = _userId };
         _createCorretoraCommand
             .Setup(c => c.ExecuteAsync(It.IsAny<CorretoraModelForCreation>(), _userId))
             .ReturnsAsync(created);
 
-        // Act
         var result = await _controller.CreateCorretora(new CorretoraForCreationDto("XP"));
 
-        // Assert
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<CorretoraDto>(createdResult.Value);
         Assert.Equal("XP", dto.Nome);
+    }
+
+    [Fact]
+    public async Task DeleteCorretora_CallsCommandAndReturnsNoContent()
+    {
+        var corretoraId = Guid.NewGuid();
+
+        var result = await _controller.DeleteCorretora(corretoraId);
+
+        Assert.IsType<NoContentResult>(result);
+        _deleteCorretoraCommand.Verify(c => c.ExecuteAsync(_userId, corretoraId), Times.Once);
     }
 }

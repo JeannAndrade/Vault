@@ -20,4 +20,7 @@ public sealed class CorretoraApi(IApiConnection connection) : ICorretoraApi
 
     public Task UpdateAsync(Guid id, CorretoraForUpdateDto corretora, CancellationToken cancellationToken = default) =>
         connection.SendAsync(HttpMethod.Put, $"{BasePath}/{id}", corretora, cancellationToken);
+
+    public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
+        connection.SendAsync(HttpMethod.Delete, $"{BasePath}/{id}", ct: cancellationToken);
 }
