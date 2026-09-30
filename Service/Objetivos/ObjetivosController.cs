@@ -38,7 +38,7 @@ public class ObjetivosController(
         var userId = GetCurrentUserId();
         var objetivos = await _getObjetivosListQuery.ExecuteAsync(userId);
 
-        return Ok(objetivos);
+        return Ok(ObjetivoDto.FromApplication(objetivos));
     }
 
     [HttpGet("{id:guid}", Name = "ObjetivoById")]
@@ -50,7 +50,7 @@ public class ObjetivosController(
         var userId = GetCurrentUserId();
         var objetivo = await _getObjetivoQuery.ExecuteAsync(userId, id);
 
-        return Ok(objetivo);
+        return Ok(ObjetivoDto.FromApplication(objetivo));
     }
 
     [HttpPost]
@@ -61,7 +61,7 @@ public class ObjetivosController(
     {
         var createdObjetivo = await _createObjetivoCommand.ExecuteAsync(objetivo.ToCreateObjetivoCommand(GetCurrentUserId()));
 
-        return CreatedAtRoute("ObjetivoById", new { id = createdObjetivo.Id }, createdObjetivo);
+        return CreatedAtRoute("ObjetivoById", new { id = createdObjetivo.Id }, ObjetivoDto.FromApplication(createdObjetivo));
     }
 
     [HttpPut("{id:guid}")]

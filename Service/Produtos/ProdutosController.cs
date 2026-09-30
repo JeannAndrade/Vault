@@ -39,7 +39,7 @@ public class ProdutosController(
         var userId = GetCurrentUserId();
         var produtos = await _getProdutosListQuery.ExecuteAsync(userId);
 
-        return Ok(produtos);
+        return Ok(ProdutoDto.FromApplication(produtos));
     }
 
     [HttpGet("{id:guid}", Name = "ProdutoById")]
@@ -51,7 +51,7 @@ public class ProdutosController(
         var userId = GetCurrentUserId();
         var produto = await _getProdutoQuery.ExecuteAsync(userId, id);
 
-        return Ok(produto);
+        return Ok(ProdutoDto.FromApplication(produto));
     }
 
     [HttpPost]
@@ -62,7 +62,7 @@ public class ProdutosController(
     {
         var createdProduto = await _createProdutoCommand.ExecuteAsync(produto.ToCreateProdutoCommand(GetCurrentUserId()));
 
-        return CreatedAtRoute("ProdutoById", new { id = createdProduto.Id }, createdProduto);
+        return CreatedAtRoute("ProdutoById", new { id = createdProduto.Id }, ProdutoDto.FromApplication(createdProduto));
     }
 
     [HttpPut("{id:guid}")]

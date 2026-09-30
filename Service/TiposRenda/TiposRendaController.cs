@@ -38,7 +38,7 @@ public class TiposRendaController(
         var userId = GetCurrentUserId();
         var tiposRenda = await _getTiposRendaListQuery.ExecuteAsync(userId);
 
-        return Ok(tiposRenda);
+        return Ok(TipoRendaDto.FromApplication(tiposRenda));
     }
 
     [HttpGet("{id:guid}", Name = "TipoRendaById")]
@@ -50,7 +50,7 @@ public class TiposRendaController(
         var userId = GetCurrentUserId();
         var tipoRenda = await _getTipoRendaQuery.ExecuteAsync(userId, id);
 
-        return Ok(tipoRenda);
+        return Ok(TipoRendaDto.FromApplication(tipoRenda));
     }
 
     [HttpPost]
@@ -61,7 +61,7 @@ public class TiposRendaController(
     {
         var createdTipoRenda = await _createTipoRendaCommand.ExecuteAsync(tipoRenda.ToCreateTipoRendaCommand(GetCurrentUserId()));
 
-        return CreatedAtRoute("TipoRendaById", new { id = createdTipoRenda.Id }, createdTipoRenda);
+        return CreatedAtRoute("TipoRendaById", new { id = createdTipoRenda.Id }, TipoRendaDto.FromApplication(createdTipoRenda));
     }
 
     [HttpPut("{id:guid}")]

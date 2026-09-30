@@ -39,7 +39,7 @@ public class EmissoresController(
         var userId = GetCurrentUserId();
         var emissores = await _getEmissoresListQuery.ExecuteAsync(userId);
 
-        return Ok(emissores);
+        return Ok(EmissorDto.FromApplication(emissores));
     }
 
     [HttpGet("{id:guid}", Name = "EmissorById")]
@@ -51,7 +51,7 @@ public class EmissoresController(
         var userId = GetCurrentUserId();
         var emissor = await _getEmissorQuery.ExecuteAsync(userId, id);
 
-        return Ok(emissor);
+        return Ok(EmissorDto.FromApplication(emissor));
     }
 
     [HttpPost]
@@ -62,7 +62,7 @@ public class EmissoresController(
     {
         var createdEmissor = await _createEmissorCommand.ExecuteAsync(emissor.ToCreateEmissorCommand(GetCurrentUserId()));
 
-        return CreatedAtRoute("EmissorById", new { id = createdEmissor.Id }, createdEmissor);
+        return CreatedAtRoute("EmissorById", new { id = createdEmissor.Id }, EmissorDto.FromApplication(createdEmissor));
     }
 
     [HttpPut("{id:guid}")]
