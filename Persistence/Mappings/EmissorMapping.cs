@@ -14,11 +14,5 @@ public class EmissorMapping : IEntityTypeConfiguration<Emissor>
         builder.Property(e => e.Nome).HasMaxLength(60).IsRequired();
         builder.Property(e => e.UserId).HasColumnName("UserId").IsRequired();
         builder.HasIndex(e => e.UserId);
-
-        builder
-            .HasOne(e => e.User)
-            .WithMany(c => c.Emissores)
-            .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

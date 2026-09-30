@@ -17,11 +17,5 @@ public class ObjetivoMapping : IEntityTypeConfiguration<Objetivo>
         builder.Property(e => e.OndeAplicar).HasMaxLength(100).IsRequired();
         builder.Property(e => e.UserId).HasColumnName("UserId").IsRequired();
         builder.HasIndex(e => e.UserId);
-
-        builder
-            .HasOne(e => e.User)
-            .WithMany(c => c.Objetivos)
-            .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

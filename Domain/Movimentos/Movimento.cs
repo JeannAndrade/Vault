@@ -23,8 +23,6 @@ public class Movimento : Entity
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
     public decimal ValorLiquidoAtual { get; set; } = 0M;
-
-    public User User { get; set; } = null!;
     public Objetivo Objetivo { get; set; } = null!;
     public TipoRenda TipoRenda { get; set; } = null!;
     public Corretora Corretora { get; set; } = null!;

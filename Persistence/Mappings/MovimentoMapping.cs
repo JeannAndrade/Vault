@@ -34,13 +34,6 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
 
 
         // ---------- Relacionamentos ----------
-
-        builder
-            .HasOne(e => e.User)
-            .WithMany(c => c.Movimentos)
-            .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder
             .HasOne(e => e.Objetivo)
             .WithMany(c => c.Movimentos)
