@@ -18,6 +18,7 @@ public class MovimentoDto
     public string? RentabilidadeContratada { get; set; }
     public string? CotacaoNaCompra { get; set; }
     public DateTime DataInvestimento { get; set; }
+    public DateTime? DataVencimento { get; set; }
     public decimal ValorAporte { get; set; }
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
@@ -39,6 +40,7 @@ public class MovimentoDto
         RentabilidadeContratada = movimento.RentabilidadeContratada,
         CotacaoNaCompra = movimento.CotacaoNaCompra,
         DataInvestimento = movimento.DataInvestimento,
+        DataVencimento = movimento.DataVencimento,
         ValorAporte = movimento.ValorAporte,
         EhReinvestimento = movimento.EhReinvestimento,
         EstaAtivo = movimento.EstaAtivo,

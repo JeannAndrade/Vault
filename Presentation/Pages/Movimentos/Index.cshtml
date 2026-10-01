@@ -1,7 +1,94 @@
 @page
+@model IndexModel
 @{
   ViewData["Title"] = "Movimentos";
 }
 
-<h1 class="h3">Movimentos</h1>
-<p class="text-muted">Em construção.</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Movimentos</h1>
+  <a class="btn btn-primary btn-sm" asp-page="Create">Novo movimento</a>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+@if (Model.Movimentos.Count == 0)
+{
+  <p class="text-muted">Nenhum movimento cadastrado.</p>
+}
+else
+{
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th style="width: 2rem"></th>
+        <th>Objetivo</th>
+        <th>Tipo de Renda</th>
+        <th>Corretora</th>
+        <th>Produto</th>
+        <th>Emissor</th>
+        <th>Quando Vence?</th>
+        <th class="text-end">Valor Líquido Atual</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var movimento in Model.Movimentos)
+      {
+        var detalheId = $"detalhe-{movimento.Id}";
+        <tr class="@(movimento.EstaAtivo ? "" : "opacity-50")">
+          <td>
+            <button type="button" class="btn btn-link p-0 text-body" data-bs-toggle="collapse" data-bs-target="#@detalheId"
+                    aria-controls="@detalheId" aria-expanded="false" aria-label="Exibir detalhes do movimento">
+              <i class="bi bi-chevron-down"></i>
+            </button>
+          </td>
+          <td>@movimento.ObjetivoNome</td>
+          <td>@movimento.TipoRendaNome</td>
+          <td>@movimento.CorretoraNome</td>
+          <td>@movimento.ProdutoNome</td>
+          <td>@movimento.EmissorNome</td>
+          <td>@(movimento.DataVencimento?.ToString("dd/MM/yyyy") ?? "—")</td>
+          <td class="text-end">@movimento.ValorLiquidoAtual.ToString("C", new System.Globalization.CultureInfo("pt-BR"))
+          </td>
+          <td class="text-end text-nowrap">
+            <div class="d-inline-flex gap-1">
+              <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@movimento.Id">Editar</a>
+              <form method="post" asp-page-handler="Delete" asp-route-id="@movimento.Id" class="mb-0"
+                    onsubmit="return confirm('Excluir este movimento?');">
+                <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="9" class="p-0">
+            <div class="collapse" id="@detalheId">
+              <div class="p-3">
+                <dl class="row mb-0">
+                  <dt class="col-sm-3">Data do investimento</dt>
+                  <dd class="col-sm-3">@movimento.DataInvestimento.ToString("dd/MM/yyyy")</dd>
+                  <dt class="col-sm-3">Valor do aporte</dt>
+                  <dd class="col-sm-3">@movimento.ValorAporte.ToString("C", new System.Globalization.CultureInfo("pt-BR"))
+                  </dd>
+
+                  <dt class="col-sm-3">Rentabilidade contratada</dt>
+                  <dd class="col-sm-3">@(movimento.RentabilidadeContratada ?? "—")</dd>
+                  <dt class="col-sm-3">Cotação na compra</dt>
+                  <dd class="col-sm-3">@(movimento.CotacaoNaCompra ?? "—")</dd>
+
+                  <dt class="col-sm-3">Reinvestimento</dt>
+                  <dd class="col-sm-3">@(movimento.EhReinvestimento ? "Sim" : "Não")</dd>
+                  <dt class="col-sm-3">Status</dt>
+                  <dd class="col-sm-3">@(movimento.EstaAtivo ? "Ativo" : "Inativo")</dd>
+                </dl>
+              </div>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

@@ -1,0 +1,108 @@
+@page "{id:guid}"
+@model EditModel
+@{
+  ViewData["Title"] = "Editar movimento";
+}
+
+<h1 class="h3 mb-3">Editar movimento</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.ObjetivoId" class="form-label"></label>
+      <select asp-for="Input.ObjetivoId" asp-items="Model.Lookup.Objetivos" class="form-select">
+        <option value="">Selecione...</option>
+      </select>
+      <span asp-validation-for="Input.ObjetivoId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.TipoRendaId" class="form-label"></label>
+      <select asp-for="Input.TipoRendaId" asp-items="Model.Lookup.TiposRenda" class="form-select">
+        <option value="">Selecione...</option>
+      </select>
+      <span asp-validation-for="Input.TipoRendaId" class="text-danger"></span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.CorretoraId" class="form-label"></label>
+      <select asp-for="Input.CorretoraId" asp-items="Model.Lookup.Corretoras" class="form-select">
+        <option value="">Selecione...</option>
+      </select>
+      <span asp-validation-for="Input.CorretoraId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.ProdutoId" class="form-label"></label>
+      <select asp-for="Input.ProdutoId" asp-items="Model.Lookup.Produtos" class="form-select">
+        <option value="">Selecione...</option>
+      </select>
+      <span asp-validation-for="Input.ProdutoId" class="text-danger"></span>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label asp-for="Input.EmissorId" class="form-label"></label>
+    <select asp-for="Input.EmissorId" asp-items="Model.Lookup.Emissores" class="form-select">
+      <option value="">Selecione...</option>
+    </select>
+    <span asp-validation-for="Input.EmissorId" class="text-danger"></span>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.DataInvestimento" class="form-label">Data do investimento</label>
+      <input asp-for="Input.DataInvestimento" class="form-control" type="date" />
+      <span asp-validation-for="Input.DataInvestimento" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.DataVencimento" class="form-label">Data de vencimento</label>
+      <input asp-for="Input.DataVencimento" class="form-control" type="date" />
+      <div class="form-text">Deixe em branco para ativos sem vencimento (ex.: ações).</div>
+      <span asp-validation-for="Input.DataVencimento" class="text-danger"></span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.ValorAporte" class="form-label">Valor do aporte</label>
+      <input asp-for="Input.ValorAporte" class="form-control" type="number" step="0.01" />
+      <span asp-validation-for="Input.ValorAporte" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.ValorLiquidoAtual" class="form-label">Valor líquido atual</label>
+      <input asp-for="Input.ValorLiquidoAtual" class="form-control" type="number" step="0.01" />
+      <span asp-validation-for="Input.ValorLiquidoAtual" class="text-danger"></span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.RentabilidadeContratada" class="form-label">Rentabilidade contratada</label>
+      <input asp-for="Input.RentabilidadeContratada" class="form-control" placeholder="Ex.: 110% CDI" />
+      <span asp-validation-for="Input.RentabilidadeContratada" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.CotacaoNaCompra" class="form-label">Cotação na compra</label>
+      <input asp-for="Input.CotacaoNaCompra" class="form-control" />
+      <span asp-validation-for="Input.CotacaoNaCompra" class="text-danger"></span>
+    </div>
+  </div>
+
+  <div class="form-check mb-2">
+    <input asp-for="Input.EhReinvestimento" class="form-check-input" />
+    <label asp-for="Input.EhReinvestimento" class="form-check-label">É reinvestimento</label>
+  </div>
+  <div class="form-check mb-3">
+    <input asp-for="Input.EstaAtivo" class="form-check-input" />
+    <label asp-for="Input.EstaAtivo" class="form-check-label">Ativo</label>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Salvar</button>
+  <a class="btn btn-outline-secondary" asp-page="Index">Cancelar</a>
+</form>

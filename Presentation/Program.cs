@@ -9,6 +9,7 @@ using Presentation.Emissores;
 using Presentation.Produtos;
 using Presentation.TiposRenda;
 using Presentation.Objetivos;
+using Presentation.Movimentos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +73,8 @@ builder.Services.AddApiResourceClient<IEmissorApi, EmissorApi>();
 builder.Services.AddApiResourceClient<IProdutoApi, ProdutoApi>();
 builder.Services.AddApiResourceClient<ITipoRendaApi, TipoRendaApi>();
 builder.Services.AddApiResourceClient<IObjetivoApi, ObjetivoApi>();
+builder.Services.AddApiResourceClient<IMovimentoApi, MovimentoApi>();
+builder.Services.AddScoped<IMovimentoFormLookupData, MovimentoFormLookupDataProvider>();
 #endregion
 
 #region Tratamento de exceções
