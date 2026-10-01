@@ -1,10 +1,11 @@
 using LumiaFoundation.AspNetCore.ClientAuthentication;
-using LumiaFoundation.Http.Client.Authentication;
+using LumiaFoundation.AspNetCore.Commons.Extensions;
 using LumiaFoundation.Http.Client.Extensions;
 using LumiaFoundation.Logger.Extensions;
 using LumiaFoundation.Logger.LoggerService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Presentation.Corretoras;
+using Presentation.Emissores;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,13 +58,14 @@ builder.Services.AddAuthorization();
 #endregion
 
 #region Cliente HTTP da Vault.Api
-builder.Services.AddSingleton<ITokenStore, SessionTokenStore>();
+
 builder.Services.AddLumiaApiClient(
     vaultApiAddress,
     configureAuthentication: options => options.RefreshPath = "/api/token/refresh");
-builder.Services.AddScoped<IApiSignInService, ApiSignInService>();
-builder.Services.AddScoped<IApiRegistrationService, ApiRegistrationService>();
+builder.Services.AddApiSignInService();
+builder.Services.AddApiRegistrationService();
 builder.Services.AddApiResourceClient<ICorretoraApi, CorretoraApi>();
+builder.Services.AddApiResourceClient<IEmissorApi, EmissorApi>();
 #endregion
 
 #region Tratamento de exceções

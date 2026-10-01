@@ -1,7 +1,46 @@
 @page
+@model IndexModel
 @{
   ViewData["Title"] = "Emissores";
 }
 
-<h1 class="h3">Emissores</h1>
-<p class="text-muted">Em construção.</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Emissores</h1>
+  <a class="btn btn-primary btn-sm" asp-page="Create">Novo emissor</a>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+@if (Model.Emissores.Count == 0)
+{
+  <p class="text-muted">Nenhum emissor cadastrado.</p>
+}
+else
+{
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var emissor in Model.Emissores)
+      {
+        <tr>
+          <td>@emissor.Nome</td>
+          <td class="text-end">
+            <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@emissor.Id">Editar</a>
+            <form method="post" asp-page-handler="Delete" asp-route-id="@emissor.Id" class="d-inline"
+                  onsubmit="return confirm('Excluir este emissor?');">
+              <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+            </form>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
