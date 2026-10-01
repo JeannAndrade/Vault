@@ -1,0 +1,23 @@
+@page
+@model CreateModel
+@{
+  ViewData["Title"] = "Novo tipo de renda";
+}
+
+<h1 class="h3 mb-3">Novo tipo de renda</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+  <div class="mb-3">
+    <label asp-for="Input.Nome" class="form-label">Nome</label>
+    <input asp-for="Input.Nome" class="form-control" autofocus />
+    <span asp-validation-for="Input.Nome" class="text-danger"></span>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Salvar</button>
+  <a class="btn btn-outline-secondary" asp-page="Index">Cancelar</a>
+</form>

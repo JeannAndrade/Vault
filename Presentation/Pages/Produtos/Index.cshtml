@@ -1,7 +1,46 @@
 @page
+@model IndexModel
 @{
   ViewData["Title"] = "Produtos";
 }
 
-<h1 class="h3">Produtos</h1>
-<p class="text-muted">Em construção.</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Produtos</h1>
+  <a class="btn btn-primary btn-sm" asp-page="Create">Novo produto</a>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+@if (Model.Produtos.Count == 0)
+{
+  <p class="text-muted">Nenhum produto cadastrado.</p>
+}
+else
+{
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var produto in Model.Produtos)
+      {
+        <tr>
+          <td>@produto.Nome</td>
+          <td class="text-end">
+            <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@produto.Id">Editar</a>
+            <form method="post" asp-page-handler="Delete" asp-route-id="@produto.Id" class="d-inline"
+                  onsubmit="return confirm('Excluir este produto?');">
+              <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+            </form>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

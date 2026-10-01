@@ -6,6 +6,8 @@ using LumiaFoundation.Logger.LoggerService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Presentation.Corretoras;
 using Presentation.Emissores;
+using Presentation.Produtos;
+using Presentation.TiposRenda;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +68,8 @@ builder.Services.AddApiSignInService();
 builder.Services.AddApiRegistrationService();
 builder.Services.AddApiResourceClient<ICorretoraApi, CorretoraApi>();
 builder.Services.AddApiResourceClient<IEmissorApi, EmissorApi>();
+builder.Services.AddApiResourceClient<IProdutoApi, ProdutoApi>();
+builder.Services.AddApiResourceClient<ITipoRendaApi, TipoRendaApi>();
 #endregion
 
 #region Tratamento de exceções
