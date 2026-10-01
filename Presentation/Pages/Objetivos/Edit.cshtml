@@ -1,0 +1,54 @@
+@page "{id:guid}"
+@model EditModel
+@{
+  ViewData["Title"] = "Editar objetivo";
+}
+
+<h1 class="h3 mb-3">Editar objetivo</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+  <div class="mb-3">
+    <label asp-for="Input.Nome" class="form-label">Nome</label>
+    <input asp-for="Input.Nome" class="form-control" autofocus />
+    <span asp-validation-for="Input.Nome" class="text-danger"></span>
+  </div>
+
+  <div class="mb-3">
+    <label asp-for="Input.Descricao" class="form-label">Descrição</label>
+    <textarea asp-for="Input.Descricao" class="form-control" rows="3"></textarea>
+    <span asp-validation-for="Input.Descricao" class="text-danger"></span>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.Meta" class="form-label">Meta</label>
+      <input asp-for="Input.Meta" class="form-control" type="number" min="1" step="0.01" />
+      <span asp-validation-for="Input.Meta" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label asp-for="Input.AporteMensal" class="form-label">Aporte mensal</label>
+      <input asp-for="Input.AporteMensal" class="form-control" type="number" min="1" step="0.01" />
+      <span asp-validation-for="Input.AporteMensal" class="text-danger"></span>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label asp-for="Input.FontePagadora" class="form-label">Fonte pagadora</label>
+    <input asp-for="Input.FontePagadora" class="form-control" />
+    <span asp-validation-for="Input.FontePagadora" class="text-danger"></span>
+  </div>
+
+  <div class="mb-3">
+    <label asp-for="Input.OndeAplicar" class="form-label">Onde aplicar</label>
+    <input asp-for="Input.OndeAplicar" class="form-control" />
+    <span asp-validation-for="Input.OndeAplicar" class="text-danger"></span>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Salvar</button>
+  <a class="btn btn-outline-secondary" asp-page="Index">Cancelar</a>
+</form>

@@ -1,7 +1,60 @@
 @page
+@model IndexModel
 @{
   ViewData["Title"] = "Objetivos";
 }
 
-<h1 class="h3">Objetivos</h1>
-<p class="text-muted">Em construção.</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Objetivos</h1>
+  <a class="btn btn-primary btn-sm" asp-page="Create">Novo objetivo</a>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+@if (Model.Objetivos.Count == 0)
+{
+  <p class="text-muted">Nenhum objetivo cadastrado.</p>
+}
+else
+{
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th class="text-end">Meta</th>
+        <th class="text-end">Aporte mensal</th>
+        <th>Fonte pagadora</th>
+        <th>Onde aplicar</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var objetivo in Model.Objetivos)
+      {
+        <tr>
+          <td>
+            @objetivo.Nome
+            @if (!string.IsNullOrWhiteSpace(objetivo.Descricao))
+            {
+              <div class="small text-muted">@objetivo.Descricao</div>
+            }
+          </td>
+          <td class="text-end">@objetivo.Meta.ToString("C")</td>
+          <td class="text-end">@objetivo.AporteMensal.ToString("C")</td>
+          <td>@objetivo.FontePagadora</td>
+          <td>@objetivo.OndeAplicar</td>
+          <td class="text-end text-nowrap">
+            <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@objetivo.Id">Editar</a>
+            <form method="post" asp-page-handler="Delete" asp-route-id="@objetivo.Id" class="d-inline"
+                  onsubmit="return confirm('Excluir este objetivo?');">
+              <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+            </form>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
