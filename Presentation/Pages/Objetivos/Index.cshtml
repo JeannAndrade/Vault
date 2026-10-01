@@ -1,4 +1,5 @@
 @page
+@using System.Globalization
 @model IndexModel
 @{
   ViewData["Title"] = "Objetivos";
@@ -42,8 +43,8 @@ else
               <div class="small text-muted">@objetivo.Descricao</div>
             }
           </td>
-          <td class="text-end">@objetivo.Meta.ToString("C")</td>
-          <td class="text-end">@objetivo.AporteMensal.ToString("C")</td>
+          <td class="text-end">@objetivo.Meta.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</td>
+          <td class="text-end">@objetivo.AporteMensal.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</td>
           <td>@objetivo.FontePagadora</td>
           <td>@objetivo.OndeAplicar</td>
           <td class="text-end text-nowrap">
