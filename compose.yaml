@@ -1,64 +1,102 @@
-volumes:
-  codemaze-db-data:
-networks:
-  codemaze-net:
+# Vault: banco, migrations, Api e Web.
+# Só o Web é publicado ao host. Banco e Api ficam em redes internas.
+# Os valores sensíveis vêm do .env (ignorado pelo git) ou do ambiente do shell;
+# se faltar algum obrigatório, o compose falha com a mensagem indicada.
+name: vault
+
 services:
-  service:
-    container_name: api
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "5002:8080"
-    networks:
-      - codemaze-net
-    environment:
-      DBHOST: mysqldb
-      DBPORT: 3306
-      CODEMAZE_DB_USER: ${CODEMAZE_DB_USER:-example-user}
-      CODEMAZE_DB_PASS: ${CODEMAZE_DB_PASS:-my_cool_secret}
-      CODEMAZE_DB_NAME: ${CODEMAZE_DB_NAME:-my_database}
-      DBMAJORVERSION: ${DBMAJORVERSION:-9}
-      DBMINORVERSION: ${DBMINORVERSION:-7}
-      DBBUILDVERSION: ${DBBUILDVERSION:-2}
-    depends_on:
-      migrations:
-        condition: service_completed_successfully
-  migrations:
-    container_name: migrations
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: migrations
-    networks:
-      - codemaze-net
-    environment:
-      DBHOST: mysqldb
-      DBPORT: 3306
-      CODEMAZE_DB_USER: ${CODEMAZE_DB_USER:-example-user}
-      CODEMAZE_DB_PASS: ${CODEMAZE_DB_PASS:-my_cool_secret}
-      CODEMAZE_DB_NAME: ${CODEMAZE_DB_NAME:-my_database}
-      DBMAJORVERSION: ${DBMAJORVERSION:-9}
-      DBMINORVERSION: ${DBMINORVERSION:-7}
-      DBBUILDVERSION: ${DBBUILDVERSION:-2}
-    depends_on:
-      mysqldb:
-        condition: service_healthy
-  mysqldb:
-    image: mysql:9.7.2
-    container_name: mysqldb
-    networks:
-      - codemaze-net
+  db:
+    image: mariadb:12.3.3
+    restart: unless-stopped
+    networks: [data]
     volumes:
-      - codemaze-db-data:/var/lib/mysql
+      - db-data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${CODEMAZE_DB_ROOT:-my-secret-pw}
-      MYSQL_DATABASE: ${CODEMAZE_DB_NAME:-my_database}
-      MYSQL_USER: ${CODEMAZE_DB_USER:-example-user}
-      MYSQL_PASSWORD: ${CODEMAZE_DB_PASS:-my_cool_secret}
+      MARIADB_ROOT_PASSWORD: ${VAULT_DB_ROOT:?Defina VAULT_DB_ROOT}
+      MARIADB_DATABASE: ${VAULT_DB_NAME:?Defina VAULT_DB_NAME}
+      MARIADB_USER: ${VAULT_DB_USER:?Defina VAULT_DB_USER}
+      MARIADB_PASSWORD: ${VAULT_DB_PASS:?Defina VAULT_DB_PASS}
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
+      start_interval: 2s
+
+  migrations:
+    image: vault-migrations
+    build:
+      context: .
+      target: migrations
+    restart: "no"
+    networks: [data]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      DBHOST: db
+      DBPORT: "3306"
+      VAULT_DB_USER: ${VAULT_DB_USER:?Defina VAULT_DB_USER}
+      VAULT_DB_PASS: ${VAULT_DB_PASS:?Defina VAULT_DB_PASS}
+      VAULT_DB_NAME: ${VAULT_DB_NAME:?Defina VAULT_DB_NAME}
+      DBMAJORVERSION: ${DBMAJORVERSION:-12}
+      DBMINORVERSION: ${DBMINORVERSION:-3}
+      DBBUILDVERSION: ${DBBUILDVERSION:-3}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    image: vault-api
+    build:
+      context: .
+      target: api
+    restart: unless-stopped
+    networks: [app, data]
+    volumes:
+      - api-logs:/app/logs
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      DBHOST: db
+      DBPORT: "3306"
+      VAULT_DB_USER: ${VAULT_DB_USER:?Defina VAULT_DB_USER}
+      VAULT_DB_PASS: ${VAULT_DB_PASS:?Defina VAULT_DB_PASS}
+      VAULT_DB_NAME: ${VAULT_DB_NAME:?Defina VAULT_DB_NAME}
+      DBMAJORVERSION: ${DBMAJORVERSION:-12}
+      DBMINORVERSION: ${DBMINORVERSION:-3}
+      DBBUILDVERSION: ${DBBUILDVERSION:-3}
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+
+  web:
+    image: vault-web
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    networks: [edge, app]
+    ports:
+      - "127.0.0.1:${VAULT_WEB_PORT:-5000}:8080"
+    volumes:
+      - web-logs:/app/logs
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      VaultApi__BaseAddress: http://api:8080
+    depends_on:
+      api:
+        condition: service_healthy
+
+networks:
+  edge: {}            # única rede com acesso externo; é por ela que a porta do Web é publicada
+  app:
+    internal: true    # Web <-> Api, sem acesso externo
+  data:
+    internal: true    # Api/migrations <-> banco, sem acesso externo
+
+volumes:
+  db-data:
+  api-logs:
+  web-logs:

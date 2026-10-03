@@ -12,10 +12,10 @@ using Service.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-IConfiguration configuration = new ConfigurationBuilder()
-    .SetBasePath(builder.Environment.ContentRootPath)
-    .AddEnvironmentVariables()
-    .Build();
+// builder.Configuration já inclui appsettings.json, appsettings.{Environment}.json e as
+// variáveis de ambiente (que têm precedência sobre os arquivos). JWT_SECRET continua
+// sendo lido só do ambiente: não o coloque em arquivos de configuração.
+var configuration = builder.Configuration;
 
 # region Configure Domain Database
 builder.Services.ConfigureDatabase(configuration);
