@@ -44,6 +44,10 @@ LoggerManager.LoadConfigurationFromFile(
 builder.Services.ConfigureLoggerService();
 #endregion
 
+#region Configurando health checks
+builder.Services.ConfigureHealthChecks();
+#endregion
+
 builder.Services.ConfigureCors();
 builder.Services.AddControllers();
 
@@ -83,5 +87,6 @@ app.UseAuthorization();
 
 app.MapOpenApiDevTools();
 app.MapControllers();
+app.MapLumiaHealthChecks();
 
 app.Run();

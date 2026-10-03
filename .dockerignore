@@ -1,0 +1,30 @@
+# Artefatos de build do host (caminhos do host quebram o restore no container)
+**/bin
+**/obj
+
+# Segredos e configuração local nunca entram no contexto de build
+.env
+.env.*
+!.env.example
+
+# Logs gerados localmente
+**/logs
+**/internal_logs
+
+# Projetos de teste não participam da imagem
+**/*.Test
+
+# Controle de versão e editores
+.git
+.gitignore
+.gitattributes
+.vs
+.vscode
+.idea
+
+# Documentação e arquivos de orquestração
+Docs
+*.md
+Dockerfile
+.dockerignore
+compose*.yaml
