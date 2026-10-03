@@ -1,0 +1,5 @@
+# Fim de linha: LF em todo texto, em qualquer sistema (alinhado ao .editorconfig).
+* text=auto eol=lf
+
+# Scripts copiados para containers Linux não podem ficar com CRLF.
+*.sh text eol=lf
