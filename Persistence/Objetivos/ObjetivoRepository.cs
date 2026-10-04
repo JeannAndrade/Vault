@@ -10,6 +10,12 @@ public class ObjetivoRepository(VaultDbContext repositoryContext) : BaseReposito
     public async Task<IEnumerable<Objetivo>> GetAllAsync(Guid ownerId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.Nome).ToListAsync();
 
+    public async Task<IEnumerable<Objetivo>> GetAllWithRelatedEntitiesAsync(Guid ownerId) =>
+        await QueryWithRelatedEntities()
+            .Where(m => m.UserId == ownerId)
+            .OrderBy(m => m.Nome)
+            .ToListAsync();
+
     public async Task<Objetivo?> GetAsync(Guid ownerId, Guid objetivoId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId && c.Id == objetivoId, trackChanges).SingleOrDefaultAsync();
 
@@ -20,4 +26,9 @@ public class ObjetivoRepository(VaultDbContext repositoryContext) : BaseReposito
         if (objetivo is not null)
             Delete(objetivo);
     }
+
+    private IQueryable<Objetivo> QueryWithRelatedEntities() =>
+        RepositoryContext.Set<Objetivo>()
+            .AsNoTracking()
+            .Include(o => o.Movimentos);
 }

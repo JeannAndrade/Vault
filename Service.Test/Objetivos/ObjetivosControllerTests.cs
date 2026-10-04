@@ -3,6 +3,7 @@ using Application.Objetivos.Commands.CreateObjetivo;
 using Application.Objetivos.Commands.DeleteObjetivo;
 using Application.Objetivos.Commands.UpdateObjetivo;
 using Application.Objetivos.Queries.GetObjetivo;
+using Application.Objetivos.Queries.GetObjetivoComValoresList;
 using Application.Objetivos.Queries.GetObjetivoList;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace Service.Test.Objetivos;
 public class ObjetivosControllerTests
 {
     private readonly Mock<IGetObjetivosListQuery> _getObjetivosListQuery = new();
+    private readonly Mock<IGetObjetivoComValoresListQuery> _getObjetivoComValoresListQuery = new();
     private readonly Mock<IGetObjetivoQuery> _getObjetivoQuery = new();
     private readonly Mock<ICreateObjetivoCommand> _createObjetivoCommand = new();
     private readonly Mock<IUpdateObjetivoCommand> _updateObjetivoCommand = new();
@@ -26,6 +28,7 @@ public class ObjetivosControllerTests
     {
         _controller = new ObjetivosController(
             _getObjetivosListQuery.Object,
+            _getObjetivoComValoresListQuery.Object,
             _getObjetivoQuery.Object,
             _createObjetivoCommand.Object,
             _updateObjetivoCommand.Object,
@@ -51,6 +54,45 @@ public class ObjetivosControllerTests
         var dtos = Assert.IsType<List<ObjetivoDto>>(ok.Value);
         Assert.Single(dtos);
         Assert.Equal("Reserva de emergência", dtos[0].Nome);
+    }
+
+    [Fact]
+    public async Task GetObjetivosComValores_ReturnsMappedDtosForCurrentUser()
+    {
+        var objetivoId = Guid.NewGuid();
+        var objetivos = new List<ObjetivoComValoresModel>
+        {
+            new()
+            {
+                Id = objetivoId,
+                Nome = "Reserva de emergência",
+                Meta = 10000m,
+                FontePagadora = "Salário",
+                AporteMensal = 500m,
+                OndeAplicar = "Tesouro Selic",
+                ValorTotalInvestido = 1500m,
+                ValorTotalLiquido = 1575m,
+                UserId = _userId
+            }
+        };
+        _getObjetivoComValoresListQuery
+            .Setup(q => q.ExecuteAsync(_userId))
+            .ReturnsAsync(objetivos);
+
+        var result = await _controller.GetObjetivosComValores();
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var dtos = Assert.IsType<List<ObjetivoComValoresDto>>(ok.Value);
+        var dto = Assert.Single(dtos);
+        Assert.Equal(objetivoId, dto.Id);
+        Assert.Equal("Reserva de emergência", dto.Nome);
+        Assert.Equal(10000m, dto.Meta);
+        Assert.Equal("Salário", dto.FontePagadora);
+        Assert.Equal(500m, dto.AporteMensal);
+        Assert.Equal("Tesouro Selic", dto.OndeAplicar);
+        Assert.Equal(1500m, dto.ValorTotalInvestido);
+        Assert.Equal(1575m, dto.ValorTotalLiquido);
+        _getObjetivoComValoresListQuery.Verify(q => q.ExecuteAsync(_userId), Times.Once);
     }
 
     [Fact]
