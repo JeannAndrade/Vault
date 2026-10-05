@@ -1,7 +1,48 @@
 @page
+@model IndexModel
 @{
-  ViewData["Title"] = "Início";
+  ViewData["Title"] = "Objetivos";
+  var culturaMoeda = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
 }
 
-<h1 class="h3">Bem-vindo, @User.Identity?.Name</h1>
-<p>O Vault está em construção.</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Meus objetivos</h1>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+@if (Model.Objetivos.Count == 0)
+{
+  <p class="text-muted">Nenhum objetivo cadastrado.</p>
+}
+else
+{
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th class="text-end">Meta</th>
+        <th class="text-end">Percentual Meta</th>
+        <th class="text-end">Qtde Movimentos</th>
+        <th class="text-end">Total Aportado</th>
+        <th class="text-end">Total Líquido</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var objetivo in Model.Objetivos)
+      {
+        <tr>
+          <td>@objetivo.Nome</td>
+          <td class="text-end">@objetivo.Meta.ToString("C", culturaMoeda)</td>
+          <td class="text-end">@objetivo.PercentualMeta.ToString("F2") %</td>
+          <td class="text-end">@objetivo.QtdeMovimentos</td>
+          <td class="text-end">@objetivo.TotalAportado.ToString("C", culturaMoeda)</td>
+          <td class="text-end">@objetivo.TotalLiquido.ToString("C", culturaMoeda)</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

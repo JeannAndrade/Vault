@@ -2,8 +2,8 @@ using Application.Objetivos.Commands.CreateObjetivo;
 using Application.Objetivos.Commands.DeleteObjetivo;
 using Application.Objetivos.Commands.UpdateObjetivo;
 using Application.Objetivos.Queries.GetObjetivo;
-using Application.Objetivos.Queries.GetObjetivoComValoresList;
 using Application.Objetivos.Queries.GetObjetivoList;
+using Application.Objetivos.Queries.GetResumoObjetivosList;
 using LumiaFoundation.Abstractions.ErrorModel;
 using LumiaFoundation.AspNetCore.Commons.BaseControllers;
 using LumiaFoundation.Auth.ActionFilters;
@@ -19,14 +19,14 @@ namespace Service.Objetivos;
 [Route("api/objetivos")]
 public class ObjetivosController(
     IGetObjetivosListQuery getObjetivosListQuery,
-    IGetObjetivoComValoresListQuery getObjetivoComValoresListQuery,
+    IGetResumoObjetivosListQuery getResumoObjetivosListQuery,
     IGetObjetivoQuery getObjetivoQuery,
     ICreateObjetivoCommand createObjetivoCommand,
     IUpdateObjetivoCommand updateObjetivoCommand,
     IDeleteObjetivoCommand deleteObjetivoCommand) : BaseApiController
 {
     private readonly IGetObjetivosListQuery _getObjetivosListQuery = getObjetivosListQuery;
-    private readonly IGetObjetivoComValoresListQuery _getObjetivoComValoresListQuery = getObjetivoComValoresListQuery;
+    private readonly IGetResumoObjetivosListQuery _getResumoObjetivosListQuery = getResumoObjetivosListQuery;
     private readonly IGetObjetivoQuery _getObjetivoQuery = getObjetivoQuery;
     private readonly ICreateObjetivoCommand _createObjetivoCommand = createObjetivoCommand;
     private readonly IUpdateObjetivoCommand _updateObjetivoCommand = updateObjetivoCommand;
@@ -44,16 +44,16 @@ public class ObjetivosController(
         return Ok(ObjetivoDto.FromApplication(objetivos));
     }
 
-    [HttpGet("com-valores")]
-    [ProducesResponseType(typeof(IEnumerable<ObjetivoComValoresDto>), StatusCodes.Status200OK)]
+    [HttpGet("resumo")]
+    [ProducesResponseType(typeof(IEnumerable<ResumoObjetivoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<ObjetivoComValoresDto>>> GetObjetivosComValores()
+    public async Task<ActionResult<IEnumerable<ResumoObjetivoDto>>> GetObjetivosComValores()
     {
         var userId = GetCurrentUserId();
-        var objetivos = await _getObjetivoComValoresListQuery.ExecuteAsync(userId);
+        var objetivos = await _getResumoObjetivosListQuery.ExecuteAsync(userId);
 
-        return Ok(ObjetivoComValoresDto.FromApplication(objetivos));
+        return Ok(ResumoObjetivoDto.FromApplication(objetivos));
     }
 
     [HttpGet("{id:guid}", Name = "ObjetivoById")]
