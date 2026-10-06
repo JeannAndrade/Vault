@@ -3,6 +3,7 @@ using Application.Objetivos.Commands.DeleteObjetivo;
 using Application.Objetivos.Commands.UpdateObjetivo;
 using Application.Objetivos.Queries.GetObjetivo;
 using Application.Objetivos.Queries.GetObjetivoList;
+using Application.Objetivos.Queries.GetResumoObjetivosList;
 using LumiaFoundation.Abstractions.ErrorModel;
 using LumiaFoundation.AspNetCore.Commons.BaseControllers;
 using LumiaFoundation.Auth.ActionFilters;
@@ -18,12 +19,14 @@ namespace Service.Objetivos;
 [Route("api/objetivos")]
 public class ObjetivosController(
     IGetObjetivosListQuery getObjetivosListQuery,
+    IGetResumoObjetivosListQuery getResumoObjetivosListQuery,
     IGetObjetivoQuery getObjetivoQuery,
     ICreateObjetivoCommand createObjetivoCommand,
     IUpdateObjetivoCommand updateObjetivoCommand,
     IDeleteObjetivoCommand deleteObjetivoCommand) : BaseApiController
 {
     private readonly IGetObjetivosListQuery _getObjetivosListQuery = getObjetivosListQuery;
+    private readonly IGetResumoObjetivosListQuery _getResumoObjetivosListQuery = getResumoObjetivosListQuery;
     private readonly IGetObjetivoQuery _getObjetivoQuery = getObjetivoQuery;
     private readonly ICreateObjetivoCommand _createObjetivoCommand = createObjetivoCommand;
     private readonly IUpdateObjetivoCommand _updateObjetivoCommand = updateObjetivoCommand;
@@ -39,6 +42,18 @@ public class ObjetivosController(
         var objetivos = await _getObjetivosListQuery.ExecuteAsync(userId);
 
         return Ok(ObjetivoDto.FromApplication(objetivos));
+    }
+
+    [HttpGet("resumo")]
+    [ProducesResponseType(typeof(IEnumerable<ResumoObjetivoDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<ResumoObjetivoDto>>> GetObjetivosComValores()
+    {
+        var userId = GetCurrentUserId();
+        var objetivos = await _getResumoObjetivosListQuery.ExecuteAsync(userId);
+
+        return Ok(ResumoObjetivoDto.FromApplication(objetivos));
     }
 
     [HttpGet("{id:guid}", Name = "ObjetivoById")]

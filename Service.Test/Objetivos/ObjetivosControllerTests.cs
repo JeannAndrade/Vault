@@ -4,6 +4,7 @@ using Application.Objetivos.Commands.DeleteObjetivo;
 using Application.Objetivos.Commands.UpdateObjetivo;
 using Application.Objetivos.Queries.GetObjetivo;
 using Application.Objetivos.Queries.GetObjetivoList;
+using Application.Objetivos.Queries.GetResumoObjetivosList;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -15,6 +16,7 @@ namespace Service.Test.Objetivos;
 public class ObjetivosControllerTests
 {
     private readonly Mock<IGetObjetivosListQuery> _getObjetivosListQuery = new();
+    private readonly Mock<IGetResumoObjetivosListQuery> _getResumoObjetivosListQuery = new();
     private readonly Mock<IGetObjetivoQuery> _getObjetivoQuery = new();
     private readonly Mock<ICreateObjetivoCommand> _createObjetivoCommand = new();
     private readonly Mock<IUpdateObjetivoCommand> _updateObjetivoCommand = new();
@@ -26,6 +28,7 @@ public class ObjetivosControllerTests
     {
         _controller = new ObjetivosController(
             _getObjetivosListQuery.Object,
+            _getResumoObjetivosListQuery.Object,
             _getObjetivoQuery.Object,
             _createObjetivoCommand.Object,
             _updateObjetivoCommand.Object,
@@ -51,6 +54,42 @@ public class ObjetivosControllerTests
         var dtos = Assert.IsType<List<ObjetivoDto>>(ok.Value);
         Assert.Single(dtos);
         Assert.Equal("Reserva de emergência", dtos[0].Nome);
+    }
+
+    [Fact]
+    public async Task GetObjetivosComValores_ReturnsMappedDtosForCurrentUser()
+    {
+        var objetivoId = Guid.NewGuid();
+        var objetivos = new List<ResumoObjetivoModel>
+        {
+            new()
+            {
+                Id = objetivoId,
+                Nome = "Reserva de emergência",
+                Meta = 10000m,
+                PercentualMeta = 15.75m,
+                QtdeMovimentos = 2,
+                TotalAportado = 1500m,
+                TotalLiquido = 1575m
+            }
+        };
+        _getResumoObjetivosListQuery
+            .Setup(q => q.ExecuteAsync(_userId))
+            .ReturnsAsync(objetivos);
+
+        var result = await _controller.GetObjetivosComValores();
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var dtos = Assert.IsType<List<ResumoObjetivoDto>>(ok.Value);
+        var dto = Assert.Single(dtos);
+        Assert.Equal(objetivoId, dto.Id);
+        Assert.Equal("Reserva de emergência", dto.Nome);
+        Assert.Equal(10000m, dto.Meta);
+        Assert.Equal(15.75m, dto.PercentualMeta);
+        Assert.Equal(2, dto.QtdeMovimentos);
+        Assert.Equal(1500m, dto.TotalAportado);
+        Assert.Equal(1575m, dto.TotalLiquido);
+        _getResumoObjetivosListQuery.Verify(q => q.ExecuteAsync(_userId), Times.Once);
     }
 
     [Fact]
