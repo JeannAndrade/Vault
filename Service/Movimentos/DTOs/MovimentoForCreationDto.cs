@@ -12,6 +12,7 @@ public record MovimentoForCreationDto
     public string? RentabilidadeContratada { get; init; }
     public string? CotacaoNaCompra { get; init; }
     public DateTime DataInvestimento { get; init; }
+    public DateTime? DataVencimento { get; init; }
     public decimal ValorAporte { get; init; }
     public bool EhReinvestimento { get; init; }
     public bool EstaAtivo { get; init; }
@@ -27,6 +28,7 @@ public record MovimentoForCreationDto
         RentabilidadeContratada = RentabilidadeContratada,
         CotacaoNaCompra = CotacaoNaCompra,
         DataInvestimento = DataInvestimento,
+        DataVencimento = DataVencimento,
         ValorAporte = ValorAporte,
         EhReinvestimento = EhReinvestimento,
         EstaAtivo = EstaAtivo,
