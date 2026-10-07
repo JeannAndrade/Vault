@@ -79,6 +79,14 @@ else
                   <dt class="col-sm-3">Cotação na compra</dt>
                   <dd class="col-sm-3">@(movimento.CotacaoNaCompra ?? "—")</dd>
 
+                  <dt class="col-sm-3">Quantidade</dt>
+                  <dd class="col-sm-3">@(movimento.Quantidade?.ToString("N2", new System.Globalization.CultureInfo("pt-BR")) ?? "—")</dd>
+                  <dt class="col-sm-3">Protocolo</dt>
+                  <dd class="col-sm-3">@(movimento.Protocolo ?? "—")</dd>
+
+                  <dt class="col-sm-3">Observação</dt>
+                  <dd class="col-sm-9">@(movimento.Observacao ?? "—")</dd>
+
                   <dt class="col-sm-3">Reinvestimento</dt>
                   <dd class="col-sm-3">@(movimento.EhReinvestimento ? "Sim" : "Não")</dd>
                   <dt class="col-sm-3">Status</dt>

@@ -14,7 +14,7 @@ public class GetResumoObjetivosListQuery(IRepositoryManager repositoryManager, I
         {
             var objetivos = await _repository.Objetivo.GetAllWithRelatedEntitiesAsync(ownerId);
 
-            return [.. objetivos.Select(ResumoObjetivoModel.FromDomain)];
+            return [.. objetivos.Where(o => o.EstaAtivo).Select(ResumoObjetivoModel.FromDomain)];
         }
         catch (Exception ex)
         {

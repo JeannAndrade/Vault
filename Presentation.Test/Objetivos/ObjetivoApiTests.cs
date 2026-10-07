@@ -95,7 +95,8 @@ public class ObjetivoApiTests
       10000,
       "Salário",
       500,
-      "Tesouro Selic");
+      "Tesouro Selic",
+      true);
 
   private static ObjetivoForCreationDto CreateForCreation() => new(
       "Reserva de emergência",
@@ -103,7 +104,8 @@ public class ObjetivoApiTests
       10000,
       "Salário",
       500,
-      "Tesouro Selic");
+      "Tesouro Selic",
+      true);
 
   private static ObjetivoForUpdateDto CreateForUpdate() => new(
       "Reserva de emergência",
@@ -111,5 +113,6 @@ public class ObjetivoApiTests
       12000,
       "Salário",
       600,
-      "Tesouro Selic");
+      "Tesouro Selic",
+      true);
 }

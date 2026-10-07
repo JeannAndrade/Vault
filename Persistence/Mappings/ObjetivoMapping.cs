@@ -15,6 +15,7 @@ public class ObjetivoMapping : IEntityTypeConfiguration<Objetivo>
         builder.Property(e => e.Descricao).HasMaxLength(500);
         builder.Property(e => e.FontePagadora).HasMaxLength(100).IsRequired();
         builder.Property(e => e.OndeAplicar).HasMaxLength(100).IsRequired();
+        builder.Property(e => e.EstaAtivo).IsRequired().HasDefaultValue(true);
         builder.Property(e => e.UserId).HasColumnName("UserId").IsRequired();
         builder.HasIndex(e => e.UserId);
     }

@@ -71,6 +71,14 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
         [StringLength(60, ErrorMessage = "A cotação na compra não deve exceder 60 caracteres.")]
         public string? CotacaoNaCompra { get; set; }
 
+        [StringLength(200, ErrorMessage = "A observação não deve exceder 200 caracteres.")]
+        public string? Observacao { get; set; }
+
+        [StringLength(30, ErrorMessage = "O protocolo não deve exceder 30 caracteres.")]
+        public string? Protocolo { get; set; }
+
+        public decimal? Quantidade { get; set; }
+
         [Required(ErrorMessage = "Informe a data do investimento.")]
         [DataType(DataType.Date)]
         public DateTime DataInvestimento { get; set; }
@@ -99,6 +107,9 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
             EmissorId = EmissorId,
             RentabilidadeContratada = RentabilidadeContratada,
             CotacaoNaCompra = CotacaoNaCompra,
+            Observacao = Observacao,
+            Protocolo = Protocolo,
+            Quantidade = Quantidade,
             DataInvestimento = DataInvestimento,
             DataVencimento = DataVencimento,
             ValorAporte = ValorAporte,
@@ -116,6 +127,9 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
             EmissorId = EmissorId,
             RentabilidadeContratada = RentabilidadeContratada,
             CotacaoNaCompra = CotacaoNaCompra,
+            Observacao = Observacao,
+            Protocolo = Protocolo,
+            Quantidade = Quantidade,
             DataInvestimento = DataInvestimento,
             DataVencimento = DataVencimento,
             ValorAporte = ValorAporte,

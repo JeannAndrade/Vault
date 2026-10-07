@@ -15,6 +15,7 @@ public class CreateModel(IObjetivoApi objetivoApi) : PageModel
 
   public void OnGet()
   {
+    Input.EstaAtivo = true;
   }
 
   public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
@@ -30,7 +31,8 @@ public class CreateModel(IObjetivoApi objetivoApi) : PageModel
           Input.Meta,
           Input.FontePagadora.Trim(),
           Input.AporteMensal,
-          Input.OndeAplicar.Trim()), cancellationToken);
+          Input.OndeAplicar.Trim(),
+          Input.EstaAtivo), cancellationToken);
     }
     catch (ApiException)
     {
@@ -63,5 +65,7 @@ public class CreateModel(IObjetivoApi objetivoApi) : PageModel
     [Required(ErrorMessage = "Informe onde aplicar.")]
     [StringLength(100, ErrorMessage = "Onde aplicar não deve exceder 100 caracteres.")]
     public string OndeAplicar { get; set; } = string.Empty;
+
+    public bool EstaAtivo { get; set; }
   }
 }

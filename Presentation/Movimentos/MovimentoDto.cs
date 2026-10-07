@@ -15,6 +15,9 @@ public sealed record MovimentoDto
     public string? EmissorNome { get; set; }
     public string? RentabilidadeContratada { get; set; }
     public string? CotacaoNaCompra { get; set; }
+    public string? Observacao { get; set; }
+    public string? Protocolo { get; set; }
+    public decimal? Quantidade { get; set; }
     public DateTime DataInvestimento { get; set; }
     public DateTime? DataVencimento { get; set; }
     public decimal ValorAporte { get; set; }

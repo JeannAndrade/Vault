@@ -9,6 +9,9 @@ public sealed record MovimentoForCreationDto
     public Guid EmissorId { get; init; }
     public string? RentabilidadeContratada { get; init; }
     public string? CotacaoNaCompra { get; init; }
+    public string? Observacao { get; init; }
+    public string? Protocolo { get; init; }
+    public decimal? Quantidade { get; init; }
     public DateTime DataInvestimento { get; init; }
     public DateTime? DataVencimento { get; init; }
     public decimal ValorAporte { get; init; }

@@ -28,6 +28,8 @@ public record ObjetivoModelForUpdate
   [MaxLength(100, ErrorMessage = "Onde aplicar não deve exceder 100 caracteres")]
   public string OndeAplicar { get; set; } = string.Empty;
 
+  public bool EstaAtivo { get; set; }
+
   public Objetivo UpdateDomain(Objetivo objetivo)
   {
     objetivo.Nome = Nome;
@@ -36,6 +38,7 @@ public record ObjetivoModelForUpdate
     objetivo.FontePagadora = FontePagadora;
     objetivo.AporteMensal = AporteMensal;
     objetivo.OndeAplicar = OndeAplicar;
+    objetivo.EstaAtivo = EstaAtivo;
     return objetivo;
   }
 }

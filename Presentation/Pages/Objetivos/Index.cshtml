@@ -29,6 +29,7 @@ else
         <th class="text-end">Aporte mensal</th>
         <th>Fonte pagadora</th>
         <th>Onde aplicar</th>
+        <th>Status</th>
         <th class="text-end">Ações</th>
       </tr>
     </thead>
@@ -47,6 +48,7 @@ else
           <td class="text-end">@objetivo.AporteMensal.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</td>
           <td>@objetivo.FontePagadora</td>
           <td>@objetivo.OndeAplicar</td>
+          <td>@(objetivo.EstaAtivo ? "Ativo" : "Inativo")</td>
           <td class="text-end text-nowrap">
             <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@objetivo.Id">Editar</a>
             <form method="post" asp-page-handler="Delete" asp-route-id="@objetivo.Id" class="d-inline"

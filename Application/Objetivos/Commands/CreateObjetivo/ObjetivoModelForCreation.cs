@@ -28,6 +28,8 @@ public record ObjetivoModelForCreation(
     [property: MaxLength(100, ErrorMessage = "Onde aplicar não deve exceder 100 caracteres")]
     string OndeAplicar,
 
+    bool EstaAtivo,
+
     [NotEmptyGuid]
     Guid UserId)
 {
@@ -39,6 +41,7 @@ public record ObjetivoModelForCreation(
         FontePagadora = FontePagadora,
         AporteMensal = AporteMensal,
         OndeAplicar = OndeAplicar,
+        EstaAtivo = EstaAtivo,
         UserId = UserId
     };
 }

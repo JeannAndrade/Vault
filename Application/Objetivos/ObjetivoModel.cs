@@ -11,6 +11,7 @@ public record ObjetivoModel
   public string FontePagadora { get; set; } = string.Empty;
   public decimal AporteMensal { get; set; }
   public string OndeAplicar { get; set; } = string.Empty;
+  public bool EstaAtivo { get; set; }
   public Guid UserId { get; set; }
 
   public static ObjetivoModel FromDomain(Objetivo objetivo)
@@ -24,6 +25,7 @@ public record ObjetivoModel
       FontePagadora = objetivo.FontePagadora,
       AporteMensal = objetivo.AporteMensal,
       OndeAplicar = objetivo.OndeAplicar,
+      EstaAtivo = objetivo.EstaAtivo,
       UserId = objetivo.UserId
     };
   }

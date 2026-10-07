@@ -76,6 +76,26 @@ public class GetResumoObjetivosListQueryTests
     }
 
     [Fact]
+    public async Task ExecuteAsync_ReturnsOnlyActiveObjectives()
+    {
+        var ownerId = Guid.NewGuid();
+        var objetivoAtivo = new Objetivo { UserId = ownerId, Nome = "Ativo", Meta = 100m, EstaAtivo = true };
+        var objetivoInativo = new Objetivo { UserId = ownerId, Nome = "Inativo", Meta = 100m, EstaAtivo = false };
+        var objetivoRepository = new Mock<IObjetivoRepository>();
+        objetivoRepository
+            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId))
+            .ReturnsAsync([objetivoAtivo, objetivoInativo]);
+        var repositoryManager = new Mock<IRepositoryManager>();
+        repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
+        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, Mock.Of<ILoggerManager>());
+
+        var result = await query.ExecuteAsync(ownerId);
+
+        var resumo = Assert.Single(result);
+        Assert.Equal(objetivoAtivo.Id, resumo.Id);
+    }
+
+    [Fact]
     public async Task ExecuteAsync_WhenRepositoryThrows_LogsAndRethrows()
     {
         var ownerId = Guid.NewGuid();

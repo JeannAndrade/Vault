@@ -49,6 +49,11 @@
     <span asp-validation-for="Input.OndeAplicar" class="text-danger"></span>
   </div>
 
+  <div class="form-check mb-3">
+    <input asp-for="Input.EstaAtivo" class="form-check-input" />
+    <label asp-for="Input.EstaAtivo" class="form-check-label">Ativo</label>
+  </div>
+
   <button type="submit" class="btn btn-primary">Salvar</button>
   <a class="btn btn-outline-secondary" asp-page="Index">Cancelar</a>
 </form>

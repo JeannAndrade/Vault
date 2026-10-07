@@ -8,7 +8,8 @@ public record ObjetivoForCreationDto(
     decimal Meta,
     string FontePagadora,
     decimal AporteMensal,
-    string OndeAplicar)
+    string OndeAplicar,
+    bool EstaAtivo)
 {
   public ObjetivoModelForCreation ToCreateObjetivoCommand(Guid userId) => new(
       Nome,
@@ -17,5 +18,6 @@ public record ObjetivoForCreationDto(
       FontePagadora,
       AporteMensal,
       OndeAplicar,
+      EstaAtivo,
       userId);
 }

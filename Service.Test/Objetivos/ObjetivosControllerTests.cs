@@ -115,7 +115,7 @@ public class ObjetivosControllerTests
             .ReturnsAsync(created);
 
         var result = await _controller.CreateObjetivo(new ObjetivoForCreationDto(
-            "Reserva de emergência", "Descrição", 10000m, "Salário", 500m, "Tesouro Selic"));
+            "Reserva de emergência", "Descrição", 10000m, "Salário", 500m, "Tesouro Selic", true));
 
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<ObjetivoDto>(createdResult.Value);

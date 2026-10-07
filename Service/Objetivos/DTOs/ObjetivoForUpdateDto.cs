@@ -8,7 +8,8 @@ public record ObjetivoForUpdateDto(
     decimal Meta,
     string FontePagadora,
     decimal AporteMensal,
-    string OndeAplicar)
+    string OndeAplicar,
+    bool EstaAtivo)
 {
   public ObjetivoModelForUpdate ToUpdateObjetivoCommand() => new()
   {
@@ -17,6 +18,7 @@ public record ObjetivoForUpdateDto(
     Meta = Meta,
     FontePagadora = FontePagadora,
     AporteMensal = AporteMensal,
-    OndeAplicar = OndeAplicar
+    OndeAplicar = OndeAplicar,
+    EstaAtivo = EstaAtivo
   };
 }

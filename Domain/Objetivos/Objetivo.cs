@@ -11,6 +11,7 @@ public class Objetivo : Entity
     public string FontePagadora { get; set; } = string.Empty;
     public decimal AporteMensal { get; set; } = 0M;
     public string OndeAplicar { get; set; } = string.Empty;
+    public bool EstaAtivo { get; set; } = true;
     public Guid UserId { get; set; }
     public ICollection<Movimento> Movimentos { get; set; } = [];
 }

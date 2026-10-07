@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Context;
 
@@ -11,9 +12,11 @@ using Persistence.Context;
 namespace Persistence.Migrations.VaultDb
 {
     [DbContext(typeof(VaultDbContext))]
-    partial class VaultDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261007141341_MovimentoCamposAdicionais")]
+    partial class MovimentoCamposAdicionais
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -178,11 +181,6 @@ namespace Persistence.Migrations.VaultDb
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<bool>("EstaAtivo")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(true);
-
                     b.Property<string>("FontePagadora")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -279,8 +277,8 @@ namespace Persistence.Migrations.VaultDb
                     b.HasData(
                         new
                         {
-                            Id = "635b938c-5658-408c-b455-4a162abe1482",
-                            ConcurrencyStamp = "9b9d72ee-dd84-4add-8746-96627d5e4f3c",
+                            Id = "925ad760-24c9-4dbc-a456-4c4ca4521588",
+                            ConcurrencyStamp = "84772056-e1c5-4d7b-97ea-ffbf32959dd2",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });

@@ -17,6 +17,9 @@ public class MovimentoDto
     public string? EmissorNome { get; set; }
     public string? RentabilidadeContratada { get; set; }
     public string? CotacaoNaCompra { get; set; }
+    public string? Observacao { get; set; }
+    public string? Protocolo { get; set; }
+    public decimal? Quantidade { get; set; }
     public DateTime DataInvestimento { get; set; }
     public DateTime? DataVencimento { get; set; }
     public decimal ValorAporte { get; set; }
@@ -39,6 +42,9 @@ public class MovimentoDto
         EmissorNome = movimento.EmissorNome,
         RentabilidadeContratada = movimento.RentabilidadeContratada,
         CotacaoNaCompra = movimento.CotacaoNaCompra,
+        Observacao = movimento.Observacao,
+        Protocolo = movimento.Protocolo,
+        Quantidade = movimento.Quantidade,
         DataInvestimento = movimento.DataInvestimento,
         DataVencimento = movimento.DataVencimento,
         ValorAporte = movimento.ValorAporte,

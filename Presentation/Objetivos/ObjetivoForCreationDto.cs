@@ -6,4 +6,5 @@ public sealed record ObjetivoForCreationDto(
     decimal Meta,
     string FontePagadora,
     decimal AporteMensal,
-    string OndeAplicar);
+    string OndeAplicar,
+    bool EstaAtivo);

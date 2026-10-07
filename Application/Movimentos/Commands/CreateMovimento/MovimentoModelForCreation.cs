@@ -27,6 +27,14 @@ public record MovimentoModelForCreation
     [MaxLength(60, ErrorMessage = "Cotação na compra não deve exceder 60 caracteres")]
     public string? CotacaoNaCompra { get; set; }
 
+    [MaxLength(200, ErrorMessage = "Observação não deve exceder 200 caracteres")]
+    public string? Observacao { get; set; }
+
+    [MaxLength(30, ErrorMessage = "Protocolo não deve exceder 30 caracteres")]
+    public string? Protocolo { get; set; }
+
+    public decimal? Quantidade { get; set; }
+
     [Required(ErrorMessage = "Data do investimento é obrigatória")]
     public DateTime DataInvestimento { get; set; }
 
@@ -54,6 +62,9 @@ public record MovimentoModelForCreation
         EmissorId = EmissorId,
         RentabilidadeContratada = RentabilidadeContratada,
         CotacaoNaCompra = CotacaoNaCompra,
+        Observacao = Observacao,
+        Protocolo = Protocolo,
+        Quantidade = Quantidade,
         DataInvestimento = DataInvestimento,
         DataVencimento = DataVencimento,
         ValorAporte = ValorAporte,

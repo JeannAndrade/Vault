@@ -13,6 +13,9 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
         builder.Property(e => e.Id).HasColumnName("MovimentoId");
         builder.Property(e => e.RentabilidadeContratada).HasMaxLength(60);
         builder.Property(e => e.CotacaoNaCompra).HasMaxLength(60);
+        builder.Property(e => e.Observacao).HasMaxLength(200);
+        builder.Property(e => e.Protocolo).HasMaxLength(30);
+        builder.Property(e => e.Quantidade).HasPrecision(18, 2);
         builder.Property(e => e.DataInvestimento).IsRequired();
         builder.Property(e => e.ValorAporte).IsRequired().HasPrecision(18, 2);
         builder.Property(e => e.EhReinvestimento).IsRequired();

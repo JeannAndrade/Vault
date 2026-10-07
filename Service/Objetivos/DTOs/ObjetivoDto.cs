@@ -11,6 +11,7 @@ public class ObjetivoDto
   public string FontePagadora { get; set; } = string.Empty;
   public decimal AporteMensal { get; set; }
   public string OndeAplicar { get; set; } = string.Empty;
+  public bool EstaAtivo { get; set; }
 
   public static ObjetivoDto FromApplication(ObjetivoModel objetivo)
   {
@@ -22,7 +23,8 @@ public class ObjetivoDto
       Meta = objetivo.Meta,
       FontePagadora = objetivo.FontePagadora,
       AporteMensal = objetivo.AporteMensal,
-      OndeAplicar = objetivo.OndeAplicar
+      OndeAplicar = objetivo.OndeAplicar,
+      EstaAtivo = objetivo.EstaAtivo
     };
   }
 
