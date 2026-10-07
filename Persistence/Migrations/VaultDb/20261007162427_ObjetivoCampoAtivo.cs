@@ -15,10 +15,17 @@ namespace Persistence.Migrations.VaultDb
                 keyColumn: "Id",
                 keyValue: "925ad760-24c9-4dbc-a456-4c4ca4521588");
 
+            migrationBuilder.AddColumn<bool>(
+                name: "EstaAtivo",
+                table: "Objetivos",
+                type: "tinyint(1)",
+                nullable: false,
+                defaultValue: true);
+
             migrationBuilder.InsertData(
                 table: "IdentityRole",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "635b938c-5658-408c-b455-4a162abe1482", "9b9d72ee-dd84-4add-8746-96627d5e4f3c", "Administrator", "ADMINISTRATOR" });
+                values: new object[] { "80a3e753-f6be-442a-bdf1-2d192770a6c5", "f6b49189-eb91-418a-a9c7-5c1cd9378520", "Administrator", "ADMINISTRATOR" });
         }
 
         /// <inheritdoc />
@@ -27,7 +34,11 @@ namespace Persistence.Migrations.VaultDb
             migrationBuilder.DeleteData(
                 table: "IdentityRole",
                 keyColumn: "Id",
-                keyValue: "635b938c-5658-408c-b455-4a162abe1482");
+                keyValue: "80a3e753-f6be-442a-bdf1-2d192770a6c5");
+
+            migrationBuilder.DropColumn(
+                name: "EstaAtivo",
+                table: "Objetivos");
 
             migrationBuilder.InsertData(
                 table: "IdentityRole",

@@ -12,7 +12,7 @@ using Persistence.Context;
 namespace Persistence.Migrations.VaultDb
 {
     [DbContext(typeof(VaultDbContext))]
-    [Migration("20261007160400_ObjetivoCampoAtivo")]
+    [Migration("20261007162427_ObjetivoCampoAtivo")]
     partial class ObjetivoCampoAtivo
     {
         /// <inheritdoc />
@@ -282,8 +282,8 @@ namespace Persistence.Migrations.VaultDb
                     b.HasData(
                         new
                         {
-                            Id = "635b938c-5658-408c-b455-4a162abe1482",
-                            ConcurrencyStamp = "9b9d72ee-dd84-4add-8746-96627d5e4f3c",
+                            Id = "80a3e753-f6be-442a-bdf1-2d192770a6c5",
+                            ConcurrencyStamp = "f6b49189-eb91-418a-a9c7-5c1cd9378520",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
