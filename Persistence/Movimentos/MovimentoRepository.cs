@@ -12,14 +12,16 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     public async Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.DataInvestimento).ToListAsync();
 
-    // Ordem determinística: DataInvestimento decrescente e Id como desempate. Sem o desempate,
-    // movimentos na mesma data podem repetir ou sumir entre páginas.
+    // A ordem é toda descendente (DataInvestimento e Id) para o banco percorrer o índice
+    // IX_Movimentos_UserId_DataInvestimento (UserId, DataInvestimento e, implicitamente, a PK)
+    // de trás para a frente, sem ordenar em memória. Mudar a direção ou o critério desfaz
+    // esse ganho: ver ADR 0009. O Id é só desempate; basta ser determinístico.
     public async Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(
         Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default) =>
         await QueryWithRelatedEntities()
             .Where(m => m.UserId == ownerId)
             .OrderByDescending(m => m.DataInvestimento)
-            .ThenBy(m => m.Id)
+            .ThenByDescending(m => m.Id)
             .ToPagedListAsync(page, pageSize, cancellationToken);
 
     public async Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) =>

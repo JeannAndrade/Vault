@@ -35,6 +35,10 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
         builder.HasIndex(e => new { e.UserId, e.EmissorId });
         builder.HasIndex(e => new { e.UserId, e.ObjetivoId });
 
+        // Sustenta a listagem paginada (UserId = ? ORDER BY DataInvestimento DESC, Id DESC).
+        // Acoplado à ordenação de MovimentoRepository.GetPagedWithRelatedEntitiesAsync: ver ADR 0009.
+        builder.HasIndex(e => new { e.UserId, e.DataInvestimento });
+
 
         // ---------- Relacionamentos ----------
         builder

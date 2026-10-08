@@ -62,5 +62,18 @@ public class CreateModelTests
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
         Assert.Equal("Index", redirect.PageName);
+        Assert.Equal(1, redirect.RouteValues!["pagina"]);   // sem página de origem, volta para a primeira
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WhenApiSucceeds_RedirectsToIndexKeepingOriginPage()
+    {
+        var model = new CreateModel(_movimentoApi.Object, _lookupData.Object) { Input = ValidInput(), Pagina = 4 };
+
+        var result = await model.OnPostAsync(CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal("Index", redirect.PageName);
+        Assert.Equal(4, redirect.RouteValues!["pagina"]);
     }
 }

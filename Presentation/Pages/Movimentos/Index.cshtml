@@ -6,7 +6,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="h3 mb-0">Movimentos</h1>
-  <a class="btn btn-primary btn-sm" asp-page="Create">Novo movimento</a>
+  <a class="btn btn-primary btn-sm" asp-page="Create" asp-route-pagina="@Model.Resultado.Page">Novo movimento</a>
 </div>
 
 @if (Model.ErrorMessage is not null)
@@ -55,7 +55,8 @@ else
           </td>
           <td class="text-end text-nowrap">
             <div class="d-inline-flex gap-1">
-              <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@movimento.Id">Editar</a>
+              <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@movimento.Id"
+                 asp-route-pagina="@Model.Resultado.Page">Editar</a>
               <form method="post" asp-page-handler="Delete" asp-route-id="@movimento.Id"
                     asp-route-pagina="@Model.Resultado.Page" class="mb-0" onsubmit="return confirm('Excluir este movimento?');">
               </form>
@@ -80,7 +81,7 @@ else
 
                   <dt class="col-sm-3">Quantidade</dt>
                   <dd class="col-sm-3">@(movimento.Quantidade?.ToString("N2", new System.Globalization.CultureInfo("pt-BR"))
-                                                        ?? "—")</dd>
+                                                                                                ?? "—")</dd>
                     <dt class="col-sm-3">Protocolo</dt>
                     <dd class="col-sm-3">@(movimento.Protocolo ?? "—")</dd>
 

@@ -231,7 +231,7 @@ public class MovimentoRepositoryTests
             coletados.AddRange(resultado.Items.Select(m => m.Id));
         }
 
-        Assert.Equal(movimentos.Select(m => m.Id).Order(), coletados);
+        Assert.Equal(movimentos.Select(m => m.Id).OrderDescending(), coletados);
     }
 
     [Fact]
