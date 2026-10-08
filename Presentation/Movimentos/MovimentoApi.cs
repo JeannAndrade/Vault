@@ -1,3 +1,4 @@
+using LumiaFoundation.Abstractions.Pagination;
 using LumiaFoundation.Http.Client.Services;
 
 namespace Presentation.Movimentos;
@@ -6,9 +7,10 @@ public sealed class MovimentoApi(IApiConnection connection) : IMovimentoApi
 {
     private const string BasePath = "api/movimentos";
 
-    public async Task<List<MovimentoDto>> GetAllAsync(CancellationToken cancellationToken = default) =>
-        await connection.SendAsync<List<MovimentoDto>>(HttpMethod.Get, BasePath, ct: cancellationToken)
-        ?? [];
+    public async Task<PagedResponse<MovimentoDto>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default) =>
+        await connection.SendAsync<PagedResponse<MovimentoDto>>(
+            HttpMethod.Get, FormattableString.Invariant($"{BasePath}?page={page}&pageSize={pageSize}"), ct: cancellationToken)
+        ?? new PagedResponse<MovimentoDto>([], page, pageSize, 0, 0);
 
     public async Task<MovimentoDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await connection.SendAsync<MovimentoDto>(HttpMethod.Get, $"{BasePath}/{id}", ct: cancellationToken)

@@ -14,6 +14,7 @@
 - Ordenação por `DataInvestimento` decrescente, com `Id` como desempate para tornar a paginação determinística.
 - Tipos reutilizáveis nas libs: `PagedList<T>` (Core), `ToPagedListAsync` (EFRepository) e `PagedResponse<T>` (Abstractions). Web e Api continuam desacoplados: cada um mapeia para seus próprios DTOs.
 - No Web, a página vem de `?pagina=N`, com tamanho fixo de 20, e a exclusão preserva a página atual.
+- A conversão para o contrato de transporte (`ToPagedResponse`) e a navegação no Web (`<lumia-pagination>`, um TagHelper) ficam no `LumiaFoundation.AspNetCore`.
 
 ## Alternativas consideradas
 

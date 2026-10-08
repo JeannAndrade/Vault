@@ -27,19 +27,4 @@ public class MovimentoDtoTests
 
         Assert.Null(dto.DataVencimento);
     }
-
-    [Fact]
-    public void FromApplication_ComPagedList_PreservaItensEMetadados()
-    {
-        var model = new MovimentoModel { Id = Guid.NewGuid() };
-        var pagina = new PagedList<MovimentoModel>([model], page: 3, pageSize: 5, totalCount: 11);
-
-        var resposta = MovimentoDto.FromApplication(pagina);
-
-        Assert.Equal(model.Id, Assert.Single(resposta.Items).Id);
-        Assert.Equal(3, resposta.Page);
-        Assert.Equal(5, resposta.PageSize);
-        Assert.Equal(11, resposta.TotalCount);
-        Assert.Equal(3, resposta.TotalPages);
-    }
 }

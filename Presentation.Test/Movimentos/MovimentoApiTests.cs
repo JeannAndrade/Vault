@@ -1,3 +1,4 @@
+using LumiaFoundation.Abstractions.Pagination;
 using LumiaFoundation.Http.Client.Services;
 using Moq;
 using Presentation.Movimentos;
@@ -15,28 +16,30 @@ public class MovimentoApiTests
     }
 
     [Fact]
-    public async Task GetAllAsync_SendsGetToMovimentosPath()
+    public async Task GetPagedAsync_SendsGetWithPaginationQuery()
     {
-        var expected = new List<MovimentoDto> { new() { Id = Guid.NewGuid() } };
+        var expected = new PagedResponse<MovimentoDto>([new MovimentoDto { Id = Guid.NewGuid() }], 2, 20, 21, 2);
         _connection
-            .Setup(c => c.SendAsync<List<MovimentoDto>>(HttpMethod.Get, "api/movimentos", null, It.IsAny<CancellationToken>()))
+            .Setup(c => c.SendAsync<PagedResponse<MovimentoDto>>(HttpMethod.Get, "api/movimentos?page=2&pageSize=20", null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
-        var result = await _api.GetAllAsync();
+        var result = await _api.GetPagedAsync(2, 20);
 
         Assert.Same(expected, result);
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenApiReturnsNull_ReturnsEmptyList()
+    public async Task GetPagedAsync_WhenApiReturnsNull_ReturnsEmptyPage()
     {
         _connection
-            .Setup(c => c.SendAsync<List<MovimentoDto>>(HttpMethod.Get, "api/movimentos", null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((List<MovimentoDto>?)null);
+            .Setup(c => c.SendAsync<PagedResponse<MovimentoDto>>(HttpMethod.Get, "api/movimentos?page=3&pageSize=20", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PagedResponse<MovimentoDto>?)null);
 
-        var result = await _api.GetAllAsync();
+        var result = await _api.GetPagedAsync(3, 20);
 
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(3, result.Page);
+        Assert.Equal(0, result.TotalPages);
     }
 
     [Fact]

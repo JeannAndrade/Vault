@@ -1,6 +1,4 @@
 using Application.Movimentos;
-using LumiaFoundation.Abstractions.Pagination;
-using LumiaFoundation.Core.Pagination;
 
 namespace Service.Movimentos.DTOs;
 
@@ -56,12 +54,4 @@ public class MovimentoDto
     };
 
     public static List<MovimentoDto> FromApplication(List<MovimentoModel> movimentos) => [.. movimentos.Select(FromApplication)];
-
-    public static PagedResponse<MovimentoDto> FromApplication(PagedList<MovimentoModel> movimentos)
-    {
-        var pagina = movimentos.Map(movimento => FromApplication(movimento));
-
-        return new PagedResponse<MovimentoDto>(
-            pagina.Items, pagina.Page, pagina.PageSize, pagina.TotalCount, pagina.TotalPages);
-    }
 }

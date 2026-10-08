@@ -56,9 +56,8 @@ else
           <td class="text-end text-nowrap">
             <div class="d-inline-flex gap-1">
               <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@movimento.Id">Editar</a>
-              <form method="post" asp-page-handler="Delete" asp-route-id="@movimento.Id" class="mb-0"
-                    onsubmit="return confirm('Excluir este movimento?');">
-                <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+              <form method="post" asp-page-handler="Delete" asp-route-id="@movimento.Id"
+                    asp-route-pagina="@Model.Resultado.Page" class="mb-0" onsubmit="return confirm('Excluir este movimento?');">
               </form>
             </div>
           </td>
@@ -80,23 +79,30 @@ else
                   <dd class="col-sm-3">@(movimento.CotacaoNaCompra ?? "—")</dd>
 
                   <dt class="col-sm-3">Quantidade</dt>
-                  <dd class="col-sm-3">@(movimento.Quantidade?.ToString("N2", new System.Globalization.CultureInfo("pt-BR")) ?? "—")</dd>
-                  <dt class="col-sm-3">Protocolo</dt>
-                  <dd class="col-sm-3">@(movimento.Protocolo ?? "—")</dd>
+                  <dd class="col-sm-3">@(movimento.Quantidade?.ToString("N2", new System.Globalization.CultureInfo("pt-BR"))
+                                                        ?? "—")</dd>
+                    <dt class="col-sm-3">Protocolo</dt>
+                    <dd class="col-sm-3">@(movimento.Protocolo ?? "—")</dd>
 
-                  <dt class="col-sm-3">Observação</dt>
-                  <dd class="col-sm-9">@(movimento.Observacao ?? "—")</dd>
+                    <dt class="col-sm-3">Observação</dt>
+                    <dd class="col-sm-9">@(movimento.Observacao ?? "—")</dd>
 
-                  <dt class="col-sm-3">Reinvestimento</dt>
-                  <dd class="col-sm-3">@(movimento.EhReinvestimento ? "Sim" : "Não")</dd>
-                  <dt class="col-sm-3">Status</dt>
-                  <dd class="col-sm-3">@(movimento.EstaAtivo ? "Ativo" : "Inativo")</dd>
-                </dl>
+                    <dt class="col-sm-3">Reinvestimento</dt>
+                    <dd class="col-sm-3">@(movimento.EhReinvestimento ? "Sim" : "Não")</dd>
+                    <dt class="col-sm-3">Status</dt>
+                    <dd class="col-sm-3">@(movimento.EstaAtivo ? "Ativo" : "Inativo")</dd>
+                  </dl>
+                </div>
               </div>
-            </div>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="text-muted small">
+        Página @Model.Resultado.Page de @Model.Resultado.TotalPages · @Model.Resultado.TotalCount movimento(s)
+      </span>
+      <lumia-pagination page="Model.Resultado.Page" total-pages="Model.Resultado.TotalPages" />
+    </div>
+  }

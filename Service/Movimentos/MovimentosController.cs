@@ -8,6 +8,7 @@ using LumiaFoundation.Abstractions.ErrorModel;
 using LumiaFoundation.Abstractions.Pagination;
 using LumiaFoundation.AspNetCore.Commons.BaseControllers;
 using LumiaFoundation.AspNetCore.Commons.Exceptions;
+using LumiaFoundation.AspNetCore.Pagination;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -55,7 +56,7 @@ public class MovimentosController(
         var movimentos = await _getMovimentosListQuery.ExecuteAsync(
             userId, new PaginationParameters { Page = page, PageSize = pageSize }, cancellationToken);
 
-        return Ok(MovimentoDto.FromApplication(movimentos));
+        return Ok(movimentos.Map(movimento => MovimentoDto.FromApplication(movimento)).ToPagedResponse());
     }
 
     [HttpGet("{id:guid}", Name = "MovimentoById")]
