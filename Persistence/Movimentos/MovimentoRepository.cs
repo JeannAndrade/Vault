@@ -1,4 +1,6 @@
 using Domain.Movimentos;
+using LumiaFoundation.Core.Pagination;
+using LumiaFoundation.EFRepository.Extensions;
 using LumiaFoundation.EFRepository.Repository;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
@@ -10,11 +12,15 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     public async Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.DataInvestimento).ToListAsync();
 
-    public async Task<IEnumerable<Movimento>> GetAllWithRelatedEntitiesAsync(Guid ownerId) =>
+    // Ordem determinística: DataInvestimento decrescente e Id como desempate. Sem o desempate,
+    // movimentos na mesma data podem repetir ou sumir entre páginas.
+    public async Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(
+        Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default) =>
         await QueryWithRelatedEntities()
             .Where(m => m.UserId == ownerId)
-            .OrderBy(m => m.DataInvestimento)
-            .ToListAsync();
+            .OrderByDescending(m => m.DataInvestimento)
+            .ThenBy(m => m.Id)
+            .ToPagedListAsync(page, pageSize, cancellationToken);
 
     public async Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId && c.Id == movimentoId, trackChanges).SingleOrDefaultAsync();

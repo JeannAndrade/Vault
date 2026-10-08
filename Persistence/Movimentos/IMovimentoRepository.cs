@@ -1,11 +1,12 @@
 using Domain.Movimentos;
+using LumiaFoundation.Core.Pagination;
 
 namespace Persistence.Movimentos;
 
 public interface IMovimentoRepository
 {
     Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges);
-    Task<IEnumerable<Movimento>> GetAllWithRelatedEntitiesAsync(Guid ownerId);
+    Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default);
     Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges);
     Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId);
     Task<bool> ExistemPorObjetivoAsync(Guid objetivoId);

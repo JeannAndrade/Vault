@@ -3,8 +3,11 @@ using Application.Movimentos.Commands.DeleteMovimento;
 using Application.Movimentos.Commands.UpdateMovimento;
 using Application.Movimentos.Queries.GetMovimento;
 using Application.Movimentos.Queries.GetMovimentoList;
+using Application.Pagination;
 using LumiaFoundation.Abstractions.ErrorModel;
+using LumiaFoundation.Abstractions.Pagination;
 using LumiaFoundation.AspNetCore.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Commons.Exceptions;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,12 +33,27 @@ public class MovimentosController(
     private readonly IDeleteMovimentoCommand _deleteMovimentoCommand = deleteMovimentoCommand;
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<MovimentoDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResponse<MovimentoDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<MovimentoDto>>> GetMovimentos()
+    public async Task<ActionResult<PagedResponse<MovimentoDto>>> GetMovimentos(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = PaginationParameters.PageSizeDefault,
+    CancellationToken cancellationToken = default)
     {
+        // SuppressModelStateInvalidFilter está ligado: sem esta checagem, um valor não numérico
+        // (ex.: page=abc) cairia no padrão e só o ModelState registraria o erro.
+        if (!ModelState.IsValid)
+        {
+            var invalidos = ModelState.Where(e => e.Value?.Errors.Count > 0).Select(e => e.Key);
+            throw new HttpBaseException(
+                StatusCodes.Status422UnprocessableEntity,
+                $"Parâmetros de paginação inválidos: {string.Join(", ", invalidos)}.");
+        }
+
         var userId = GetCurrentUserId();
-        var movimentos = await _getMovimentosListQuery.ExecuteAsync(userId);
+        var movimentos = await _getMovimentosListQuery.ExecuteAsync(
+            userId, new PaginationParameters { Page = page, PageSize = pageSize }, cancellationToken);
 
         return Ok(MovimentoDto.FromApplication(movimentos));
     }

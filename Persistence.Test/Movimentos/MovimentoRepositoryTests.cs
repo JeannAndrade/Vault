@@ -177,6 +177,107 @@ public class MovimentoRepositoryTests
         Assert.False(resultado);
     }
 
+    [Fact]
+    public async Task GetPagedWithRelatedEntitiesAsync_RetornaSomenteMovimentosDoUsuario()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+        AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        AdicionarMovimento(context, Guid.NewGuid(), new DateTime(2026, 1, 3));
+        await context.SaveChangesAsync();
+        var repository = new MovimentoRepository(context);
+
+        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 10);
+
+        Assert.Equal(2, resultado.TotalCount);
+        Assert.All(resultado.Items, m => Assert.Equal(userId, m.UserId));
+    }
+
+    [Fact]
+    public async Task GetPagedWithRelatedEntitiesAsync_OrdenaPorDataInvestimentoDecrescenteEPagina()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+        AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        AdicionarMovimento(context, userId, new DateTime(2026, 1, 3));
+        AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        await context.SaveChangesAsync();
+        var repository = new MovimentoRepository(context);
+
+        var primeira = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 2);
+        var segunda = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 2, pageSize: 2);
+
+        Assert.Equal([new DateTime(2026, 1, 3), new DateTime(2026, 1, 2)], primeira.Items.Select(m => m.DataInvestimento));
+        Assert.Equal([new DateTime(2026, 1, 1)], segunda.Items.Select(m => m.DataInvestimento));
+        Assert.Equal(3, primeira.TotalCount);
+        Assert.Equal(2, primeira.TotalPages);
+    }
+
+    [Fact]
+    public async Task GetPagedWithRelatedEntitiesAsync_ComDatasIguais_PaginaSemRepetirNemOmitir()
+    {
+        var userId = Guid.NewGuid();
+        var mesmaData = new DateTime(2026, 1, 1);
+        await using var context = CreateContext();
+        var movimentos = Enumerable.Range(0, 5).Select(_ => AdicionarMovimento(context, userId, mesmaData)).ToList();
+        await context.SaveChangesAsync();
+        var repository = new MovimentoRepository(context);
+
+        var coletados = new List<Guid>();
+        for (var pagina = 1; pagina <= 3; pagina++)
+        {
+            var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, pagina, pageSize: 2);
+            coletados.AddRange(resultado.Items.Select(m => m.Id));
+        }
+
+        Assert.Equal(movimentos.Select(m => m.Id).Order(), coletados);
+    }
+
+    [Fact]
+    public async Task GetPagedWithRelatedEntitiesAsync_CarregaNomesDasEntidadesRelacionadas()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+        AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        await context.SaveChangesAsync();
+        var repository = new MovimentoRepository(context);
+
+        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 10);
+
+        var movimento = Assert.Single(resultado.Items);
+        Assert.Equal("Objetivo", movimento.Objetivo.Nome);
+        Assert.Equal("CDB", movimento.TipoRenda.Nome);
+        Assert.Equal("XP", movimento.Corretora.Nome);
+        Assert.Equal("CDB Banco Y", movimento.Produto.Nome);
+        Assert.Equal("Banco Y", movimento.Emissor.Nome);
+    }
+
+    private static Movimento AdicionarMovimento(VaultDbContext context, Guid userId, DateTime dataInvestimento)
+    {
+        var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
+        var tipoRenda = new TipoRenda { Nome = "CDB", UserId = userId };
+        var corretora = new Corretora { Nome = "XP", UserId = userId };
+        var produto = new Produto { Nome = "CDB Banco Y", UserId = userId };
+        var emissor = new Emissor { Nome = "Banco Y", UserId = userId };
+        var movimento = new Movimento
+        {
+            UserId = userId,
+            ObjetivoId = objetivo.Id,
+            TipoRendaId = tipoRenda.Id,
+            CorretoraId = corretora.Id,
+            ProdutoId = produto.Id,
+            EmissorId = emissor.Id,
+            DataInvestimento = dataInvestimento,
+            ValorAporte = 100m,
+            ValorLiquidoAtual = 100m
+        };
+
+        context.AddRange(objetivo, tipoRenda, corretora, produto, emissor, movimento);
+
+        return movimento;
+    }
+
     private static VaultDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<VaultDbContext>()
