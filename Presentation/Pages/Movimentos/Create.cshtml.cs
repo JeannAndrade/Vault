@@ -12,6 +12,9 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
+    [BindProperty(SupportsGet = true, Name = "pagina")]
+    public int Pagina { get; set; } = 1;
+
     public MovimentoFormLookupData Lookup { get; private set; } = null!;
 
     public string? ErrorMessage { get; private set; }
@@ -40,7 +43,7 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
             return Page();
         }
 
-        return RedirectToPage("Index");
+        return RedirectToPage("Index", new { pagina = Pagina });
     }
 
     public class InputModel

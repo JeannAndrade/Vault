@@ -46,11 +46,12 @@ public class EditModelTests
     }
 
     [Fact]
-    public async Task OnPostAsync_WhenApiSucceeds_RedirectsToIndex()
+    public async Task OnPostAsync_WhenApiSucceeds_RedirectsToIndexKeepingOriginPage()
     {
         var model = new EditModel(_movimentoApi.Object, _lookupData.Object)
         {
             Id = _id,
+            Pagina = 3,
             Input = new CreateModel.InputModel
             {
                 ObjetivoId = Guid.NewGuid(),
@@ -68,6 +69,7 @@ public class EditModelTests
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
         Assert.Equal("Index", redirect.PageName);
+        Assert.Equal(3, redirect.RouteValues!["pagina"]);
         _movimentoApi.Verify(a => a.UpdateAsync(_id, It.IsAny<MovimentoForUpdateDto>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

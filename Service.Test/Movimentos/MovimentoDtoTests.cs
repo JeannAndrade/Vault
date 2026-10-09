@@ -1,4 +1,5 @@
 using Application.Movimentos;
+using LumiaFoundation.Core.Pagination;
 using Service.Movimentos.DTOs;
 
 namespace Service.Test.Movimentos;

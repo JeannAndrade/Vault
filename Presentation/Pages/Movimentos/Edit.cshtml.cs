@@ -10,6 +10,9 @@ public class EditModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData look
     [BindProperty(SupportsGet = true)]
     public Guid Id { get; set; }
 
+    [BindProperty(SupportsGet = true, Name = "pagina")]
+    public int Pagina { get; set; } = 1;
+
     [BindProperty]
     public CreateModel.InputModel Input { get; set; } = new();
 
@@ -41,7 +44,7 @@ public class EditModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData look
             return Page();
         }
 
-        return RedirectToPage("Index");
+        return RedirectToPage("Index", new { pagina = Pagina });
     }
 
     private static CreateModel.InputModel MapToInput(MovimentoDto movimento) => new()

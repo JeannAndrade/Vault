@@ -1,4 +1,5 @@
 using Domain.Movimentos;
+using LumiaFoundation.Core.Pagination;
 using Persistence.Movimentos;
 
 namespace Application.Test.Movimentos.TestDoubles;
@@ -10,7 +11,7 @@ internal sealed class FakeMovimentoRepository : IMovimentoRepository
     public Movimento? MovimentoParaRetornar { get; set; }
 
     public Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges) => throw new NotSupportedException();
-    public Task<IEnumerable<Movimento>> GetAllWithRelatedEntitiesAsync(Guid ownerId) => throw new NotSupportedException();
+    public Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) => Task.FromResult(MovimentoParaRetornar);
     public Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
     public Task DeleteAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
