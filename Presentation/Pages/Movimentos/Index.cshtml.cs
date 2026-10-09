@@ -8,7 +8,7 @@ namespace Presentation.Pages.Movimentos;
 
 public class IndexModel(IMovimentoApi movimentoApi) : PageModel
 {
-    public const int TamanhoPagina = 20;
+    public const int TamanhoPagina = 12;
 
     [BindProperty(SupportsGet = true, Name = "pagina")]
     public int Pagina { get; set; } = 1;

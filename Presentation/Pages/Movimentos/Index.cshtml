@@ -59,6 +59,7 @@ else
                  asp-route-pagina="@Model.Resultado.Page">Editar</a>
               <form method="post" asp-page-handler="Delete" asp-route-id="@movimento.Id"
                     asp-route-pagina="@Model.Resultado.Page" class="mb-0" onsubmit="return confirm('Excluir este movimento?');">
+                <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
               </form>
             </div>
           </td>
