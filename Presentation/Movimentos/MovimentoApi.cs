@@ -12,6 +12,11 @@ public sealed class MovimentoApi(IApiConnection connection) : IMovimentoApi
             HttpMethod.Get, FormattableString.Invariant($"{BasePath}?page={page}&pageSize={pageSize}"), ct: cancellationToken)
         ?? new PagedResponse<MovimentoDto>([], page, pageSize, 0, 0);
 
+    public async Task<List<ProximoVencimentoDto>> GetProximosVencimentosAsync(CancellationToken cancellationToken = default) =>
+        await connection.SendAsync<List<ProximoVencimentoDto>>(
+            HttpMethod.Get, $"{BasePath}/proximos-vencimentos", ct: cancellationToken)
+        ?? [];
+
     public async Task<MovimentoDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await connection.SendAsync<MovimentoDto>(HttpMethod.Get, $"{BasePath}/{id}", ct: cancellationToken)
         ?? throw new InvalidOperationException("A API respondeu sem corpo para um movimento existente.");

@@ -29,6 +29,19 @@ public class MovimentoApiTests
     }
 
     [Fact]
+    public async Task GetProximosVencimentosAsync_SendsGetToProximosVencimentosPath()
+    {
+        var expected = new List<ProximoVencimentoDto> { new() { Id = Guid.NewGuid() } };
+        _connection
+            .Setup(c => c.SendAsync<List<ProximoVencimentoDto>>(HttpMethod.Get, "api/movimentos/proximos-vencimentos", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        var result = await _api.GetProximosVencimentosAsync();
+
+        Assert.Same(expected, result);
+    }
+
+    [Fact]
     public async Task GetPagedAsync_WhenApiReturnsNull_ReturnsEmptyPage()
     {
         _connection

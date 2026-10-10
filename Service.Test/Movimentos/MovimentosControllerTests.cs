@@ -4,6 +4,7 @@ using Application.Movimentos.Commands.DeleteMovimento;
 using Application.Movimentos.Commands.UpdateMovimento;
 using Application.Movimentos.Queries.GetMovimento;
 using Application.Movimentos.Queries.GetMovimentoList;
+using Application.Movimentos.Queries.GetProximosVencimentos;
 using Application.Pagination;
 using LumiaFoundation.Abstractions.Pagination;
 using LumiaFoundation.AspNetCore.Commons.Exceptions;
@@ -19,6 +20,7 @@ namespace Service.Test.Movimentos;
 public class MovimentosControllerTests
 {
     private readonly Mock<IGetMovimentosListQuery> _getMovimentosListQuery = new();
+    private readonly Mock<IGetProximosVencimentosQuery> _getProximosVencimentosQuery = new();
     private readonly MovimentosController _controller;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -26,6 +28,7 @@ public class MovimentosControllerTests
     {
         _controller = new MovimentosController(
             _getMovimentosListQuery.Object,
+            _getProximosVencimentosQuery.Object,
             new Mock<IGetMovimentoQuery>().Object,
             new Mock<ICreateMovimentoCommand>().Object,
             new Mock<IUpdateMovimentoCommand>().Object,
@@ -55,6 +58,34 @@ public class MovimentosControllerTests
         Assert.Equal(10, resposta.PageSize);
         Assert.Equal(11, resposta.TotalCount);
         Assert.Equal(2, resposta.TotalPages);
+    }
+
+    [Fact]
+    public async Task GetProximosVencimentos_RespondeListaMapeada()
+    {
+        var movimento = new ProximoVencimentoModel
+        {
+            Id = Guid.NewGuid(),
+            ObjetivoNome = "Aposentadoria",
+            CorretoraNome = "XP",
+            ProdutoNome = "CDB",
+            EmissorNome = "Banco Y",
+            DataVencimento = new DateTime(2026, 10, 20),
+            ValorLiquidoAtual = 1234.56m
+        };
+        _getProximosVencimentosQuery
+            .Setup(q => q.ExecuteAsync(_userId))
+            .ReturnsAsync([movimento]);
+
+        var result = await _controller.GetProximosVencimentos();
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var resposta = Assert.IsType<List<ProximoVencimentoDto>>(ok.Value);
+        var item = Assert.Single(resposta);
+        Assert.Equal(movimento.Id, item.Id);
+        Assert.Equal(movimento.ObjetivoNome, item.ObjetivoNome);
+        Assert.Equal(movimento.DataVencimento, item.DataVencimento);
+        Assert.Equal(movimento.ValorLiquidoAtual, item.ValorLiquidoAtual);
     }
 
     [Fact]

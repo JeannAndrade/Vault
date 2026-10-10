@@ -24,6 +24,15 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
             .ThenByDescending(m => m.Id)
             .ToPagedListAsync(page, pageSize, cancellationToken);
 
+    public async Task<List<Movimento>> GetProximosVencimentosAsync(
+        Guid ownerId, int quantidade = 15, CancellationToken cancellationToken = default) =>
+        await QueryWithRelatedEntities()
+            .Where(m => m.UserId == ownerId && m.EstaAtivo && m.DataVencimento != null)
+            .OrderBy(m => m.DataVencimento)
+            .ThenBy(m => m.Id)
+            .Take(quantidade)
+            .ToListAsync(cancellationToken);
+
     public async Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId && c.Id == movimentoId, trackChanges).SingleOrDefaultAsync();
 

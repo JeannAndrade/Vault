@@ -39,6 +39,9 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
         // Acoplado à ordenação de MovimentoRepository.GetPagedWithRelatedEntitiesAsync: ver ADR 0009.
         builder.HasIndex(e => new { e.UserId, e.DataInvestimento });
 
+        // Sustenta os próximos vencimentos (UserId = ? AND EstaAtivo = ? AND DataVencimento IS NOT NULL ORDER BY DataVencimento, Id).
+        // Acoplado à ordenação de MovimentoRepository.GetProximosVencimentosAsync: ver ADR 0010.
+        builder.HasIndex(e => new { e.UserId, e.EstaAtivo, e.DataVencimento });
 
         // ---------- Relacionamentos ----------
         builder

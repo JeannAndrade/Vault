@@ -178,6 +178,51 @@ public class MovimentoRepositoryTests
     }
 
     [Fact]
+    public async Task GetProximosVencimentosAsync_RetornaSomenteAtivosOrdenadosPorDataVencimento()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+
+        var movimentoVenceEm10Dias = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        movimentoVenceEm10Dias.EstaAtivo = true;
+        movimentoVenceEm10Dias.DataVencimento = new DateTime(2026, 1, 10);
+
+        var movimentoVenceEm5Dias = AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        movimentoVenceEm5Dias.EstaAtivo = true;
+        movimentoVenceEm5Dias.DataVencimento = new DateTime(2026, 1, 5);
+
+        var movimentoJaVenceu = AdicionarMovimento(context, userId, new DateTime(2026, 1, 3));
+        movimentoJaVenceu.EstaAtivo = true;
+        movimentoJaVenceu.DataVencimento = new DateTime(2025, 12, 29);
+
+        var movimentoInativo = AdicionarMovimento(context, userId, new DateTime(2026, 1, 4));
+        movimentoInativo.EstaAtivo = false;
+        movimentoInativo.DataVencimento = new DateTime(2026, 1, 7);
+
+        var movimentoDeOutroUsuario = AdicionarMovimento(context, Guid.NewGuid(), new DateTime(2026, 1, 5));
+        movimentoDeOutroUsuario.EstaAtivo = true;
+        movimentoDeOutroUsuario.DataVencimento = new DateTime(2026, 1, 12);
+
+        var movimentoSemDataVencimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 6));
+        movimentoSemDataVencimento.EstaAtivo = true;
+        movimentoSemDataVencimento.DataVencimento = null;
+
+        await context.SaveChangesAsync();
+        var repository = new MovimentoRepository(context);
+
+        var resultado = await repository.GetProximosVencimentosAsync(userId, quantidade: 15);
+
+        Assert.Equal(
+            [movimentoJaVenceu.Id, movimentoVenceEm5Dias.Id, movimentoVenceEm10Dias.Id],
+            resultado.Select(m => m.Id));
+        Assert.All(resultado, m => Assert.True(m.EstaAtivo));
+        Assert.All(resultado, m => Assert.NotNull(m.DataVencimento));
+        Assert.DoesNotContain(resultado, m => m.Id == movimentoInativo.Id);
+        Assert.DoesNotContain(resultado, m => m.Id == movimentoSemDataVencimento.Id);
+        Assert.DoesNotContain(resultado, m => m.UserId == movimentoDeOutroUsuario.UserId);
+    }
+
+    [Fact]
     public async Task GetPagedWithRelatedEntitiesAsync_RetornaSomenteMovimentosDoUsuario()
     {
         var userId = Guid.NewGuid();

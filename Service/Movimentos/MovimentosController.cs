@@ -3,6 +3,7 @@ using Application.Movimentos.Commands.DeleteMovimento;
 using Application.Movimentos.Commands.UpdateMovimento;
 using Application.Movimentos.Queries.GetMovimento;
 using Application.Movimentos.Queries.GetMovimentoList;
+using Application.Movimentos.Queries.GetProximosVencimentos;
 using Application.Pagination;
 using LumiaFoundation.Abstractions.ErrorModel;
 using LumiaFoundation.Abstractions.Pagination;
@@ -22,12 +23,14 @@ namespace Service.Movimentos;
 [Route("api/movimentos")]
 public class MovimentosController(
     IGetMovimentosListQuery getMovimentosListQuery,
+    IGetProximosVencimentosQuery getProximosVencimentosQuery,
     IGetMovimentoQuery getMovimentoQuery,
     ICreateMovimentoCommand createMovimentoCommand,
     IUpdateMovimentoCommand updateMovimentoCommand,
     IDeleteMovimentoCommand deleteMovimentoCommand) : BaseApiController
 {
     private readonly IGetMovimentosListQuery _getMovimentosListQuery = getMovimentosListQuery;
+    private readonly IGetProximosVencimentosQuery _getProximosVencimentosQuery = getProximosVencimentosQuery;
     private readonly IGetMovimentoQuery _getMovimentoQuery = getMovimentoQuery;
     private readonly ICreateMovimentoCommand _createMovimentoCommand = createMovimentoCommand;
     private readonly IUpdateMovimentoCommand _updateMovimentoCommand = updateMovimentoCommand;
@@ -57,6 +60,17 @@ public class MovimentosController(
             userId, new PaginationParameters { Page = page, PageSize = pageSize }, cancellationToken);
 
         return Ok(movimentos.Map(movimento => MovimentoDto.FromApplication(movimento)).ToPagedResponse());
+    }
+
+    [HttpGet("proximos-vencimentos")]
+    [ProducesResponseType(typeof(IEnumerable<ProximoVencimentoDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<ProximoVencimentoDto>>> GetProximosVencimentos()
+    {
+        var userId = GetCurrentUserId();
+        var proximosVencimentos = await _getProximosVencimentosQuery.ExecuteAsync(userId);
+
+        return Ok(ProximoVencimentoDto.FromApplication(proximosVencimentos));
     }
 
     [HttpGet("{id:guid}", Name = "MovimentoById")]
