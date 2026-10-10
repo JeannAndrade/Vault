@@ -6,8 +6,9 @@ using Presentation.Objetivos;
 
 namespace Presentation.Pages;
 
-public class IndexModel(IObjetivoApi objetivoApi, IMovimentoApi movimentoApi) : PageModel
+public class IndexModel(IObjetivoApi objetivoApi, IMovimentoApi movimentoApi, IDateTimeProvider dateTimeProvider) : PageModel
 {
+    private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
     public List<ResumoObjetivoDto> Objetivos { get; private set; } = [];
 
     public List<ProximoVencimentoDto> ProximosVencimentos { get; private set; } = [];
@@ -30,13 +31,18 @@ public class IndexModel(IObjetivoApi objetivoApi, IMovimentoApi movimentoApi) : 
         }
     }
 
-    public static string ObterClasseLinha(ProximoVencimentoDto movimento)
+    public string ObterClasseColunaDataVencimento(ProximoVencimentoDto movimento)
     {
-        var hojeUtc = new UtcDateTimeProvider().GetDateTime().Date;
+        var hojeUtc = _dateTimeProvider.GetDateTime().Date;
 
         if (movimento.DataVencimento is DateTime dataVencimento && (dataVencimento.Date - hojeUtc).TotalDays < 10)
             return "bg-warning-subtle";
 
+        return string.Empty;
+    }
+
+    public string ObterClasseColunaValor(ProximoVencimentoDto movimento)
+    {
         return movimento.ValorLiquidoAtual > 5000m ? "bg-success-subtle" : string.Empty;
     }
 }

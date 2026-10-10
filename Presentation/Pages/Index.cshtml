@@ -1,94 +1,98 @@
 @page
 @model IndexModel
 @{
-  ViewData["Title"] = "Objetivos";
-  var culturaMoeda = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+    ViewData["Title"] = "Objetivos";
+    var culturaMoeda = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">Meus objetivos</h1>
+    <h1 class="h3 mb-0">Meus objetivos</h1>
 </div>
 
 @if (Model.ErrorMessage is not null)
 {
-  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+    <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
 }
 
 @if (Model.Objetivos.Count == 0)
 {
-  <p class="text-muted">Nenhum objetivo cadastrado.</p>
+    <p class="text-muted">Nenhum objetivo cadastrado.</p>
 }
 else
 {
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th class="text-end">Meta</th>
-        <th class="text-end">Percentual Meta</th>
-        <th class="text-end">Qtde Movimentos</th>
-        <th class="text-end">Total Aportado</th>
-        <th class="text-end">Total Líquido</th>
-      </tr>
-    </thead>
-    <tbody>
-      @foreach (var objetivo in Model.Objetivos)
-      {
-        <tr>
-          <td>@objetivo.Nome</td>
-          <td class="text-end">@objetivo.Meta.ToString("C", culturaMoeda)</td>
-          <td class="text-end">@objetivo.PercentualMeta.ToString("F2") %</td>
-          <td class="text-end">@objetivo.QtdeMovimentos</td>
-          <td class="text-end">@objetivo.TotalAportado.ToString("C", culturaMoeda)</td>
-          <td class="text-end">@objetivo.TotalLiquido.ToString("C", culturaMoeda)</td>
-        </tr>
-      }
-    </tbody>
-  </table>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th class="text-end">Meta</th>
+                <th class="text-end">Percentual Meta</th>
+                <th class="text-end">Qtde Movimentos</th>
+                <th class="text-end">Total Aportado</th>
+                <th class="text-end">Total Líquido</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var objetivo in Model.Objetivos)
+            {
+                <tr>
+                    <td>@objetivo.Nome</td>
+                    <td class="text-end">@objetivo.Meta.ToString("C", culturaMoeda)</td>
+                    <td class="text-end">@objetivo.PercentualMeta.ToString("F2") %</td>
+                    <td class="text-end">@objetivo.QtdeMovimentos</td>
+                    <td class="text-end">@objetivo.TotalAportado.ToString("C", culturaMoeda)</td>
+                    <td class="text-end">@objetivo.TotalLiquido.ToString("C", culturaMoeda)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 <div class="mb-4">
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <h2 class="h5 mb-0">Próximos vencimentos</h2>
-  </div>
-
-  @if (Model.ProximosVencimentosErrorMessage is not null)
-  {
-    <div class="alert alert-warning" role="alert">@Model.ProximosVencimentosErrorMessage</div>
-  }
-  else if (Model.ProximosVencimentos.Count == 0)
-  {
-    <p class="text-muted mb-0">Nenhum vencimento próximo.</p>
-  }
-  else
-  {
-    <div class="table-responsive">
-      <table class="table table-sm align-middle mb-0">
-        <thead>
-          <tr>
-            <th>Objetivo</th>
-            <th>Corretora</th>
-            <th>Produto</th>
-            <th>Emissor</th>
-            <th>Vence</th>
-            <th class="text-end">Valor Líquido</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach (var movimento in Model.ProximosVencimentos)
-          {
-            var classeLinha = IndexModel.ObterClasseLinha(movimento);
-            <tr class="@classeLinha">
-              <td>@movimento.ObjetivoNome</td>
-              <td>@movimento.CorretoraNome</td>
-              <td>@movimento.ProdutoNome</td>
-              <td>@movimento.EmissorNome</td>
-              <td>@(movimento.DataVencimento is DateTime dataVencimento ? dataVencimento.ToString("dd/MM/yyyy") : "-")</td>
-              <td class="text-end">@movimento.ValorLiquidoAtual.ToString("C", culturaMoeda)</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h5 mb-0">Próximos vencimentos</h2>
     </div>
-  }
+
+    @if (Model.ProximosVencimentosErrorMessage is not null)
+    {
+        <div class="alert alert-warning" role="alert">@Model.ProximosVencimentosErrorMessage</div>
+    }
+    else if (Model.ProximosVencimentos.Count == 0)
+    {
+        <p class="text-muted mb-0">Nenhum vencimento próximo.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Objetivo</th>
+                        <th>Corretora</th>
+                        <th>Produto</th>
+                        <th>Emissor</th>
+                        <th>Vence</th>
+                        <th class="text-end">Valor Líquido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var movimento in Model.ProximosVencimentos)
+                    {
+                        <tr>
+                            <td>@movimento.ObjetivoNome</td>
+                            <td>@movimento.CorretoraNome</td>
+                            <td>@movimento.ProdutoNome</td>
+                            <td>@movimento.EmissorNome</td>
+                            <td class="@Model.ObterClasseColunaDataVencimento(movimento)">
+                                @(movimento.DataVencimento is DateTime dataVencimento ? dataVencimento.ToString("dd/MM/yyyy") :
+                                 "-")
+                            </td>
+                            <td class="text-end @Model.ObterClasseColunaValor(movimento)">
+                                @movimento.ValorLiquidoAtual.ToString("C", culturaMoeda)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

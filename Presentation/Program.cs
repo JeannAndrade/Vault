@@ -10,6 +10,7 @@ using Presentation.Produtos;
 using Presentation.TiposRenda;
 using Presentation.Objetivos;
 using Presentation.Movimentos;
+using LumiaFoundation.Core.TimeService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +69,7 @@ builder.Services.AddLumiaApiClient(
     configureAuthentication: options => options.RefreshPath = "/api/token/refresh");
 builder.Services.AddApiSignInService();
 builder.Services.AddApiRegistrationService();
+builder.Services.AddScoped<IDateTimeProvider, UtcDateTimeProvider>();
 builder.Services.AddApiResourceClient<ICorretoraApi, CorretoraApi>();
 builder.Services.AddApiResourceClient<IEmissorApi, EmissorApi>();
 builder.Services.AddApiResourceClient<IProdutoApi, ProdutoApi>();
