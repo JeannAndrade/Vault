@@ -5,7 +5,7 @@ namespace Application.Movimentos.Queries.GetProximosVencimentos;
 
 public class GetProximosVencimentosQuery(IRepositoryManager repositoryManager, ILoggerManager logger) : IGetProximosVencimentosQuery
 {
-    private const int QuantidadeMaxima = 15;
+    private const int QuantidadeMaxima = 12;
     private readonly IRepositoryManager _repository = repositoryManager;
     private readonly ILoggerManager _logger = logger;
 
