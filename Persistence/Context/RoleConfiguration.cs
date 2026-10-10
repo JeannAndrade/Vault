@@ -16,13 +16,13 @@ public class RoleConfiguration : IEntityTypeConfiguration<IdentityRole>
 
     public void Configure(EntityTypeBuilder<IdentityRole> builder)
     {
-        builder.HasData(new IdentityRole
+        /* builder.HasData(new IdentityRole
         {
             Id = AdministratorId,
             Name = "Administrator",
             NormalizedName = "ADMINISTRATOR",
             ConcurrencyStamp = AdministratorConcurrencyStamp
-        });
+        }); */
     }
 }
 

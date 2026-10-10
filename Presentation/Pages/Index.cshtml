@@ -46,3 +46,49 @@ else
     </tbody>
   </table>
 }
+
+<div class="mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="h5 mb-0">Próximos vencimentos</h2>
+  </div>
+
+  @if (Model.ProximosVencimentosErrorMessage is not null)
+  {
+    <div class="alert alert-warning" role="alert">@Model.ProximosVencimentosErrorMessage</div>
+  }
+  else if (Model.ProximosVencimentos.Count == 0)
+  {
+    <p class="text-muted mb-0">Nenhum vencimento próximo.</p>
+  }
+  else
+  {
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Objetivo</th>
+            <th>Corretora</th>
+            <th>Produto</th>
+            <th>Emissor</th>
+            <th>Vence</th>
+            <th class="text-end">Valor Líquido</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var movimento in Model.ProximosVencimentos)
+          {
+            var classeLinha = IndexModel.ObterClasseLinha(movimento);
+            <tr class="@classeLinha">
+              <td>@movimento.ObjetivoNome</td>
+              <td>@movimento.CorretoraNome</td>
+              <td>@movimento.ProdutoNome</td>
+              <td>@movimento.EmissorNome</td>
+              <td>@(movimento.DataVencimento is DateTime dataVencimento ? dataVencimento.ToString("dd/MM/yyyy") : "-")</td>
+              <td class="text-end">@movimento.ValorLiquidoAtual.ToString("C", culturaMoeda)</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
