@@ -42,6 +42,19 @@ public class MovimentoApiTests
     }
 
     [Fact]
+    public async Task GetDesatualizadosAsync_SendsGetToDesatualizadosPath()
+    {
+        var expected = new List<MovimentoDesatualizadoDto> { new() { Id = Guid.NewGuid() } };
+        _connection
+            .Setup(c => c.SendAsync<List<MovimentoDesatualizadoDto>>(HttpMethod.Get, "api/movimentos/desatualizados", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        var result = await _api.GetDesatualizadosAsync();
+
+        Assert.Same(expected, result);
+    }
+
+    [Fact]
     public async Task GetPagedAsync_WhenApiReturnsNull_ReturnsEmptyPage()
     {
         _connection
@@ -92,6 +105,17 @@ public class MovimentoApiTests
         await _api.UpdateAsync(id, body);
 
         _connection.Verify(c => c.SendAsync(HttpMethod.Put, $"api/movimentos/{id}", body, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateValorLiquidoAsync_SendsPatchToValorLiquidoPathWithBody()
+    {
+        var id = Guid.NewGuid();
+        var body = new MovimentoForUpdateValorLiquidoDto { ValorLiquidoAtual = 1200m };
+
+        await _api.UpdateValorLiquidoAsync(id, body);
+
+        _connection.Verify(c => c.SendAsync(HttpMethod.Patch, $"api/movimentos/{id}/valor-liquido", body, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

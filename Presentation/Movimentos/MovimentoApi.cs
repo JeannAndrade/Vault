@@ -17,6 +17,11 @@ public sealed class MovimentoApi(IApiConnection connection) : IMovimentoApi
             HttpMethod.Get, $"{BasePath}/proximos-vencimentos", ct: cancellationToken)
         ?? [];
 
+    public async Task<List<MovimentoDesatualizadoDto>> GetDesatualizadosAsync(CancellationToken cancellationToken = default) =>
+        await connection.SendAsync<List<MovimentoDesatualizadoDto>>(
+            HttpMethod.Get, $"{BasePath}/desatualizados", ct: cancellationToken)
+        ?? [];
+
     public async Task<MovimentoDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await connection.SendAsync<MovimentoDto>(HttpMethod.Get, $"{BasePath}/{id}", ct: cancellationToken)
         ?? throw new InvalidOperationException("A API respondeu sem corpo para um movimento existente.");
@@ -27,6 +32,9 @@ public sealed class MovimentoApi(IApiConnection connection) : IMovimentoApi
 
     public Task UpdateAsync(Guid id, MovimentoForUpdateDto movimento, CancellationToken cancellationToken = default) =>
         connection.SendAsync(HttpMethod.Put, $"{BasePath}/{id}", movimento, cancellationToken);
+
+    public Task UpdateValorLiquidoAsync(Guid id, MovimentoForUpdateValorLiquidoDto movimento, CancellationToken cancellationToken = default) =>
+        connection.SendAsync(HttpMethod.Patch, $"{BasePath}/{id}/valor-liquido", movimento, cancellationToken);
 
     public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
         connection.SendAsync(HttpMethod.Delete, $"{BasePath}/{id}", ct: cancellationToken);

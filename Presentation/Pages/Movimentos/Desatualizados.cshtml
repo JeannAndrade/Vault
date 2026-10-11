@@ -1,0 +1,63 @@
+@page
+@using System.Globalization
+@model DesatualizadosModel
+@{
+  ViewData["Title"] = "Manutenção Valor Líquido";
+}
+
+<h1 class="h3 mb-3">Manutenção Valor Líquido</h1>
+<p class="text-muted">Exibe até 12 movimentos, do mais antigo ao mais recente.</p>
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+@if (Model.Movimentos.Count == 0)
+{
+  <p class="text-muted">Nenhum movimento a atualizar.</p>
+}
+else
+{
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Objetivo</th>
+        <th>Corretora</th>
+        <th>Produto</th>
+        <th>Emissor</th>
+        <th>Vence</th>
+        <th class="text-end">Valor Líquido</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var movimento in Model.Movimentos)
+      {
+        var inputId = $"valor-liquido-{movimento.Id}";
+        <tr>
+          <td>@movimento.ObjetivoNome</td>
+          <td>@movimento.CorretoraNome</td>
+          <td>@movimento.ProdutoNome</td>
+          <td>@movimento.EmissorNome</td>
+          <td>@(movimento.DataVencimento?.ToString("dd/MM/yyyy") ?? "—")</td>
+          <td class="text-end">@movimento.ValorLiquidoAtual.ToString("C", new CultureInfo("pt-BR"))</td>
+          <td>
+            <form method="post" asp-page-handler="Atualizar" asp-route-id="@movimento.Id" class="d-flex flex-column gap-1">
+              <div class="d-flex gap-1">
+                <input id="@inputId" name="Input.ValorLiquidoAtual" class="form-control form-control-sm" type="number"
+                       step="0.01" min="0" required placeholder="Novo valor"
+                       value="@movimento.ValorLiquidoAtual.ToString(CultureInfo.InvariantCulture)" />
+                <button type="submit" class="btn btn-primary btn-sm">Atualizar</button>
+              </div>
+              @if (Model.IdComErro == movimento.Id)
+              {
+                @Html.ValidationMessage("Input.ValorLiquidoAtual", new { @class = "text-danger small" })
+              }
+            </form>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
