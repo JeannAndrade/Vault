@@ -1,4 +1,5 @@
 using Application.Movimentos;
+using Application.Movimentos.Queries.GetMovimentosDesatualizados;
 using LumiaFoundation.Core.Pagination;
 using Service.Movimentos.DTOs;
 
@@ -26,5 +27,24 @@ public class MovimentoDtoTests
         var dto = MovimentoDto.FromApplication(model);
 
         Assert.Null(dto.DataVencimento);
+    }
+
+    [Fact]
+    public void MovimentoDesatualizadoFromApplication_MapsItemAndList()
+    {
+        var model = new MovimentoDesatualizadoModel
+        {
+            Id = Guid.NewGuid(),
+            ObjetivoNome = "Aposentadoria",
+            ValorLiquidoAtual = 123.45m
+        };
+
+        var item = MovimentoDesatualizadoDto.FromApplication(model);
+        var lista = MovimentoDesatualizadoDto.FromApplication([model]);
+
+        Assert.Equal(model.Id, item.Id);
+        Assert.Equal(model.ObjetivoNome, item.ObjetivoNome);
+        Assert.Equal(model.ValorLiquidoAtual, item.ValorLiquidoAtual);
+        Assert.Equal(item, Assert.Single(lista));
     }
 }

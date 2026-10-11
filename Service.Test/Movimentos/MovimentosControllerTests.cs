@@ -2,8 +2,10 @@ using Application.Movimentos;
 using Application.Movimentos.Commands.CreateMovimento;
 using Application.Movimentos.Commands.DeleteMovimento;
 using Application.Movimentos.Commands.UpdateMovimento;
+using Application.Movimentos.Commands.UpdateValorLiquidoMovimento;
 using Application.Movimentos.Queries.GetMovimento;
 using Application.Movimentos.Queries.GetMovimentoList;
+using Application.Movimentos.Queries.GetMovimentosDesatualizados;
 using Application.Movimentos.Queries.GetProximosVencimentos;
 using Application.Pagination;
 using LumiaFoundation.Abstractions.Pagination;
@@ -21,6 +23,8 @@ public class MovimentosControllerTests
 {
     private readonly Mock<IGetMovimentosListQuery> _getMovimentosListQuery = new();
     private readonly Mock<IGetProximosVencimentosQuery> _getProximosVencimentosQuery = new();
+    private readonly Mock<IGetMovimentosDesatualizadosQuery> _getMovimentosDesatualizadosQuery = new();
+    private readonly Mock<IUpdateValorLiquidoMovimentoCommand> _updateValorLiquidoMovimentoCommand = new();
     private readonly MovimentosController _controller;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -32,7 +36,9 @@ public class MovimentosControllerTests
             new Mock<IGetMovimentoQuery>().Object,
             new Mock<ICreateMovimentoCommand>().Object,
             new Mock<IUpdateMovimentoCommand>().Object,
-            new Mock<IDeleteMovimentoCommand>().Object)
+            new Mock<IDeleteMovimentoCommand>().Object,
+            _getMovimentosDesatualizadosQuery.Object,
+            _updateValorLiquidoMovimentoCommand.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -100,5 +106,49 @@ public class MovimentosControllerTests
         _getMovimentosListQuery.Verify(
             q => q.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<PaginationParameters>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task GetMovimentosDesatualizados_RepassaUsuarioETokenEMapeiaLista()
+    {
+        using var cts = new CancellationTokenSource();
+        _controller.HttpContext.RequestAborted = cts.Token;
+        var movimento = new MovimentoDesatualizadoModel
+        {
+            Id = Guid.NewGuid(),
+            ProdutoNome = "CDB",
+            ValorLiquidoAtual = 1234.56m
+        };
+        _getMovimentosDesatualizadosQuery
+            .Setup(q => q.ExecuteAsync(_userId, cts.Token))
+            .ReturnsAsync([movimento]);
+
+        var result = await _controller.GetMovimentosDesatualizados();
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var resposta = Assert.IsType<List<MovimentoDesatualizadoDto>>(ok.Value);
+        var item = Assert.Single(resposta);
+        Assert.Equal(movimento.Id, item.Id);
+        Assert.Equal(movimento.ProdutoNome, item.ProdutoNome);
+        Assert.Equal(movimento.ValorLiquidoAtual, item.ValorLiquidoAtual);
+        _getMovimentosDesatualizadosQuery.Verify(q => q.ExecuteAsync(_userId, cts.Token), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateValorLiquidoMovimento_RepassaUsuarioIdETokenERetornaNoContent()
+    {
+        using var cts = new CancellationTokenSource();
+        _controller.HttpContext.RequestAborted = cts.Token;
+        var id = Guid.NewGuid();
+        var dto = new MovimentoForUpdateValorLiquidoDto { ValorLiquidoAtual = 987.65m };
+
+        var result = await _controller.UpdateValorLiquidoMovimento(id, dto);
+
+        Assert.IsType<NoContentResult>(result);
+        _updateValorLiquidoMovimentoCommand.Verify(c => c.ExecuteAsync(
+            It.Is<MovimentoModelForUpdateValorLiquido>(m => m.ValorLiquidoAtual == dto.ValorLiquidoAtual),
+            _userId,
+            id,
+            cts.Token), Times.Once);
     }
 }

@@ -1,8 +1,10 @@
 using Application.Movimentos.Commands.CreateMovimento;
 using Application.Movimentos.Commands.DeleteMovimento;
 using Application.Movimentos.Commands.UpdateMovimento;
+using Application.Movimentos.Commands.UpdateValorLiquidoMovimento;
 using Application.Movimentos.Queries.GetMovimento;
 using Application.Movimentos.Queries.GetMovimentoList;
+using Application.Movimentos.Queries.GetMovimentosDesatualizados;
 using Application.Movimentos.Queries.GetProximosVencimentos;
 using Application.Pagination;
 using LumiaFoundation.Abstractions.ErrorModel;
@@ -27,7 +29,9 @@ public class MovimentosController(
     IGetMovimentoQuery getMovimentoQuery,
     ICreateMovimentoCommand createMovimentoCommand,
     IUpdateMovimentoCommand updateMovimentoCommand,
-    IDeleteMovimentoCommand deleteMovimentoCommand) : BaseApiController
+    IDeleteMovimentoCommand deleteMovimentoCommand,
+    IGetMovimentosDesatualizadosQuery getMovimentosDesatualizadosQuery,
+    IUpdateValorLiquidoMovimentoCommand updateValorLiquidoMovimentoCommand) : BaseApiController
 {
     private readonly IGetMovimentosListQuery _getMovimentosListQuery = getMovimentosListQuery;
     private readonly IGetProximosVencimentosQuery _getProximosVencimentosQuery = getProximosVencimentosQuery;
@@ -35,6 +39,8 @@ public class MovimentosController(
     private readonly ICreateMovimentoCommand _createMovimentoCommand = createMovimentoCommand;
     private readonly IUpdateMovimentoCommand _updateMovimentoCommand = updateMovimentoCommand;
     private readonly IDeleteMovimentoCommand _deleteMovimentoCommand = deleteMovimentoCommand;
+    private readonly IGetMovimentosDesatualizadosQuery _getMovimentosDesatualizadosQuery = getMovimentosDesatualizadosQuery;
+    private readonly IUpdateValorLiquidoMovimentoCommand _updateValorLiquidoMovimentoCommand = updateValorLiquidoMovimentoCommand;
 
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<MovimentoDto>), StatusCodes.Status200OK)]
@@ -73,6 +79,17 @@ public class MovimentosController(
         return Ok(ProximoVencimentoDto.FromApplication(proximosVencimentos));
     }
 
+    [HttpGet("desatualizados")]
+    [ProducesResponseType(typeof(IEnumerable<MovimentoDesatualizadoDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<MovimentoDesatualizadoDto>>> GetMovimentosDesatualizados()
+    {
+        var movimentos = await _getMovimentosDesatualizadosQuery.ExecuteAsync(
+            GetCurrentUserId(), HttpContext.RequestAborted);
+
+        return Ok(MovimentoDesatualizadoDto.FromApplication(movimentos));
+    }
+
     [HttpGet("{id:guid}", Name = "MovimentoById")]
     [ProducesResponseType(typeof(MovimentoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
@@ -105,6 +122,21 @@ public class MovimentosController(
     public async Task<ActionResult<MovimentoDto>> UpdateMovimento(Guid id, [FromBody] MovimentoForUpdateDto movimento)
     {
         _ = await _updateMovimentoCommand.ExecuteAsync(movimento.ToUpdateMovimentoCommand(), GetCurrentUserId(), id);
+
+        return NoContent();
+    }
+
+    [HttpPatch("{id:guid}/valor-liquido")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateValorLiquidoMovimento(
+        Guid id,
+        [FromBody] MovimentoForUpdateValorLiquidoDto movimento)
+    {
+        await _updateValorLiquidoMovimentoCommand.ExecuteAsync(
+            movimento.ToUpdateValorLiquidoCommand(), GetCurrentUserId(), id, HttpContext.RequestAborted);
 
         return NoContent();
     }

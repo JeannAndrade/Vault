@@ -25,4 +25,14 @@ public class MovimentoForCreationAndUpdateDtoTests
 
         Assert.Equal(vencimento, command.DataVencimento);
     }
+
+    [Fact]
+    public void ToUpdateValorLiquidoCommand_MapsValorLiquidoAtual()
+    {
+        var dto = new MovimentoForUpdateValorLiquidoDto { ValorLiquidoAtual = 1234.56m };
+
+        var command = dto.ToUpdateValorLiquidoCommand();
+
+        Assert.Equal(dto.ValorLiquidoAtual, command.ValorLiquidoAtual);
+    }
 }
