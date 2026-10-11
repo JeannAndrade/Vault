@@ -43,4 +43,22 @@ public class MovimentoMappingTests
 
         Assert.NotNull(indice);
     }
+
+    [Fact]
+    public void Movimento_PossuiIndiceCompostoUserIdEstaAtivoDataAtualizacaoValorLiquido()
+    {
+        var opcoes = new DbContextOptionsBuilder<VaultDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var contexto = new VaultDbContext(opcoes);
+
+        var entidade = contexto.Model.FindEntityType(typeof(Movimento))!;
+
+        var indice = entidade.GetIndexes().SingleOrDefault(i =>
+            i.Properties.Select(p => p.Name).SequenceEqual(
+                [nameof(Movimento.UserId), nameof(Movimento.EstaAtivo), nameof(Movimento.DataAtualizacaoValorLiquido)]));
+
+        Assert.NotNull(indice);
+        Assert.Equal("IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido", indice!.GetDatabaseName());
+    }
 }

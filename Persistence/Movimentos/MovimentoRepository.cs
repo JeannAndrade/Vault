@@ -33,8 +33,22 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
             .Take(quantidade)
             .ToListAsync(cancellationToken);
 
+    public async Task<List<Movimento>> GetDesatualizadosAsync(
+        Guid ownerId, DateTime dataLimite, int quantidade, CancellationToken cancellationToken) =>
+        await QueryWithRelatedEntities()
+            .Where(m => m.UserId == ownerId && m.EstaAtivo && m.DataAtualizacaoValorLiquido < dataLimite)
+            .OrderBy(m => m.DataAtualizacaoValorLiquido)
+            .ThenBy(m => m.Id)
+            .Take(quantidade)
+            .ToListAsync(cancellationToken);
+
     public async Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId && c.Id == movimentoId, trackChanges).SingleOrDefaultAsync();
+
+    public async Task<Movimento?> GetAsync(
+        Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken) =>
+        await FindByCondition(c => c.UserId == ownerId && c.Id == movimentoId, trackChanges)
+            .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId) =>
         await QueryWithRelatedEntities()

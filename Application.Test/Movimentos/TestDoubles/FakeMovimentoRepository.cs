@@ -13,7 +13,9 @@ internal sealed class FakeMovimentoRepository : IMovimentoRepository
     public Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges) => throw new NotSupportedException();
     public Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public Task<List<Movimento>> GetProximosVencimentosAsync(Guid ownerId, int quantidade = 15, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    public Task<List<Movimento>> GetDesatualizadosAsync(Guid ownerId, DateTime dataLimite, int quantidade, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) => Task.FromResult(MovimentoParaRetornar);
+    public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken) => Task.FromResult(MovimentoParaRetornar);
     public Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
     public Task DeleteAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
     public void Create(Movimento movimento) => CreateChamado = true;

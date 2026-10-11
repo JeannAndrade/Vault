@@ -25,4 +25,10 @@ internal sealed class FakeRepositoryManager : IRepositoryManager
         SaveAsyncChamado = true;
         return Task.CompletedTask;
     }
+
+    public Task SaveAsync(CancellationToken cancellationToken)
+    {
+        SaveAsyncChamado = true;
+        return Task.CompletedTask;
+    }
 }

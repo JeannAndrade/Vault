@@ -21,6 +21,7 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
         builder.Property(e => e.EhReinvestimento).IsRequired();
         builder.Property(e => e.EstaAtivo).IsRequired();
         builder.Property(e => e.ValorLiquidoAtual).IsRequired().HasPrecision(18, 2);
+        builder.Property(e => e.DataAtualizacaoValorLiquido).IsRequired().HasColumnType("datetime(6)");
         builder.Property(e => e.UserId).HasColumnName("UserId").IsRequired();
         builder.Property(e => e.ObjetivoId).HasColumnName("ObjetivoId").IsRequired();
         builder.Property(e => e.TipoRendaId).HasColumnName("TipoRendaId").IsRequired();
@@ -42,6 +43,11 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
         // Sustenta os próximos vencimentos (UserId = ? AND EstaAtivo = ? AND DataVencimento IS NOT NULL ORDER BY DataVencimento, Id).
         // Acoplado à ordenação de MovimentoRepository.GetProximosVencimentosAsync: ver ADR 0010.
         builder.HasIndex(e => new { e.UserId, e.EstaAtivo, e.DataVencimento });
+
+        // Sustenta os valores líquidos desatualizados (UserId = ? AND EstaAtivo = ? AND DataAtualizacaoValorLiquido < ? ORDER BY DataAtualizacaoValorLiquido, Id).
+        // Acoplado à ordenação de MovimentoRepository.GetDesatualizadosAsync: ver ADR 0011.
+        builder.HasIndex(e => new { e.UserId, e.EstaAtivo, e.DataAtualizacaoValorLiquido })
+            .HasDatabaseName("IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido");
 
         // ---------- Relacionamentos ----------
         builder

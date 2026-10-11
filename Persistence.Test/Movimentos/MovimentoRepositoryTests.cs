@@ -298,6 +298,92 @@ public class MovimentoRepositoryTests
         Assert.Equal("Banco Y", movimento.Emissor.Nome);
     }
 
+    [Fact]
+    public async Task GetDesatualizadosAsync_FiltraOrdenaECarregaEntidadesRelacionadas()
+    {
+        var userId = Guid.NewGuid();
+        var limite = new DateTime(2026, 2, 1);
+        await using var context = CreateContext();
+
+        var maisAntigo = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        maisAntigo.EstaAtivo = true;
+        maisAntigo.DataAtualizacaoValorLiquido = limite.AddDays(-2);
+        var desempateMaior = AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        desempateMaior.EstaAtivo = true;
+        desempateMaior.DataAtualizacaoValorLiquido = limite.AddDays(-1);
+        var desempateMenor = AdicionarMovimento(context, userId, new DateTime(2026, 1, 3));
+        desempateMenor.EstaAtivo = true;
+        desempateMenor.DataAtualizacaoValorLiquido = limite.AddDays(-1);
+
+        var naFronteira = AdicionarMovimento(context, userId, new DateTime(2026, 1, 4));
+        naFronteira.EstaAtivo = true;
+        naFronteira.DataAtualizacaoValorLiquido = limite;
+        var inativo = AdicionarMovimento(context, userId, new DateTime(2026, 1, 5));
+        inativo.DataAtualizacaoValorLiquido = limite.AddDays(-1);
+        var deOutroUsuario = AdicionarMovimento(context, Guid.NewGuid(), new DateTime(2026, 1, 6));
+        deOutroUsuario.EstaAtivo = true;
+        deOutroUsuario.DataAtualizacaoValorLiquido = limite.AddDays(-1);
+
+        await context.SaveChangesAsync();
+        var repository = new MovimentoRepository(context);
+
+        var resultado = await repository.GetDesatualizadosAsync(userId, limite, quantidade: 10, CancellationToken.None);
+
+        var desempatesOrdenados = new[] { desempateMaior.Id, desempateMenor.Id }.Order();
+        Assert.Equal([maisAntigo.Id, .. desempatesOrdenados], resultado.Select(m => m.Id));
+        Assert.DoesNotContain(resultado, m => m.Id == naFronteira.Id);
+        Assert.DoesNotContain(resultado, m => m.Id == inativo.Id);
+        Assert.DoesNotContain(resultado, m => m.Id == deOutroUsuario.Id);
+        var movimento = resultado.Single(m => m.Id == maisAntigo.Id);
+        Assert.Equal("Objetivo", movimento.Objetivo.Nome);
+        Assert.Equal("CDB", movimento.TipoRenda.Nome);
+        Assert.Equal("XP", movimento.Corretora.Nome);
+        Assert.Equal("CDB Banco Y", movimento.Produto.Nome);
+        Assert.Equal("Banco Y", movimento.Emissor.Nome);
+    }
+
+    [Fact]
+    public async Task GetDesatualizadosAsync_RespeitaQuantidade()
+    {
+        var userId = Guid.NewGuid();
+        var limite = new DateTime(2026, 2, 1);
+        await using var context = CreateContext();
+        var primeiro = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        primeiro.EstaAtivo = true;
+        primeiro.DataAtualizacaoValorLiquido = limite.AddDays(-2);
+        var segundo = AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        segundo.EstaAtivo = true;
+        segundo.DataAtualizacaoValorLiquido = limite.AddDays(-1);
+        await context.SaveChangesAsync();
+
+        var resultado = await new MovimentoRepository(context)
+            .GetDesatualizadosAsync(userId, limite, quantidade: 1, CancellationToken.None);
+
+        Assert.Equal([primeiro.Id], resultado.Select(m => m.Id));
+    }
+
+    [Fact]
+    public async Task GetAsync_ComCancellationToken_IsolaPorUsuarioERespeitaTracking()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var repository = new MovimentoRepository(context);
+
+        var deOutroUsuario = await repository.GetAsync(Guid.NewGuid(), movimento.Id, trackChanges: false, CancellationToken.None);
+        var semTracking = await repository.GetAsync(userId, movimento.Id, trackChanges: false, CancellationToken.None);
+        context.ChangeTracker.Clear();
+        var comTracking = await repository.GetAsync(userId, movimento.Id, trackChanges: true, CancellationToken.None);
+
+        Assert.Null(deOutroUsuario);
+        Assert.NotNull(semTracking);
+        Assert.Equal(EntityState.Detached, context.Entry(semTracking!).State);
+        Assert.NotNull(comTracking);
+        Assert.Equal(EntityState.Unchanged, context.Entry(comTracking!).State);
+    }
+
     private static Movimento AdicionarMovimento(VaultDbContext context, Guid userId, DateTime dataInvestimento)
     {
         var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
