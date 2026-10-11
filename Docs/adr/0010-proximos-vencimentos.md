@@ -1,14 +1,14 @@
 # ADR 0010: Próximos vencimentos na tela inicial
 
-- Status: Aceita (2026-10-09)
+- Status: Aceita (2026-10-09). Parcialmente superada pelo ADR 0011 quanto ao relógio (agora também na Api).
 
 ## Contexto
 
-A tela inicial precisa exibir os próximos 15 Movimentos ativos a vencer (Objetivo, Corretora, Produto, Emissor, Quando Vence e Valor Líquido Atual), com duas regras de estilo: fundo verde claro quando o valor líquido atual for maior que R$ 5.000 e fundo amarelo quando faltarem menos de 10 dias corridos para o vencimento (vencidos também ficam amarelos).
+A tela inicial precisa exibir os próximos 12 Movimentos ativos a vencer (Objetivo, Corretora, Produto, Emissor, Quando Vence e Valor Líquido Atual), com duas regras de estilo: fundo verde claro quando o valor líquido atual for maior que R$ 5.000 e fundo amarelo quando faltarem menos de 10 dias corridos para o vencimento (vencidos também ficam amarelos).
 
 ## Decisão
 
-- Endpoint dedicado `GET api/movimentos/proximos-vencimentos`, sem paginação, com quantidade fixa de 15 definida como constante no código.
+- Endpoint dedicado `GET api/movimentos/proximos-vencimentos`, sem paginação, com quantidade fixa de 12 definida como constante no código.
 - Filtro: `EstaAtivo = true` e `DataVencimento` não nula. Movimentos já vencidos e ainda ativos entram na lista. Um Movimento ativo aparece mesmo que o Objetivo esteja inativo.
 - Ordenação: `DataVencimento ASC, Id ASC`.
 - DTOs enxutos: `ProximoVencimentoModel` (Application) e `ProximoVencimentoDto` (Service/Presentation), com Id, ObjetivoNome, CorretoraNome, ProdutoNome, EmissorNome, DataVencimento e ValorLiquidoAtual.

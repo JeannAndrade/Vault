@@ -1,6 +1,6 @@
 # ADR 0011: Atualização do Valor Líquido
 
-- Status: Proposta (2026-10-10)
+- Status: Aceita (2026-10-11)
 
 ## Contexto
 
