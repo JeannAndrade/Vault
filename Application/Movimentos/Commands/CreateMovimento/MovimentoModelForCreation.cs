@@ -52,7 +52,7 @@ public record MovimentoModelForCreation
     [Range(0, double.MaxValue, ErrorMessage = "O valor líquido atual não pode ser negativo")]
     public decimal ValorLiquidoAtual { get; set; }
 
-    public Movimento ToDomain(Guid userId) => new()
+    public Movimento ToDomain(Guid userId, DateTime dataAtualizacaoValorLiquido) => new()
     {
         UserId = userId,
         ObjetivoId = ObjetivoId,
@@ -70,6 +70,7 @@ public record MovimentoModelForCreation
         ValorAporte = ValorAporte,
         EhReinvestimento = EhReinvestimento,
         EstaAtivo = EstaAtivo,
-        ValorLiquidoAtual = ValorLiquidoAtual
+        ValorLiquidoAtual = ValorLiquidoAtual,
+        DataAtualizacaoValorLiquido = dataAtualizacaoValorLiquido.Date
     };
 }

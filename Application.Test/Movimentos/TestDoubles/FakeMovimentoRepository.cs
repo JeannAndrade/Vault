@@ -7,6 +7,7 @@ namespace Application.Test.Movimentos.TestDoubles;
 internal sealed class FakeMovimentoRepository : IMovimentoRepository
 {
     public bool CreateChamado { get; private set; }
+    public Movimento? MovimentoCriado { get; private set; }
     public bool UpdateChamado { get; private set; }
     public Movimento? MovimentoParaRetornar { get; set; }
 
@@ -18,7 +19,11 @@ internal sealed class FakeMovimentoRepository : IMovimentoRepository
     public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken) => Task.FromResult(MovimentoParaRetornar);
     public Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
     public Task DeleteAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
-    public void Create(Movimento movimento) => CreateChamado = true;
+    public void Create(Movimento movimento)
+    {
+        CreateChamado = true;
+        MovimentoCriado = movimento;
+    }
     public void Update(Movimento movimento) => UpdateChamado = true;
 
     public Task<bool> ExistemPorObjetivoAsync(Guid objetivoId)

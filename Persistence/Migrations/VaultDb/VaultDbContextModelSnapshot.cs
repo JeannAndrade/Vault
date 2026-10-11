@@ -83,6 +83,9 @@ namespace Persistence.Migrations.VaultDb
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)");
 
+                    b.Property<DateTime>("DataAtualizacaoValorLiquido")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime>("DataInvestimento")
                         .HasColumnType("datetime(6)");
 
@@ -162,6 +165,9 @@ namespace Persistence.Migrations.VaultDb
                     b.HasIndex("UserId", "ProdutoId");
 
                     b.HasIndex("UserId", "TipoRendaId");
+
+                    b.HasIndex("UserId", "EstaAtivo", "DataAtualizacaoValorLiquido")
+                        .HasDatabaseName("IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido");
 
                     b.HasIndex("UserId", "EstaAtivo", "DataVencimento");
 
@@ -279,15 +285,6 @@ namespace Persistence.Migrations.VaultDb
                     b.HasKey("Id");
 
                     b.ToTable("IdentityRole");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "a6555a52-0a06-44c6-977b-3183faa171d9",
-                            ConcurrencyStamp = "7729cb8f-9cd8-4292-8f0d-67810bd24e5c",
-                            Name = "Administrator",
-                            NormalizedName = "ADMINISTRATOR"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Movimentos.Movimento", b =>

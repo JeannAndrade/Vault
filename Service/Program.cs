@@ -5,6 +5,7 @@ using LumiaFoundation.Auth.Config;
 using LumiaFoundation.Auth.Extensions;
 using LumiaFoundation.Logger.Extensions;
 using LumiaFoundation.Logger.LoggerService;
+using LumiaFoundation.Core.TimeService;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Persistence.Extensions;
@@ -36,6 +37,7 @@ builder.Services.AddAuthentication();
 
 #region Serviços da camada de aplicação
 builder.Services.AddServicesFromAssembly(typeof(IGetCorretoraQuery).Assembly);
+builder.Services.AddScoped<IDateTimeProvider, UtcDateTimeProvider>();
 #endregion
 
 #region Configurando logs

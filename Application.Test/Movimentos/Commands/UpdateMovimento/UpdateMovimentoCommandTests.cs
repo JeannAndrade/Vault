@@ -12,7 +12,8 @@ public class UpdateMovimentoCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var movimentoExistente = new Movimento { UserId = ownerId };
+        var dataAtualizacao = new DateTime(2026, 9, 1);
+        var movimentoExistente = new Movimento { UserId = ownerId, DataAtualizacaoValorLiquido = dataAtualizacao };
         var repositoryManager = new FakeRepositoryManager();
         repositoryManager.MovimentoRepository.MovimentoParaRetornar = movimentoExistente;
         var validator = new FakeMovimentoReferenciasValidator();
@@ -25,6 +26,7 @@ public class UpdateMovimentoCommandTests
         Assert.True(validator.Chamado);
         Assert.True(repositoryManager.MovimentoRepository.UpdateChamado);
         Assert.True(repositoryManager.SaveAsyncChamado);
+        Assert.Equal(dataAtualizacao, movimentoExistente.DataAtualizacaoValorLiquido);
     }
 
     [Fact]
