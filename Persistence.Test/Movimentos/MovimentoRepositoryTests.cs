@@ -299,6 +299,186 @@ public class MovimentoRepositoryTests
     }
 
     [Fact]
+    public async Task GetPagedWithRelatedEntitiesAsync_ComFiltroObjetivoId_RetornaSomenteMovimentosDoObjetivo()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+
+        var objetivoEmFiltro = new Objetivo { Nome = "Objetivo A", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
+        var objetivoForaFiltro = new Objetivo { Nome = "Objetivo B", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
+        var tipoRenda = new TipoRenda { Nome = "CDB", UserId = userId };
+        var corretora = new Corretora { Nome = "XP", UserId = userId };
+        var produto = new Produto { Nome = "CDB Banco Y", UserId = userId };
+        var emissor = new Emissor { Nome = "Banco Y", UserId = userId };
+
+        var movimentoA = new Movimento
+        {
+            UserId = userId,
+            ObjetivoId = objetivoEmFiltro.Id,
+            TipoRendaId = tipoRenda.Id,
+            CorretoraId = corretora.Id,
+            ProdutoId = produto.Id,
+            EmissorId = emissor.Id,
+            DataInvestimento = new DateTime(2026, 1, 1),
+            ValorAporte = 100m,
+            ValorLiquidoAtual = 100m,
+            EstaAtivo = true
+        };
+        var movimentoB = new Movimento
+        {
+            UserId = userId,
+            ObjetivoId = objetivoEmFiltro.Id,
+            TipoRendaId = tipoRenda.Id,
+            CorretoraId = corretora.Id,
+            ProdutoId = produto.Id,
+            EmissorId = emissor.Id,
+            DataInvestimento = new DateTime(2026, 1, 2),
+            ValorAporte = 200m,
+            ValorLiquidoAtual = 200m,
+            EstaAtivo = true
+        };
+        var movimentoFora = new Movimento
+        {
+            UserId = userId,
+            ObjetivoId = objetivoForaFiltro.Id,
+            TipoRendaId = tipoRenda.Id,
+            CorretoraId = corretora.Id,
+            ProdutoId = produto.Id,
+            EmissorId = emissor.Id,
+            DataInvestimento = new DateTime(2026, 1, 3),
+            ValorAporte = 300m,
+            ValorLiquidoAtual = 300m,
+            EstaAtivo = true
+        };
+
+        context.AddRange(objetivoEmFiltro, objetivoForaFiltro, tipoRenda, corretora, produto, emissor, movimentoA, movimentoB, movimentoFora);
+        await context.SaveChangesAsync();
+
+        var resultado = await new MovimentoRepository(context)
+            .GetPagedWithRelatedEntitiesAsync(userId, new MovimentoFiltro { ObjetivoId = objetivoEmFiltro.Id }, 1, 10, CancellationToken.None);
+
+        Assert.Equal([movimentoB.Id, movimentoA.Id], resultado.Items.Select(m => m.Id));
+        Assert.Equal(2, resultado.TotalCount);
+        Assert.All(resultado.Items, m => Assert.Equal(objetivoEmFiltro.Id, m.ObjetivoId));
+    }
+
+    [Fact]
+    public async Task GetPagedWithRelatedEntitiesAsync_ComFiltrosCombinados_UsaTodosOsCampos()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+
+        var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
+        var outroObjetivo = new Objetivo { Nome = "Objetivo 2", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
+        var tipoRenda = new TipoRenda { Nome = "CDB", UserId = userId };
+        var outraTipoRenda = new TipoRenda { Nome = "Tesouro", UserId = userId };
+        var corretora = new Corretora { Nome = "XP", UserId = userId };
+        var produto = new Produto { Nome = "CDB Banco Y", UserId = userId };
+        var emissor = new Emissor { Nome = "Banco Y", UserId = userId };
+
+        var movimentoCorreto = new Movimento
+        {
+            UserId = userId,
+            ObjetivoId = objetivo.Id,
+            TipoRendaId = tipoRenda.Id,
+            CorretoraId = corretora.Id,
+            ProdutoId = produto.Id,
+            EmissorId = emissor.Id,
+            DataInvestimento = new DateTime(2026, 1, 2),
+            ValorAporte = 100m,
+            ValorLiquidoAtual = 100m,
+            EstaAtivo = true
+        };
+        var movimentoForaObjetivo = new Movimento
+        {
+            UserId = userId,
+            ObjetivoId = outroObjetivo.Id,
+            TipoRendaId = tipoRenda.Id,
+            CorretoraId = corretora.Id,
+            ProdutoId = produto.Id,
+            EmissorId = emissor.Id,
+            DataInvestimento = new DateTime(2026, 1, 1),
+            ValorAporte = 100m,
+            ValorLiquidoAtual = 100m,
+            EstaAtivo = true
+        };
+        var movimentoForaAtivo = new Movimento
+        {
+            UserId = userId,
+            ObjetivoId = objetivo.Id,
+            TipoRendaId = tipoRenda.Id,
+            CorretoraId = corretora.Id,
+            ProdutoId = produto.Id,
+            EmissorId = emissor.Id,
+            DataInvestimento = new DateTime(2026, 1, 3),
+            ValorAporte = 100m,
+            ValorLiquidoAtual = 100m,
+            EstaAtivo = false
+        };
+
+        context.AddRange(objetivo, outroObjetivo, tipoRenda, outraTipoRenda, corretora, produto, emissor, movimentoCorreto, movimentoForaObjetivo, movimentoForaAtivo);
+        await context.SaveChangesAsync();
+
+        var resultado = await new MovimentoRepository(context)
+            .GetPagedWithRelatedEntitiesAsync(
+                userId,
+                new MovimentoFiltro { ObjetivoId = objetivo.Id, TipoRendaId = tipoRenda.Id, CorretoraId = corretora.Id, ProdutoId = produto.Id, EmissorId = emissor.Id, EstaAtivo = true },
+                1,
+                10,
+                CancellationToken.None);
+
+        Assert.Single(resultado.Items);
+        Assert.Equal(movimentoCorreto.Id, resultado.Items.Single().Id);
+        Assert.Equal(1, resultado.TotalCount);
+        Assert.Equal(1, resultado.TotalPages);
+    }
+
+    [Fact]
+    public async Task GetPagedWithRelatedEntitiesAsync_QuandoFiltroVazioOuGuidEmpty_RetornaListaVaziaOuMesmoComportamento()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        await context.SaveChangesAsync();
+
+        var repository = new MovimentoRepository(context);
+        var semFiltro = await repository.GetPagedWithRelatedEntitiesAsync(userId, MovimentoFiltro.Vazio, 1, 10, CancellationToken.None);
+        var comGuidEmpty = await repository.GetPagedWithRelatedEntitiesAsync(userId, new MovimentoFiltro { ObjetivoId = Guid.Empty }, 1, 10, CancellationToken.None);
+
+        Assert.Single(semFiltro.Items);
+        Assert.Equal(1, semFiltro.TotalCount);
+        Assert.Empty(comGuidEmpty.Items);
+        Assert.Equal(0, comGuidEmpty.TotalCount);
+    }
+
+    [Fact]
+    public async Task GetPagedWithRelatedEntitiesAsync_QuandoFiltroAtivo_IsolaPorUsuarioERespeitaPagina2()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+
+        var movimentoUsuario1 = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        movimentoUsuario1.EstaAtivo = true;
+        var movimentoUsuario2 = AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        movimentoUsuario2.EstaAtivo = true;
+        var movimentoUsuario3 = AdicionarMovimento(context, userId, new DateTime(2026, 1, 3));
+        movimentoUsuario3.EstaAtivo = false;
+        var movimentoOutroUsuario = AdicionarMovimento(context, Guid.NewGuid(), new DateTime(2026, 1, 4));
+        movimentoOutroUsuario.EstaAtivo = true;
+
+        await context.SaveChangesAsync();
+
+        var resultado = await new MovimentoRepository(context)
+            .GetPagedWithRelatedEntitiesAsync(userId, new MovimentoFiltro { EstaAtivo = true }, 2, 1, CancellationToken.None);
+
+        Assert.Equal([movimentoUsuario1.Id], resultado.Items.Select(m => m.Id));
+        Assert.Equal(2, resultado.TotalCount);
+        Assert.Equal(2, resultado.TotalPages);
+        Assert.All(resultado.Items, m => Assert.True(m.EstaAtivo));
+        Assert.DoesNotContain(resultado.Items, m => m.UserId == movimentoOutroUsuario.UserId);
+    }
+
+    [Fact]
     public async Task GetDesatualizadosAsync_FiltraOrdenaECarregaEntidadesRelacionadas()
     {
         var userId = Guid.NewGuid();

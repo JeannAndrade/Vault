@@ -18,11 +18,39 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     // esse ganho: ver ADR 0009. O Id é só desempate; basta ser determinístico.
     public async Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(
         Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default) =>
-        await QueryWithRelatedEntities()
-            .Where(m => m.UserId == ownerId)
+        await GetPagedWithRelatedEntitiesAsync(ownerId, MovimentoFiltro.Vazio, page, pageSize, cancellationToken);
+
+    public async Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(
+        Guid ownerId, MovimentoFiltro filtro, int page, int pageSize, CancellationToken cancellationToken)
+    {
+        filtro ??= MovimentoFiltro.Vazio;
+
+        var query = QueryWithRelatedEntities()
+            .Where(m => m.UserId == ownerId);
+
+        if (filtro.ObjetivoId.HasValue)
+            query = query.Where(m => m.ObjetivoId == filtro.ObjetivoId.Value);
+
+        if (filtro.TipoRendaId.HasValue)
+            query = query.Where(m => m.TipoRendaId == filtro.TipoRendaId.Value);
+
+        if (filtro.CorretoraId.HasValue)
+            query = query.Where(m => m.CorretoraId == filtro.CorretoraId.Value);
+
+        if (filtro.ProdutoId.HasValue)
+            query = query.Where(m => m.ProdutoId == filtro.ProdutoId.Value);
+
+        if (filtro.EmissorId.HasValue)
+            query = query.Where(m => m.EmissorId == filtro.EmissorId.Value);
+
+        if (filtro.EstaAtivo.HasValue)
+            query = query.Where(m => m.EstaAtivo == filtro.EstaAtivo.Value);
+
+        return await query
             .OrderByDescending(m => m.DataInvestimento)
             .ThenByDescending(m => m.Id)
             .ToPagedListAsync(page, pageSize, cancellationToken);
+    }
 
     public async Task<List<Movimento>> GetProximosVencimentosAsync(
         Guid ownerId, int quantidade = 15, CancellationToken cancellationToken = default) =>
