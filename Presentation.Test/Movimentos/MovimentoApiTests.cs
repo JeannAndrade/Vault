@@ -29,6 +29,50 @@ public class MovimentoApiTests
     }
 
     [Fact]
+    public async Task GetPagedAsync_WithFilter_SendsGetWithFixedOrderAndOmittedNulls()
+    {
+        var objetivoId = Guid.NewGuid();
+        var tipoRendaId = Guid.NewGuid();
+        var corretoraId = Guid.NewGuid();
+        var produtoId = Guid.NewGuid();
+        var emissorId = Guid.NewGuid();
+        var expected = new PagedResponse<MovimentoDto>([new MovimentoDto { Id = Guid.NewGuid() }], 3, 12, 25, 3);
+        var filtro = new MovimentoFiltro
+        {
+            ObjetivoId = objetivoId,
+            TipoRendaId = tipoRendaId,
+            CorretoraId = corretoraId,
+            ProdutoId = produtoId,
+            EmissorId = emissorId,
+            EstaAtivo = true
+        };
+
+        var url = FormattableString.Invariant(
+            $"api/movimentos?page=3&pageSize=12&objetivoId={objetivoId}&tipoRendaId={tipoRendaId}&corretoraId={corretoraId}&produtoId={produtoId}&emissorId={emissorId}&estaAtivo=true");
+
+        _connection
+            .Setup(c => c.SendAsync<PagedResponse<MovimentoDto>>(HttpMethod.Get, url, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        var result = await _api.GetPagedAsync(filtro, 3, 12);
+
+        Assert.Same(expected, result);
+    }
+
+    [Fact]
+    public async Task GetPagedAsync_WithFalseFlag_UsesLowercaseBoolean()
+    {
+        var expected = new PagedResponse<MovimentoDto>([], 1, 20, 0, 0);
+        _connection
+            .Setup(c => c.SendAsync<PagedResponse<MovimentoDto>>(HttpMethod.Get, "api/movimentos?page=1&pageSize=20&estaAtivo=false", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        var result = await _api.GetPagedAsync(new MovimentoFiltro { EstaAtivo = false }, 1, 20);
+
+        Assert.Same(expected, result);
+    }
+
+    [Fact]
     public async Task GetProximosVencimentosAsync_SendsGetToProximosVencimentosPath()
     {
         var expected = new List<ProximoVencimentoDto> { new() { Id = Guid.NewGuid() } };
