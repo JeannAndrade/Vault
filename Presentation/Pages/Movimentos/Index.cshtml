@@ -2,12 +2,58 @@
 @model IndexModel
 @{
   ViewData["Title"] = "Movimentos";
+  var filtroAtivo = Model.Filtro.HasValue;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="h3 mb-0">Movimentos</h1>
-  <a class="btn btn-primary btn-sm" asp-page="Create" asp-route-pagina="@Model.Resultado.Page">Novo movimento</a>
+  <a class="btn btn-primary btn-sm" asp-page="Create" asp-route-pagina="@Model.Pagina" asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId" asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId" asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId" asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId" asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId" asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Novo movimento</a>
 </div>
+
+<form method="get" class="row g-3 mb-4 align-items-end">
+  <div class="col-md-2">
+    <label asp-for="Filtro.ObjetivoId" class="form-label">Objetivo</label>
+    <select asp-for="Filtro.ObjetivoId" asp-items="Model.Lookup.Objetivos" class="form-select">
+      <option value="">--</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label asp-for="Filtro.TipoRendaId" class="form-label">Tipo de Renda</label>
+    <select asp-for="Filtro.TipoRendaId" asp-items="Model.Lookup.TiposRenda" class="form-select">
+      <option value="">--</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label asp-for="Filtro.CorretoraId" class="form-label">Corretora</label>
+    <select asp-for="Filtro.CorretoraId" asp-items="Model.Lookup.Corretoras" class="form-select">
+      <option value="">--</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label asp-for="Filtro.ProdutoId" class="form-label">Produto</label>
+    <select asp-for="Filtro.ProdutoId" asp-items="Model.Lookup.Produtos" class="form-select">
+      <option value="">--</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label asp-for="Filtro.EmissorId" class="form-label">Emissor</label>
+    <select asp-for="Filtro.EmissorId" asp-items="Model.Lookup.Emissores" class="form-select">
+      <option value="">--</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label asp-for="Filtro.EstaAtivo" class="form-label">Status</label>
+    <select asp-for="Filtro.EstaAtivo" class="form-select">
+      <option value="">--</option>
+      <option value="true">Ativos</option>
+      <option value="false">Inativos</option>
+    </select>
+  </div>
+  <div class="col-12 d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a class="btn btn-outline-secondary" asp-page="/Movimentos/Index">Limpar filtro</a>
+  </div>
+</form>
 
 @if (Model.ErrorMessage is not null)
 {
@@ -16,7 +62,7 @@
 
 @if (Model.Movimentos.Count == 0)
 {
-  <p class="text-muted">Nenhum movimento cadastrado.</p>
+  <p class="text-muted">@(filtroAtivo ? "Nenhum movimento encontrado com os filtros selecionados." : "Nenhum movimento cadastrado.")</p>
 }
 else
 {
@@ -56,9 +102,21 @@ else
           <td class="text-end text-nowrap">
             <div class="d-inline-flex gap-1">
               <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@movimento.Id"
-                 asp-route-pagina="@Model.Resultado.Page">Editar</a>
+                 asp-route-pagina="@Model.Pagina"
+                 asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId"
+                 asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId"
+                 asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId"
+                 asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId"
+                 asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId"
+                 asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Editar</a>
               <form method="post" asp-page-handler="Delete" asp-route-id="@movimento.Id"
-                    asp-route-pagina="@Model.Resultado.Page" class="mb-0" onsubmit="return confirm('Excluir este movimento?');">
+                    asp-route-pagina="@Model.Pagina"
+                    asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId"
+                    asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId"
+                    asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId"
+                    asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId"
+                    asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId"
+                    asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo" class="mb-0" onsubmit="return confirm('Excluir este movimento?');">
                 <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
               </form>
             </div>

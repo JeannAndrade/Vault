@@ -6,12 +6,17 @@ using Presentation.Movimentos;
 
 namespace Presentation.Pages.Movimentos;
 
-public class IndexModel(IMovimentoApi movimentoApi) : PageModel
+public class IndexModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lookupData) : PageModel
 {
     public const int TamanhoPagina = 12;
 
     [BindProperty(SupportsGet = true, Name = "pagina")]
     public int Pagina { get; set; } = 1;
+
+    [BindProperty(SupportsGet = true)]
+    public MovimentoFiltroInput Filtro { get; set; } = new();
+
+    public MovimentoFormLookupData Lookup { get; private set; } = null!;
 
     public PagedResponse<MovimentoDto> Resultado { get; private set; } =
         new PagedResponse<MovimentoDto>([], 1, TamanhoPagina, 0, 0);
@@ -20,8 +25,13 @@ public class IndexModel(IMovimentoApi movimentoApi) : PageModel
 
     public string? ErrorMessage { get; private set; }
 
-    public Task<IActionResult> OnGetAsync(CancellationToken cancellationToken) =>
-        CarregarPaginaAsync(cancellationToken);
+    public RouteValueDictionary RouteValues => Filtro.ToRouteValues(Pagina);
+
+    public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
+    {
+        Lookup = await lookupData.LoadAsync(cancellationToken);
+        return await CarregarPaginaAsync(cancellationToken);
+    }
 
     public async Task<IActionResult> OnPostDeleteAsync(Guid id, CancellationToken cancellationToken)
     {
@@ -34,18 +44,21 @@ public class IndexModel(IMovimentoApi movimentoApi) : PageModel
             ErrorMessage = "Não foi possível excluir o movimento agora. Tente novamente em instantes.";
         }
 
+        Lookup = await lookupData.LoadAsync(cancellationToken);
         return await CarregarPaginaAsync(cancellationToken);
     }
 
     private async Task<IActionResult> CarregarPaginaAsync(CancellationToken cancellationToken)
     {
+        Lookup ??= await lookupData.LoadAsync(cancellationToken);
+
         // A Api rejeita página < 1; no Web, uma URL digitada à mão com valor inválido cai na primeira.
         var pagina = Math.Max(1, Pagina);
-        var resultado = await movimentoApi.GetPagedAsync(pagina, TamanhoPagina, cancellationToken);
+        var resultado = await movimentoApi.GetPagedAsync(Filtro.ToFiltro(), pagina, TamanhoPagina, cancellationToken);
 
         // Página que deixou de existir (ex.: a última foi esvaziada por exclusões): vai para a última real.
         if (resultado.Items.Count == 0 && resultado.TotalPages > 0 && pagina > resultado.TotalPages)
-            return RedirectToPage(new { pagina = resultado.TotalPages });
+            return RedirectToPage("/Movimentos/Index", Filtro.ToRouteValues(resultado.TotalPages));
 
         Resultado = resultado;
         return Page();
