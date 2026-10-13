@@ -76,4 +76,23 @@ public class CreateModelTests
         Assert.Equal("Index", redirect.PageName);
         Assert.Equal(4, redirect.RouteValues!["pagina"]);
     }
+
+    [Fact]
+    public async Task OnPostAsync_WhenApiSucceeds_RedirectsToIndexKeepingFilterAndPage()
+    {
+        var objetivoId = Guid.NewGuid();
+        var model = new CreateModel(_movimentoApi.Object, _lookupData.Object)
+        {
+            Input = ValidInput(),
+            Pagina = 4,
+            Filtro = new MovimentoFiltroInput { ObjetivoId = objetivoId, EstaAtivo = true }
+        };
+
+        var result = await model.OnPostAsync(CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal(objetivoId, redirect.RouteValues!["Filtro.ObjetivoId"]);
+        Assert.Equal("true", redirect.RouteValues["Filtro.EstaAtivo"]);
+        Assert.Equal(4, redirect.RouteValues["pagina"]);
+    }
 }

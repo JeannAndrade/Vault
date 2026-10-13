@@ -12,6 +12,14 @@
 }
 
 <form method="post">
+  <input asp-for="Pagina" type="hidden" />
+  <input asp-for="Filtro.ObjetivoId" type="hidden" />
+  <input asp-for="Filtro.TipoRendaId" type="hidden" />
+  <input asp-for="Filtro.CorretoraId" type="hidden" />
+  <input asp-for="Filtro.ProdutoId" type="hidden" />
+  <input asp-for="Filtro.EmissorId" type="hidden" />
+  <input asp-for="Filtro.EstaAtivo" type="hidden" />
+
   <div class="row">
     <div class="col-md-4 mb-3">
       <label asp-for="Input.ObjetivoId" class="form-label"></label>
@@ -107,5 +115,5 @@
   </div>
 
   <button type="submit" class="btn btn-primary">Salvar</button>
-  <a class="btn btn-outline-secondary" asp-page="Index">Cancelar</a>
+  <a class="btn btn-outline-secondary" asp-page="Index" asp-route-pagina="@Model.Pagina" asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId" asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId" asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId" asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId" asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId" asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Cancelar</a>
 </form>
