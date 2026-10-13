@@ -5,6 +5,7 @@ namespace Presentation.Movimentos;
 public interface IMovimentoApi
 {
     Task<PagedResponse<MovimentoDto>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+    Task<PagedResponse<MovimentoDto>> GetPagedAsync(MovimentoFiltro filtro, int page, int pageSize, CancellationToken cancellationToken = default);
     Task<List<ProximoVencimentoDto>> GetProximosVencimentosAsync(CancellationToken cancellationToken = default);
     Task<List<MovimentoDesatualizadoDto>> GetDesatualizadosAsync(CancellationToken cancellationToken = default);
     Task<MovimentoDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

@@ -47,10 +47,13 @@ public class MovimentosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<PagedResponse<MovimentoDto>>> GetMovimentos(
+    [FromQuery] MovimentoFiltroDto filtro,
     [FromQuery] int page = 1,
     [FromQuery] int pageSize = PaginationParameters.PageSizeDefault,
     CancellationToken cancellationToken = default)
     {
+        filtro ??= new MovimentoFiltroDto();
+
         // SuppressModelStateInvalidFilter está ligado: sem esta checagem, um valor não numérico
         // (ex.: page=abc) cairia no padrão e só o ModelState registraria o erro.
         if (!ModelState.IsValid)
@@ -63,7 +66,10 @@ public class MovimentosController(
 
         var userId = GetCurrentUserId();
         var movimentos = await _getMovimentosListQuery.ExecuteAsync(
-            userId, new PaginationParameters { Page = page, PageSize = pageSize }, cancellationToken);
+            userId,
+            filtro.ToParameters(),
+            new PaginationParameters { Page = page, PageSize = pageSize },
+            cancellationToken);
 
         return Ok(movimentos.Map(movimento => MovimentoDto.FromApplication(movimento)).ToPagedResponse());
     }

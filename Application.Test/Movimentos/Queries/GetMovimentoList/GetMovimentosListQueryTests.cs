@@ -30,7 +30,7 @@ public class GetMovimentosListQueryTests
         using var cts = new CancellationTokenSource();
         var movimento = new Movimento { UserId = _ownerId, ValorAporte = 100m };
         _movimentoRepository
-            .Setup(r => r.GetPagedWithRelatedEntitiesAsync(_ownerId, 2, 10, cts.Token))
+            .Setup(r => r.GetPagedWithRelatedEntitiesAsync(_ownerId, It.Is<MovimentoFiltro>(f => f == MovimentoFiltro.Vazio), 2, 10, cts.Token))
             .ReturnsAsync(new PagedList<Movimento>([movimento], page: 2, pageSize: 10, totalCount: 11));
 
         var resultado = await _query.ExecuteAsync(_ownerId, new PaginationParameters { Page = 2, PageSize = 10 }, cts.Token);
@@ -48,13 +48,13 @@ public class GetMovimentosListQueryTests
     public async Task ExecuteAsync_ComParametrosPadrao_UsaPrimeiraPaginaCom20Itens()
     {
         _movimentoRepository
-            .Setup(r => r.GetPagedWithRelatedEntitiesAsync(_ownerId, 1, 20, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetPagedWithRelatedEntitiesAsync(_ownerId, It.Is<MovimentoFiltro>(f => f == MovimentoFiltro.Vazio), 1, 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedList<Movimento>([], 1, 20, 0));
 
         await _query.ExecuteAsync(_ownerId, new PaginationParameters());
 
         _movimentoRepository.Verify(
-            r => r.GetPagedWithRelatedEntitiesAsync(_ownerId, 1, 20, It.IsAny<CancellationToken>()), Times.Once);
+            r => r.GetPagedWithRelatedEntitiesAsync(_ownerId, It.Is<MovimentoFiltro>(f => f == MovimentoFiltro.Vazio), 1, 20, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]
@@ -68,8 +68,53 @@ public class GetMovimentosListQueryTests
             () => _query.ExecuteAsync(_ownerId, new PaginationParameters { Page = page, PageSize = pageSize }));
 
         _movimentoRepository.Verify(
-            r => r.GetPagedWithRelatedEntitiesAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            r => r.GetPagedWithRelatedEntitiesAsync(It.IsAny<Guid>(), It.IsAny<MovimentoFiltro>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ComFiltro_MapeiaEDelegaAoRepositorio()
+    {
+        using var cts = new CancellationTokenSource();
+        var objetivoId = Guid.NewGuid();
+        var tipoRendaId = Guid.NewGuid();
+        var corretoraId = Guid.NewGuid();
+        var produtoId = Guid.NewGuid();
+        var emissorId = Guid.NewGuid();
+
+        var movimento = new Movimento { UserId = _ownerId, ValorAporte = 100m, EstaAtivo = true };
+        _movimentoRepository
+            .Setup(r => r.GetPagedWithRelatedEntitiesAsync(
+                _ownerId,
+                It.Is<MovimentoFiltro>(f =>
+                    f.ObjetivoId == objetivoId &&
+                    f.TipoRendaId == tipoRendaId &&
+                    f.CorretoraId == corretoraId &&
+                    f.ProdutoId == produtoId &&
+                    f.EmissorId == emissorId &&
+                    f.EstaAtivo == true),
+                2,
+                10,
+                cts.Token))
+            .ReturnsAsync(new PagedList<Movimento>([movimento], page: 2, pageSize: 10, totalCount: 1));
+
+        var resultado = await _query.ExecuteAsync(
+            _ownerId,
+            new MovimentoFiltroParameters
+            {
+                ObjetivoId = objetivoId,
+                TipoRendaId = tipoRendaId,
+                CorretoraId = corretoraId,
+                ProdutoId = produtoId,
+                EmissorId = emissorId,
+                EstaAtivo = true
+            },
+            new PaginationParameters { Page = 2, PageSize = 10 },
+            cts.Token);
+
+        var modelo = Assert.Single(resultado.Items);
+        Assert.Equal(movimento.Id, modelo.Id);
+        Assert.Equal(_ownerId, modelo.UserId);
     }
 
     [Fact]
@@ -77,7 +122,7 @@ public class GetMovimentosListQueryTests
     {
         var falha = new InvalidOperationException("falha");
         _movimentoRepository
-            .Setup(r => r.GetPagedWithRelatedEntitiesAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetPagedWithRelatedEntitiesAsync(It.IsAny<Guid>(), It.IsAny<MovimentoFiltro>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(falha);
 
         var lancada = await Assert.ThrowsAsync<InvalidOperationException>(
@@ -91,7 +136,7 @@ public class GetMovimentosListQueryTests
     public async Task ExecuteAsync_QuandoCancelada_RelancaSemLogarComoErro()
     {
         _movimentoRepository
-            .Setup(r => r.GetPagedWithRelatedEntitiesAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetPagedWithRelatedEntitiesAsync(It.IsAny<Guid>(), It.IsAny<MovimentoFiltro>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OperationCanceledException());
 
         await Assert.ThrowsAsync<OperationCanceledException>(

@@ -7,6 +7,7 @@ public interface IMovimentoRepository
 {
     Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges);
     Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default);
+    Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, MovimentoFiltro filtro, int page, int pageSize, CancellationToken cancellationToken);
     Task<List<Movimento>> GetProximosVencimentosAsync(Guid ownerId, int quantidade = 15, CancellationToken cancellationToken = default);
     Task<List<Movimento>> GetDesatualizadosAsync(Guid ownerId, DateTime dataLimite, int quantidade, CancellationToken cancellationToken);
     Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges);

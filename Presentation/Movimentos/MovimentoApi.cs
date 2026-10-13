@@ -7,10 +7,41 @@ public sealed class MovimentoApi(IApiConnection connection) : IMovimentoApi
 {
     private const string BasePath = "api/movimentos";
 
-    public async Task<PagedResponse<MovimentoDto>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default) =>
-        await connection.SendAsync<PagedResponse<MovimentoDto>>(
-            HttpMethod.Get, FormattableString.Invariant($"{BasePath}?page={page}&pageSize={pageSize}"), ct: cancellationToken)
+    public Task<PagedResponse<MovimentoDto>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default) =>
+        GetPagedAsync(MovimentoFiltro.Vazio, page, pageSize, cancellationToken);
+
+    public async Task<PagedResponse<MovimentoDto>> GetPagedAsync(
+        MovimentoFiltro filtro,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        filtro ??= MovimentoFiltro.Vazio;
+
+        var query = FormattableString.Invariant($"{BasePath}?page={page}&pageSize={pageSize}");
+
+        if (filtro.ObjetivoId is Guid objetivoId)
+            query += FormattableString.Invariant($"&objetivoId={objetivoId}");
+
+        if (filtro.TipoRendaId is Guid tipoRendaId)
+            query += FormattableString.Invariant($"&tipoRendaId={tipoRendaId}");
+
+        if (filtro.CorretoraId is Guid corretoraId)
+            query += FormattableString.Invariant($"&corretoraId={corretoraId}");
+
+        if (filtro.ProdutoId is Guid produtoId)
+            query += FormattableString.Invariant($"&produtoId={produtoId}");
+
+        if (filtro.EmissorId is Guid emissorId)
+            query += FormattableString.Invariant($"&emissorId={emissorId}");
+
+        if (filtro.EstaAtivo is bool estaAtivo)
+            query += FormattableString.Invariant($"&estaAtivo={estaAtivo.ToString().ToLowerInvariant()}");
+
+        return await connection.SendAsync<PagedResponse<MovimentoDto>>(
+            HttpMethod.Get, query, ct: cancellationToken)
         ?? new PagedResponse<MovimentoDto>([], page, pageSize, 0, 0);
+    }
 
     public async Task<List<ProximoVencimentoDto>> GetProximosVencimentosAsync(CancellationToken cancellationToken = default) =>
         await connection.SendAsync<List<ProximoVencimentoDto>>(

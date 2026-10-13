@@ -12,12 +12,20 @@ namespace Presentation.Test.Pages.Movimentos;
 public class IndexModelTests
 {
     private readonly Mock<IMovimentoApi> _movimentoApi = new();
+    private readonly Mock<IMovimentoFormLookupData> _lookupData = new();
 
-    private IndexModel CriarModelo(int pagina = 1) => new(_movimentoApi.Object) { Pagina = pagina };
+    public IndexModelTests()
+    {
+        _lookupData
+            .Setup(a => a.LoadAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MovimentoFormLookupData([], [], [], [], []));
+    }
+
+    private IndexModel CriarModelo(int pagina = 1) => new(_movimentoApi.Object, _lookupData.Object) { Pagina = pagina };
 
     private void ConfigurarPagina(int pagina, PagedResponse<MovimentoDto> resposta) =>
         _movimentoApi
-            .Setup(a => a.GetPagedAsync(pagina, IndexModel.TamanhoPagina, It.IsAny<CancellationToken>()))
+            .Setup(a => a.GetPagedAsync(It.IsAny<MovimentoFiltro>(), pagina, IndexModel.TamanhoPagina, It.IsAny<CancellationToken>()))
             .ReturnsAsync(resposta);
 
     private static PagedResponse<MovimentoDto> Pagina(int pagina, int totalPaginas, int totalItens, params MovimentoDto[] itens) =>
@@ -37,6 +45,47 @@ public class IndexModelTests
         Assert.Same(esperada.Items, model.Movimentos);
     }
 
+    [Fact]
+    public async Task OnGetAsync_QuandoFiltroPreenchido_RepassaFiltroParaApi()
+    {
+        var esperado = Pagina(1, 1, 1, new MovimentoDto { Id = Guid.NewGuid() });
+        var objetivoId = Guid.NewGuid();
+        var tipoRendaId = Guid.NewGuid();
+        var corretoraId = Guid.NewGuid();
+        var produtoId = Guid.NewGuid();
+        var emissorId = Guid.NewGuid();
+
+        _movimentoApi
+            .Setup(a => a.GetPagedAsync(
+                It.Is<MovimentoFiltro>(f =>
+                    f.ObjetivoId == objetivoId &&
+                    f.TipoRendaId == tipoRendaId &&
+                    f.CorretoraId == corretoraId &&
+                    f.ProdutoId == produtoId &&
+                    f.EmissorId == emissorId &&
+                    f.EstaAtivo == true),
+                1,
+                IndexModel.TamanhoPagina,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(esperado);
+
+        var model = CriarModelo();
+        model.Filtro = new MovimentoFiltroInput
+        {
+            ObjetivoId = objetivoId,
+            TipoRendaId = tipoRendaId,
+            CorretoraId = corretoraId,
+            ProdutoId = produtoId,
+            EmissorId = emissorId,
+            EstaAtivo = true
+        };
+
+        var result = await model.OnGetAsync(CancellationToken.None);
+
+        Assert.IsType<PageResult>(result);
+        Assert.Same(esperado, model.Resultado);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(-4)]
@@ -48,7 +97,7 @@ public class IndexModelTests
         var result = await model.OnGetAsync(CancellationToken.None);
 
         Assert.IsType<PageResult>(result);
-        _movimentoApi.Verify(a => a.GetPagedAsync(1, IndexModel.TamanhoPagina, It.IsAny<CancellationToken>()), Times.Once);
+        _movimentoApi.Verify(a => a.GetPagedAsync(It.IsAny<MovimentoFiltro>(), 1, IndexModel.TamanhoPagina, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -61,6 +110,25 @@ public class IndexModelTests
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
         Assert.Equal(2, redirect.RouteValues!["pagina"]);
+    }
+
+    [Fact]
+    public async Task RouteValues_ContemSomenteCamposPreenchidosMaisPagina()
+    {
+        var model = CriarModelo(pagina: 4);
+        model.Filtro = new MovimentoFiltroInput
+        {
+            ObjetivoId = Guid.NewGuid(),
+            EstaAtivo = false
+        };
+
+        var routeValues = model.RouteValues;
+
+        Assert.Equal(4, routeValues["pagina"]);
+        Assert.Equal(model.Filtro.ObjetivoId, routeValues["Filtro.ObjetivoId"]);
+        Assert.Equal("false", routeValues["Filtro.EstaAtivo"]);
+        Assert.False(routeValues.ContainsKey("Filtro.TipoRendaId"));
+        Assert.False(routeValues.ContainsKey("Filtro.CorretoraId"));
     }
 
     [Fact]
@@ -87,7 +155,31 @@ public class IndexModelTests
         Assert.IsType<PageResult>(result);
         Assert.Null(model.ErrorMessage);
         _movimentoApi.Verify(a => a.DeleteAsync(id, It.IsAny<CancellationToken>()), Times.Once);
-        _movimentoApi.Verify(a => a.GetPagedAsync(2, IndexModel.TamanhoPagina, It.IsAny<CancellationToken>()), Times.Once);
+        _movimentoApi.Verify(a => a.GetPagedAsync(It.IsAny<MovimentoFiltro>(), 2, IndexModel.TamanhoPagina, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task OnPostDeleteAsync_RedirecionaPreservandoFiltroEPagina()
+    {
+        var objetivoId = Guid.NewGuid();
+        var filtro = new MovimentoFiltroInput { ObjetivoId = objetivoId, EstaAtivo = true };
+        var model = CriarModelo(pagina: 3);
+        model.Filtro = filtro;
+
+        _movimentoApi
+            .Setup(a => a.GetPagedAsync(
+                It.Is<MovimentoFiltro>(f => f.ObjetivoId == objetivoId && f.EstaAtivo == true),
+                3,
+                IndexModel.TamanhoPagina,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Pagina(3, totalPaginas: 2, totalItens: 40));
+
+        var result = await model.OnPostDeleteAsync(Guid.NewGuid(), CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal(2, redirect.RouteValues!["pagina"]);
+        Assert.Equal(objetivoId, redirect.RouteValues["Filtro.ObjetivoId"]);
+        Assert.Equal("true", redirect.RouteValues["Filtro.EstaAtivo"]);
     }
 
     [Fact]

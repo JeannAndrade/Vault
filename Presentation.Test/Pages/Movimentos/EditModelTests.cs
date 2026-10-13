@@ -72,4 +72,34 @@ public class EditModelTests
         Assert.Equal(3, redirect.RouteValues!["pagina"]);
         _movimentoApi.Verify(a => a.UpdateAsync(_id, It.IsAny<MovimentoForUpdateDto>(), It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task OnPostAsync_WhenApiSucceeds_RedirectsToIndexKeepingFilterAndPage()
+    {
+        var objetivoId = Guid.NewGuid();
+        var model = new EditModel(_movimentoApi.Object, _lookupData.Object)
+        {
+            Id = _id,
+            Pagina = 3,
+            Filtro = new MovimentoFiltroInput { ObjetivoId = objetivoId, EstaAtivo = false },
+            Input = new CreateModel.InputModel
+            {
+                ObjetivoId = Guid.NewGuid(),
+                TipoRendaId = Guid.NewGuid(),
+                CorretoraId = Guid.NewGuid(),
+                ProdutoId = Guid.NewGuid(),
+                EmissorId = Guid.NewGuid(),
+                DataInvestimento = DateTime.Today,
+                ValorAporte = 1000m,
+                ValorLiquidoAtual = 1000m
+            }
+        };
+
+        var result = await model.OnPostAsync(CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal(objetivoId, redirect.RouteValues!["Filtro.ObjetivoId"]);
+        Assert.Equal("false", redirect.RouteValues["Filtro.EstaAtivo"]);
+        Assert.Equal(3, redirect.RouteValues["pagina"]);
+    }
 }
