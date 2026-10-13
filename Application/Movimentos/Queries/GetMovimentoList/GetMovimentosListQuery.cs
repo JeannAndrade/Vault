@@ -11,16 +11,20 @@ public class GetMovimentosListQuery(IRepositoryManager repositoryManager, ILogge
     private readonly IRepositoryManager _repository = repositoryManager;
     private readonly ILoggerManager _logger = logger;
 
+    public Task<PagedList<MovimentoModel>> ExecuteAsync(
+        Guid ownerId, PaginationParameters parameters, CancellationToken cancellationToken = default) =>
+        ExecuteAsync(ownerId, new MovimentoFiltroParameters(), parameters, cancellationToken);
+
     public async Task<PagedList<MovimentoModel>> ExecuteAsync(
-        Guid ownerId, PaginationParameters parameters, CancellationToken cancellationToken = default)
+        Guid ownerId, MovimentoFiltroParameters filtro, PaginationParameters paginacao, CancellationToken cancellationToken)
     {
         // Fora do try: parâmetro inválido é erro do cliente (422), não falha do serviço a logar como erro.
-        CommandValidator.Validate(parameters);
+        CommandValidator.Validate(paginacao);
 
         try
         {
             var movimentos = await _repository.Movimento.GetPagedWithRelatedEntitiesAsync(
-                ownerId, parameters.Page, parameters.PageSize, cancellationToken);
+                ownerId, filtro.ToMovimentoFiltro(), paginacao.Page, paginacao.PageSize, cancellationToken);
 
             return movimentos.Map(MovimentoModel.FromDomain);
         }
