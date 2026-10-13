@@ -46,16 +46,31 @@ public class MovimentosControllerTests
     }
 
     [Fact]
-    public async Task GetMovimentos_RepassaPaginacaoEMapeiaEnvelope()
+    public async Task GetMovimentos_RepassaFiltroPaginacaoEMapeiaEnvelope()
     {
         using var cts = new CancellationTokenSource();
+        var objetivoId = Guid.NewGuid();
         var pagina = new PagedList<MovimentoModel>(
             [new MovimentoModel { Id = Guid.NewGuid(), UserId = _userId }], page: 2, pageSize: 10, totalCount: 11);
         _getMovimentosListQuery
-            .Setup(q => q.ExecuteAsync(_userId, It.Is<PaginationParameters>(p => p.Page == 2 && p.PageSize == 10), cts.Token))
+            .Setup(q => q.ExecuteAsync(
+                _userId,
+                It.Is<MovimentoFiltroParameters>(f =>
+                    f.ObjetivoId == objetivoId &&
+                    f.TipoRendaId == null &&
+                    f.CorretoraId == null &&
+                    f.ProdutoId == null &&
+                    f.EmissorId == null &&
+                    f.EstaAtivo == true),
+                It.Is<PaginationParameters>(p => p.Page == 2 && p.PageSize == 10),
+                cts.Token))
             .ReturnsAsync(pagina);
 
-        var result = await _controller.GetMovimentos(2, 10, cts.Token);
+        var result = await _controller.GetMovimentos(
+            new MovimentoFiltroDto { ObjetivoId = objetivoId, EstaAtivo = true },
+            2,
+            10,
+            cts.Token);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var resposta = Assert.IsType<PagedResponse<MovimentoDto>>(ok.Value);
@@ -99,12 +114,12 @@ public class MovimentosControllerTests
     {
         _controller.ModelState.AddModelError("page", "valor inválido");
 
-        var exception = await Assert.ThrowsAsync<HttpBaseException>(() => _controller.GetMovimentos(1, 20));
+        var exception = await Assert.ThrowsAsync<HttpBaseException>(() => _controller.GetMovimentos(new MovimentoFiltroDto(), 1, 20));
 
         Assert.Equal(StatusCodes.Status422UnprocessableEntity, exception.StatusCode);
         Assert.Contains("page", exception.Message);
         _getMovimentosListQuery.Verify(
-            q => q.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<PaginationParameters>(), It.IsAny<CancellationToken>()),
+            q => q.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<MovimentoFiltroParameters>(), It.IsAny<PaginationParameters>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
