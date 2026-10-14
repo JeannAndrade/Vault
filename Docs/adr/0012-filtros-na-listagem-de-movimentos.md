@@ -1,6 +1,6 @@
 # ADR 0012 — Filtros na listagem de Movimentos
 
-**Status:** Proposta (2026-10-12)
+**Status:** Aceita (2026-10-12)
 
 ## Contexto
 
