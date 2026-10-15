@@ -77,6 +77,7 @@ builder.Services.AddApiResourceClient<ITipoRendaApi, TipoRendaApi>();
 builder.Services.AddApiResourceClient<IObjetivoApi, ObjetivoApi>();
 builder.Services.AddApiResourceClient<IMovimentoApi, MovimentoApi>();
 builder.Services.AddScoped<IMovimentoFormLookupData, MovimentoFormLookupDataProvider>();
+builder.Services.AddApiResourceClient<IDistribuicaoValorLiquidoApi, DistribuicaoValorLiquidoApi>();
 #endregion
 
 #region Tratamento de exceções

@@ -82,6 +82,46 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
         await QueryWithRelatedEntities()
             .SingleOrDefaultAsync(m => m.UserId == ownerId && m.Id == movimentoId);
 
+    public async Task<List<Movimento>> GetAtivosPorTituloAsync(
+        Guid ownerId,
+        TituloFiltro titulo,
+        bool trackChanges,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(titulo);
+
+        if (titulo.TipoRendaId == Guid.Empty || titulo.CorretoraId == Guid.Empty ||
+            titulo.ProdutoId == Guid.Empty || titulo.EmissorId == Guid.Empty)
+            return [];
+
+        // A ordem serve apenas para uma listagem estável. O calculador do Domain
+        // reordena em memória para definir o aporte mais recente sem depender
+        // da ordenação de Guid do provedor de banco.
+        return await FindByCondition(
+                movimento => movimento.UserId == ownerId &&
+                    movimento.EstaAtivo &&
+                    movimento.TipoRendaId == titulo.TipoRendaId &&
+                    movimento.CorretoraId == titulo.CorretoraId &&
+                    movimento.ProdutoId == titulo.ProdutoId &&
+                    movimento.EmissorId == titulo.EmissorId,
+                trackChanges)
+            .Include(movimento => movimento.Objetivo)
+            .OrderBy(movimento => movimento.DataInvestimento)
+            .ThenBy(movimento => movimento.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) =>
+        ConsultarAtivosDoTitulo(ownerId, titulo, false).Include(m => m.Objetivo).ToListAsync(cancellationToken);
+
+    public Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) =>
+        ConsultarAtivosDoTitulo(ownerId, titulo, true).ToListAsync(cancellationToken);
+
+    private IQueryable<Movimento> ConsultarAtivosDoTitulo(Guid ownerId, MovimentoTituloFiltro titulo, bool rastrear) =>
+        FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && m.TipoRendaId == titulo.TipoRendaId &&
+            m.CorretoraId == titulo.CorretoraId && m.ProdutoId == titulo.ProdutoId && m.EmissorId == titulo.EmissorId, rastrear)
+            .OrderBy(m => m.DataInvestimento).ThenBy(m => m.Id);
+
     public async Task<bool> ExistemPorObjetivoAsync(Guid objetivoId) =>
         await FindByCondition(m => m.ObjetivoId == objetivoId, trackChanges: false).AnyAsync();
 
