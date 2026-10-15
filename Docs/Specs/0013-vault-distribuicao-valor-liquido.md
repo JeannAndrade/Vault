@@ -7,7 +7,7 @@
 
 > Este documento é uma especificação para outro dev implementar. Não contém código de implementação: descreve o que fazer em cada classe, a ordem, os testes e a documentação.
 > Todo código, comentário, commit e documentação em português. Nomes de tipos e membros seguem o padrão do repositório.
-> O documento é entregue por camadas. Esta parte cobre o cabeçalho, o Passo 0 (ADR) e o Passo 1 (Domain).
+> O documento é entregue por camadas. Esta versão cobre o cabeçalho, o Passo 0 (ADR), o Passo 1 (Domain) e o Passo 2 (Persistence).
 
 ---
 
@@ -138,4 +138,50 @@ Remover o `UnitTest1.cs` de exemplo. Criar `Movimentos/Distribuicao/Distribuicao
 
 ---
 
-_(continua: Passo 2, Persistence)_
+## Passo 2: Persistence
+
+Sem pacote novo, sem alteração de mapeamento, sem migration. As colunas e os índices necessários já existem (`UserId`, `EstaAtivo` e as FKs com índice `(UserId, X)`).
+
+### 2.1 `TituloFiltro`
+
+Pasta `Persistence/Movimentos/`, ao lado de `MovimentoFiltro`. Record **selada**, imutável, com os quatro campos **não anuláveis**: `TipoRendaId`, `CorretoraId`, `ProdutoId` e `EmissorId` (todos `Guid`). Não reutilizar `MovimentoFiltro` (campos opcionais, inclui Objetivo e `EstaAtivo`). A obrigatoriedade dos quatro é validada na Application; o repositório apenas filtra e, com um `Guid.Empty`, devolve lista vazia.
+
+### 2.2 `IMovimentoRepository` e `MovimentoRepository`
+
+Novo método, **sem alterar** os existentes, com `CancellationToken` obrigatório:
+
+- `Task<List<Movimento>> GetAtivosPorTituloAsync(Guid ownerId, TituloFiltro titulo, bool trackChanges, CancellationToken cancellationToken)`
+
+Implementação:
+
+- Parte de `FindByCondition(..., trackChanges)` (o mesmo ponto de partida do `GetAsync` atual), com os filtros: `UserId == ownerId`, `EstaAtivo` e os quatro campos de `titulo` (todos com `==`). O `UserId` é sempre aplicado, mesmo quando os demais filtros já identificam o título (isolamento multi-tenant).
+- `Include` **somente de `Objetivo`**: é a única entidade relacionada que varia dentro de um título e a única de que o preview precisa. Não usar `QueryWithRelatedEntities()`, que força `AsNoTracking` e carrega cinco includes sem necessidade.
+- Ordenação `DataInvestimento` ascendente e depois `Id` ascendente; `ToListAsync(cancellationToken)`.
+- A mesma consulta serve à simulação (`trackChanges: false`) e à gravação (`trackChanges: true`), para a Application poder alterar as entidades e chamar `SaveAsync(cancellationToken)`.
+- Comentário no método: a ordem do banco serve só para uma listagem estável. **O "aporte mais recente" é definido pelo calculador do Domain, que reordena em memória**, porque a ordenação de `Guid` no MariaDB (texto) pode divergir da de `Guid.CompareTo` do .NET nos empates de data. Nenhuma regra de negócio pode depender da ordem devolvida aqui.
+
+### 2.3 Impacto em outros projetos
+
+- `FakeMovimentoRepository` (`Application.Test/Movimentos/TestDoubles`) implementa `IMovimentoRepository` e deixa de compilar. Neste passo, acrescentar o método novo lançando `NotSupportedException`, no mesmo estilo dos demais métodos não usados. O Passo 3 o completa se algum teste precisar.
+- Os mocks com Moq não são afetados.
+
+### 2.4 Testes (`Persistence.Test/Movimentos/MovimentoRepositoryTests.cs`)
+
+Criar um auxiliar de teste que monte Movimentos compartilhando as mesmas entidades relacionadas (o `AdicionarMovimento` atual cria entidades novas a cada chamada, o que não serve para testar um título). Cenários:
+
+- Devolve somente os aportes **ativos** do título do usuário.
+- **Isolamento por usuário:** um Movimento de outro usuário com os mesmos quatro IDs não é devolvido.
+- **Cada filtro exclui:** quatro "vizinhos", cada um diferindo do título em apenas um dos campos (Tipo de Renda, Corretora, Produto ou Emissor), não são devolvidos.
+- **Ignora inativos.**
+- **Ordem:** `DataInvestimento` ascendente. Para datas iguais, verificar apenas que o conjunto devolvido está correto (não assumir a ordem de `Id`, que depende do provedor).
+- **Carrega o `Objetivo`** (`Objetivo.Nome` preenchido).
+- **`trackChanges`:** com `false`, as entidades ficam `Detached`; com `true`, ficam `Unchanged`, e uma alteração de `ValorLiquidoAtual` seguida de `SaveChangesAsync` persiste (recarregar em um contexto novo e conferir).
+- **Título sem aportes:** lista vazia.
+
+**Como validar:** `dotnet test Persistence.Test` e `dotnet test Application.Test` (este para confirmar que o fake compila).
+
+**Critério de pronto:** testes verdes nos dois projetos; nenhum arquivo de migration alterado; `git status` sem mudanças em `Migrations/`.
+
+---
+
+_(continua: Passo 3, Application)_

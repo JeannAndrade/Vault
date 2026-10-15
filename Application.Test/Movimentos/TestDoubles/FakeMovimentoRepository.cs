@@ -19,6 +19,7 @@ internal sealed class FakeMovimentoRepository : IMovimentoRepository
     public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) => Task.FromResult(MovimentoParaRetornar);
     public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken) => Task.FromResult(MovimentoParaRetornar);
     public Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
+    public Task<List<Movimento>> GetAtivosPorTituloAsync(Guid ownerId, TituloFiltro titulo, bool trackChanges, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task DeleteAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
     public void Create(Movimento movimento)
     {
