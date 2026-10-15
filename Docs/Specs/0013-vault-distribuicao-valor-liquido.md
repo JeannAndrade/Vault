@@ -7,7 +7,7 @@
 
 > Este documento é uma especificação para outro dev implementar. Não contém código de implementação: descreve o que fazer em cada classe, a ordem, os testes e a documentação.
 > Todo código, comentário, commit e documentação em português. Nomes de tipos e membros seguem o padrão do repositório.
-> O documento é entregue por camadas. Esta versão cobre o cabeçalho, o Passo 0 (ADR), o Passo 1 (Domain) e o Passo 2 (Persistence).
+> O documento é entregue por camadas. Partes entregues até agora: cabeçalho, Passo 0 (ADR), Passo 1 (Domain), Passo 2 (Persistence) e Passo 3 (Application).
 
 ---
 
@@ -140,48 +140,170 @@ Remover o `UnitTest1.cs` de exemplo. Criar `Movimentos/Distribuicao/Distribuicao
 
 ## Passo 2: Persistence
 
-Sem pacote novo, sem alteração de mapeamento, sem migration. As colunas e os índices necessários já existem (`UserId`, `EstaAtivo` e as FKs com índice `(UserId, X)`).
+**Sem alteração de schema.** Não há coluna, índice, migration nem mudança no `MovimentoMapping`. A consulta usa as FKs já indexadas em `(UserId, X)` e o volume por título é pequeno (D12).
 
-### 2.1 `TituloFiltro`
+### 2.1 Filtro do título
 
-Pasta `Persistence/Movimentos/`, ao lado de `MovimentoFiltro`. Record **selada**, imutável, com os quatro campos **não anuláveis**: `TipoRendaId`, `CorretoraId`, `ProdutoId` e `EmissorId` (todos `Guid`). Não reutilizar `MovimentoFiltro` (campos opcionais, inclui Objetivo e `EstaAtivo`). A obrigatoriedade dos quatro é validada na Application; o repositório apenas filtra e, com um `Guid.Empty`, devolve lista vazia.
+Criar `MovimentoTituloFiltro` em `Persistence/Movimentos/` (ao lado de `MovimentoFiltro`, mas **sem relação com ele**):
 
-### 2.2 `IMovimentoRepository` e `MovimentoRepository`
+- Record selado e imutável, com `TipoRendaId`, `CorretoraId`, `ProdutoId` e `EmissorId`, todos `Guid` **não anuláveis** e `required init` (os quatro são obrigatórios, D4).
+- Sem valor "vazio": não existe consulta sem título.
+- O repositório não valida `Guid.Empty`; isso é da Application (Passo 3). Se chegar um `Guid.Empty`, a consulta simplesmente não encontra nada.
 
-Novo método, **sem alterar** os existentes, com `CancellationToken` obrigatório:
+### 2.2 `IMovimentoRepository` (dois métodos novos)
 
-- `Task<List<Movimento>> GetAtivosPorTituloAsync(Guid ownerId, TituloFiltro titulo, bool trackChanges, CancellationToken cancellationToken)`
+Ambos com `CancellationToken` **obrigatório** (D14) e o `ownerId` sempre aplicado:
 
-Implementação:
+- `Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken)`: para a **simulação**. Sem tracking, com o `Objetivo` carregado (o preview exibe o nome do objetivo).
+- `Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken)`: para a **gravação**. **Com tracking** e sem `Include`, porque o command só altera valores.
 
-- Parte de `FindByCondition(..., trackChanges)` (o mesmo ponto de partida do `GetAsync` atual), com os filtros: `UserId == ownerId`, `EstaAtivo` e os quatro campos de `titulo` (todos com `==`). O `UserId` é sempre aplicado, mesmo quando os demais filtros já identificam o título (isolamento multi-tenant).
-- `Include` **somente de `Objetivo`**: é a única entidade relacionada que varia dentro de um título e a única de que o preview precisa. Não usar `QueryWithRelatedEntities()`, que força `AsNoTracking` e carrega cinco includes sem necessidade.
-- Ordenação `DataInvestimento` ascendente e depois `Id` ascendente; `ToListAsync(cancellationToken)`.
-- A mesma consulta serve à simulação (`trackChanges: false`) e à gravação (`trackChanges: true`), para a Application poder alterar as entidades e chamar `SaveAsync(cancellationToken)`.
-- Comentário no método: a ordem do banco serve só para uma listagem estável. **O "aporte mais recente" é definido pelo calculador do Domain, que reordena em memória**, porque a ordenação de `Guid` no MariaDB (texto) pode divergir da de `Guid.CompareTo` do .NET nos empates de data. Nenhuma regra de negócio pode depender da ordem devolvida aqui.
+Por que dois métodos: o `QueryWithRelatedEntities()` usa `AsNoTracking()`, então não serve para quem vai gravar, e carregar o Objetivo na gravação seria custo sem uso. Cada método declara a sua intenção.
 
-### 2.3 Impacto em outros projetos
+### 2.3 `MovimentoRepository`
 
-- `FakeMovimentoRepository` (`Application.Test/Movimentos/TestDoubles`) implementa `IMovimentoRepository` e deixa de compilar. Neste passo, acrescentar o método novo lançando `NotSupportedException`, no mesmo estilo dos demais métodos não usados. O Passo 3 o completa se algum teste precisar.
-- Os mocks com Moq não são afetados.
+Os dois métodos aplicam os mesmos critérios:
 
-### 2.4 Testes (`Persistence.Test/Movimentos/MovimentoRepositoryTests.cs`)
+- Filtros: `UserId == ownerId`, `EstaAtivo`, `TipoRendaId`, `CorretoraId`, `ProdutoId` e `EmissorId` iguais aos do título.
+- Ordenação: `DataInvestimento` ascendente e depois `Id` ascendente. É a mesma ordem usada pelo calculador (o último é o mais recente, D10), então a lista já sai na ordem do cálculo.
+- `ToListAsync(cancellationToken)`.
+- Simulação: partir de `FindByCondition(..., trackChanges: false)` com `.Include(m => m.Objetivo)`, ou de `RepositoryContext.Set<Movimento>().AsNoTracking().Include(...)`, mantendo o estilo do repositório.
+- Gravação: partir de `FindByCondition(..., trackChanges: true)`.
+- Evitar duplicar o `Where`: extrair um método privado que monta a consulta base filtrada e ordenada, parametrizado por `trackChanges`.
+- Comentário curto indicando que a ordenação acompanha o calculador de domínio (ADR 0013) e que, com volume por título pequeno, não se justifica índice.
 
-Criar um auxiliar de teste que monte Movimentos compartilhando as mesmas entidades relacionadas (o `AdicionarMovimento` atual cria entidades novas a cada chamada, o que não serve para testar um título). Cenários:
+### 2.4 Ajustes em outros projetos
 
-- Devolve somente os aportes **ativos** do título do usuário.
-- **Isolamento por usuário:** um Movimento de outro usuário com os mesmos quatro IDs não é devolvido.
-- **Cada filtro exclui:** quatro "vizinhos", cada um diferindo do título em apenas um dos campos (Tipo de Renda, Corretora, Produto ou Emissor), não são devolvidos.
-- **Ignora inativos.**
-- **Ordem:** `DataInvestimento` ascendente. Para datas iguais, verificar apenas que o conjunto devolvido está correto (não assumir a ordem de `Id`, que depende do provedor).
-- **Carrega o `Objetivo`** (`Objetivo.Nome` preenchido).
-- **`trackChanges`:** com `false`, as entidades ficam `Detached`; com `true`, ficam `Unchanged`, e uma alteração de `ValorLiquidoAtual` seguida de `SaveChangesAsync` persiste (recarregar em um contexto novo e conferir).
-- **Título sem aportes:** lista vazia.
+- `Application.Test/Movimentos/TestDoubles/FakeMovimentoRepository.cs`: implementar os dois métodos novos (pode lançar `NotSupportedException`, como os demais), apenas para a solution compilar. Os testes do Passo 3 usarão `Mock<IMovimentoRepository>`.
 
-**Como validar:** `dotnet test Persistence.Test` e `dotnet test Application.Test` (este para confirmar que o fake compila).
+### 2.5 Testes (`Persistence.Test/Movimentos/MovimentoRepositoryTests.cs`)
 
-**Critério de pronto:** testes verdes nos dois projetos; nenhum arquivo de migration alterado; `git status` sem mudanças em `Migrations/`.
+O helper `AdicionarMovimento` atual cria entidades novas (Objetivo, Tipo de Renda, Corretora, Produto, Emissor) a cada chamada e deixa `EstaAtivo = false`. Para estes testes, criar um helper próprio (por exemplo, `AdicionarMovimentoDoTitulo`) que receba as quatro entidades do título já criadas, o `userId`, a `DataInvestimento` e `EstaAtivo`, e devolva o `Movimento`.
+
+`GetAtivosDoTituloAsync`:
+
+- Retorna só os aportes **ativos** do título e do usuário.
+- Exclui, cada um em seu caso: movimento **inativo**; de outro **Tipo de Renda**; de outra **Corretora**; de outro **Produto**; de outro **Emissor** (um `Theory` ou um teste por campo, para provar que **cada** filtro é aplicado).
+- Isolamento: um movimento de **outro usuário** com os mesmos IDs de título não aparece.
+- Ordem: `DataInvestimento` ascendente, com desempate por `Id` ascendente (datas iguais).
+- Carrega o nome do Objetivo.
+- Sem tracking: as entidades ficam `Detached` (mesmo padrão do teste de `GetAsync` com token).
+- Título sem aportes: lista vazia.
+
+`GetAtivosDoTituloParaAtualizacaoAsync`:
+
+- Mesmos critérios de filtro e isolamento (um teste que cubra inativo, outro título e outro usuário).
+- Mesma ordem.
+- Com tracking: as entidades ficam `Unchanged` no contexto, e alterar `ValorLiquidoAtual` seguido de `SaveChangesAsync` persiste a mudança (confirma que o command conseguirá gravar).
+
+`MovimentoMappingTests`: sem alteração (nenhum índice novo).
+
+### 2.6 Como validar
+
+- `dotnet test Persistence.Test`.
+- Conferir que o modelo não mudou: `dotnet ef migrations has-pending-model-changes --project Persistence --startup-project Persistence --context VaultDbContext` deve informar que não há mudanças pendentes.
+
+**Critério de pronto:** testes verdes, nenhuma migration nova e solution compilando (incluindo o `FakeMovimentoRepository`).
 
 ---
 
-_(continua: Passo 3, Application)_
+## Passo 3: Application
+
+Sem pacote novo. Todas as novas assinaturas recebem `CancellationToken` **sem valor padrão** (D14). A data de hoje vem do `IDateTimeProvider` (já registrado na Api desde o ADR 0011), lida **uma única vez** por execução.
+
+### 3.0 Verificação prévia (somente leitura, antes de codar)
+
+O Domain devolve erros de regra como valor (`ErroDistribuicao`). A Application precisa convertê-los em uma exceção que a Api responda com **422** e com mensagem legível.
+
+- Na LumiaFoundation, conferir como o `DomainExceptionHandler` mapeia as exceções e qual aceita uma mensagem livre. A candidata natural é `CommandValidationException` (é a que `CommandValidator` lança e que já resulta em 422 nos testes atuais): ver o construtor.
+- **Não** usar `EntityInUseException` (tem outro significado) nem criar exceção própria sem mapeamento no handler (ela viraria 500).
+- **Se nenhuma exceção existente servir, parar e sinalizar.** Qualquer mudança na lib é alteração de contrato público e exige discussão prévia.
+
+Nos itens abaixo, "exceção de regra" é a exceção escolhida nessa verificação.
+
+### 3.1 Tipos compartilhados
+
+Pasta: `Application/Movimentos/DistribuicaoValorLiquido/` (compartilhada pela query e pelo command).
+
+- **`DistribuicaoValorLiquidoParameters`** (record, no estilo de `MovimentoFiltroParameters`):
+  - `TipoRendaId`, `CorretoraId`, `ProdutoId` e `EmissorId`: `Guid` com `[NotEmptyGuid]` (`LumiaFoundation.Core.ValidationAttributes`).
+  - `ValorLiquidoTotal`: `decimal` com `[Required]` e `[Range(0, double.MaxValue)]`, mensagem "O valor líquido total não pode ser negativo".
+  - `ToTituloFiltro()` devolve `MovimentoTituloFiltro` (Passo 2).
+- **`AporteDistribuidoModel`** (record): `Id`, `ObjetivoNome`, `DataInvestimento`, `ValorAporte`, `ValorLiquidoAtual` (o valor gravado hoje), `NovoValorLiquido` e `Ganho`.
+- **`DistribuicaoValorLiquidoModel`** (record):
+  - `List<AporteDistribuidoModel> Aportes`, `TotalAportado`, `GanhoTotal`, `ValorLiquidoTotal` (o informado), `double? TaxaEfetivaAnual` (fração, não percentual) e `string? Aviso`.
+  - `PodeConfirmar`: verdadeiro somente se `Aviso` é nulo e há aportes.
+- **Mensagens de erro:** um único ponto (método estático interno, por exemplo `MensagemDoErro(ErroDistribuicao)`), usado tanto como `Aviso` do preview quanto como mensagem da exceção de regra. Textos propostos:
+  - `SemAportes`: "Não há aportes ativos para o título selecionado."
+  - `SemBaseDeTempo`: "Todos os aportes do título foram feitos hoje; não há tempo de aplicação para distribuir o rendimento."
+  - `ValorNegativo`: "A distribuição resultaria em valor negativo para algum aporte. Atualize os movimentos individualmente."
+  - `CalculoInvalido`: "Não foi possível distribuir o valor informado para este título."
+- **Auxiliar interno estático** (para não duplicar entre query e command): converte `Movimento` em `AporteParaDistribuicao` e devolve o dicionário por `Id`.
+
+### 3.2 Query de simulação
+
+Pasta: `Application/Movimentos/Queries/SimularDistribuicaoValorLiquido/`.
+
+- **`ISimularDistribuicaoValorLiquidoQuery`** e **`SimularDistribuicaoValorLiquidoQuery`**: dependências `IRepositoryManager`, `ILoggerManager` e `IDateTimeProvider`.
+- `ExecuteAsync(Guid ownerId, DistribuicaoValorLiquidoParameters parametros, CancellationToken cancellationToken)` retorna `DistribuicaoValorLiquidoModel`.
+- Fluxo:
+  1. `CommandValidator.Validate(parametros)` **fora do `try`** (erro do cliente, 422).
+  2. `hoje = GetDateTime().Date`.
+  3. `GetAtivosDoTituloAsync(ownerId, parametros.ToTituloFiltro(), cancellationToken)`.
+  4. `DistribuicaoValorLiquidoCalculador.Calcular(aportes, parametros.ValorLiquidoTotal, hoje)`.
+  5. Sucesso: montar o modelo juntando o resultado do Domain com `ObjetivoNome`, `DataInvestimento` e `ValorLiquidoAtual` do `Movimento` (pelo `Id`).
+  6. Falha (qualquer `ErroDistribuicao`): **não lançar**. Devolver o modelo com `Aportes` vazio, `Aviso` preenchido e `PodeConfirmar` falso (D11 e ADR: o preview exibe o aviso).
+- `catch (Exception ex) when (ex is not OperationCanceledException)` registra com `_logger.LogError` e relança, como em `GetMovimentosDesatualizadosQuery`.
+
+### 3.3 Command de gravação
+
+Pasta: `Application/Movimentos/Commands/DistribuirValorLiquido/`.
+
+- **`IDistribuirValorLiquidoCommand`** e **`DistribuirValorLiquidoCommand`**: dependências `IRepositoryManager` e `IDateTimeProvider`.
+- `ExecuteAsync(DistribuicaoValorLiquidoParameters parametros, Guid ownerId, CancellationToken cancellationToken)` retorna `Task`.
+- Fluxo (a Api **recalcula**, sem confiar no Web, D7):
+  1. `CommandValidator.Validate(parametros)`.
+  2. `hoje = GetDateTime().Date`.
+  3. `GetAtivosDoTituloParaAtualizacaoAsync(...)` (com tracking).
+  4. `Calcular(...)`. Se falhar (**inclusive `SemAportes`**, que na gravação não é preview vazio): lançar a exceção de regra com a mensagem do erro, **antes de alterar qualquer entidade**.
+  5. Para cada aporte distribuído, localizar o `Movimento` pelo `Id` e atualizar `ValorLiquidoAtual` e `DataAtualizacaoValorLiquido = hoje`. Reutilizar `MovimentoModelForUpdateValorLiquido.UpdateDomain(movimento, hoje)` (ADR 0011), para existir uma só regra de "atualizar valor líquido". Chamar `_repositoryManager.Movimento.Update(movimento)`, como nos demais commands.
+  6. Um único `SaveAsync(cancellationToken)` (sobrecarga do ADR 0011): uma transação, tudo ou nada.
+- Sem `try/catch` com log, como nos commands existentes (a Api trata e registra).
+
+### 3.4 Alterações em arquivos existentes
+
+Nenhuma. A Query e o Command novos seguem a convenção de registro do `AddServicesFromAssembly` (confirmar no Passo 4).
+
+### 3.5 Testes (`Application.Test`)
+
+Seguir o estilo de `GetMovimentosDesatualizadosQueryTests` e `UpdateValorLiquidoMovimentoCommandTests` (`Mock<IMovimentoRepository>`, `Mock<IDateTimeProvider>` com data fixa). Nos `Movimento` de teste, preencher `EstaAtivo`, `ValorAporte`, `DataInvestimento`, `ValorLiquidoAtual` e `Objetivo = new Objetivo { Nome = ... }` (a navegação nasce nula).
+
+**Query** (`Queries/SimularDistribuicaoValorLiquido/`):
+
+- Sucesso: repassa `ownerId`, os quatro IDs e o token ao repositório; o modelo junta nome do objetivo, data e valor atual; a soma dos `NovoValorLiquido` é exatamente `ValorLiquidoTotal`; `PodeConfirmar` verdadeiro e `TaxaEfetivaAnual` preenchida.
+- Título sem aportes: modelo com lista vazia, `Aviso` preenchido, `PodeConfirmar` falso, **sem exceção**.
+- Todos os aportes de hoje com `G ≠ 0`: `Aviso` de `SemBaseDeTempo`, lista vazia.
+- Prejuízo extremo (valor negativo): `Aviso` de `ValorNegativo`, lista vazia.
+- Parâmetros inválidos (`Guid.Empty` em cada um dos quatro IDs; valor negativo), em `Theory`: exceção de validação, **sem consultar** o repositório.
+- Falha do repositório é logada e relançada; `OperationCanceledException` não é logada.
+
+**Command** (`Commands/DistribuirValorLiquido/`):
+
+- Sucesso: todos os aportes têm `ValorLiquidoAtual` novo e `DataAtualizacaoValorLiquido = hoje`; a soma é exatamente o total informado; `Update` é chamado uma vez por aporte; `SaveAsync(token)` é chamado **uma vez**; os demais campos (`ValorAporte`, `Observacao`) ficam intactos.
+- Repassa `ownerId` e o token ao repositório e ao `SaveAsync`.
+- Sem aportes: exceção de regra, sem `SaveAsync`.
+- `SemBaseDeTempo`: exceção de regra, sem `SaveAsync`, valores originais intactos.
+- `ValorNegativo`: exceção de regra, sem `SaveAsync` e **nenhum** movimento alterado (confirma que a mutação só ocorre após o cálculo bem-sucedido).
+- Parâmetros inválidos: exceção de validação, sem consultar o repositório.
+- Mensagem da exceção em português (`Contains` de um trecho do texto).
+
+**Mensagens:** um `Theory` percorrendo todos os valores de `ErroDistribuicao` e garantindo que cada um tem mensagem não vazia (protege contra um valor novo do enum sem mensagem).
+
+### 3.6 Como validar
+
+`dotnet test Application.Test` e `dotnet build` da solution inteira (o Service ainda não usa os tipos novos).
+
+**Critério de pronto:** testes verdes; erro de regra tratado pela exceção verificada no 3.0; a mutação das entidades só ocorre após cálculo bem-sucedido.
+
+---
+
+_(continua: Passo 4, Service)_

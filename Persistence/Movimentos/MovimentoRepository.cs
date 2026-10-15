@@ -111,6 +111,17 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
             .ToListAsync(cancellationToken);
     }
 
+    public Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) =>
+        ConsultarAtivosDoTitulo(ownerId, titulo, false).Include(m => m.Objetivo).ToListAsync(cancellationToken);
+
+    public Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) =>
+        ConsultarAtivosDoTitulo(ownerId, titulo, true).ToListAsync(cancellationToken);
+
+    private IQueryable<Movimento> ConsultarAtivosDoTitulo(Guid ownerId, MovimentoTituloFiltro titulo, bool rastrear) =>
+        FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && m.TipoRendaId == titulo.TipoRendaId &&
+            m.CorretoraId == titulo.CorretoraId && m.ProdutoId == titulo.ProdutoId && m.EmissorId == titulo.EmissorId, rastrear)
+            .OrderBy(m => m.DataInvestimento).ThenBy(m => m.Id);
+
     public async Task<bool> ExistemPorObjetivoAsync(Guid objetivoId) =>
         await FindByCondition(m => m.ObjetivoId == objetivoId, trackChanges: false).AnyAsync();
 

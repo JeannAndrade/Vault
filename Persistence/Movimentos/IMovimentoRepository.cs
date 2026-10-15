@@ -18,6 +18,8 @@ public interface IMovimentoRepository
         TituloFiltro titulo,
         bool trackChanges,
         CancellationToken cancellationToken);
+    Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken);
+    Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken);
     Task<bool> ExistemPorObjetivoAsync(Guid objetivoId);
     Task<bool> ExistemPorTipoRendaAsync(Guid tipoRendaId);
     Task<bool> ExistemPorCorretoraAsync(Guid corretoraId);
