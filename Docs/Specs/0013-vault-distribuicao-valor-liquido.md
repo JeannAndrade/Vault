@@ -7,7 +7,7 @@
 
 > Este documento é uma especificação para outro dev implementar. Não contém código de implementação: descreve o que fazer em cada classe, a ordem, os testes e a documentação.
 > Todo código, comentário, commit e documentação em português. Nomes de tipos e membros seguem o padrão do repositório.
-> O documento é entregue por camadas. Partes entregues até agora: cabeçalho, Passo 0 (ADR), Passo 1 (Domain), Passo 2 (Persistence) e Passo 3 (Application).
+> O documento é entregue por camadas. Partes entregues até agora: cabeçalho, Passo 0 (ADR), Passo 1 (Domain), Passo 2 (Persistence), Passo 3 (Application) e Passo 4 (Service).
 
 ---
 
@@ -306,4 +306,65 @@ Seguir o estilo de `GetMovimentosDesatualizadosQueryTests` e `UpdateValorLiquido
 
 ---
 
-_(continua: Passo 4, Service)_
+## Passo 4: Service (Api)
+
+Sem pacote novo. O `MovimentosController` **não muda** (essa é a vantagem do controller separado, D8).
+
+### 4.1 DTOs
+
+Pasta: `Service/Movimentos/DTOs/`, no estilo dos DTOs de movimento.
+
+- **`DistribuicaoValorLiquidoSolicitacaoDto`** (record com propriedades `init`): `TipoRendaId`, `CorretoraId`, `ProdutoId`, `EmissorId` (`Guid`) e `ValorLiquidoTotal` (`decimal`). Corpo comum às duas ações. Método `ToParameters()` devolve `DistribuicaoValorLiquidoParameters`. Sem DataAnnotations: a validação é do Application (`CommandValidator`, 422).
+- **`AporteDistribuidoDto`**: `Id`, `ObjetivoNome`, `DataInvestimento`, `ValorAporte`, `ValorLiquidoAtual`, `NovoValorLiquido` e `Ganho`. Não expõe `UserId`.
+- **`DistribuicaoValorLiquidoDto`**: `Aportes` (lista de `AporteDistribuidoDto`), `TotalAportado`, `GanhoTotal`, `ValorLiquidoTotal`, `TaxaEfetivaAnual` (`double?`, fração: 0,225 significa 22,5%), `Aviso` e `PodeConfirmar`. `FromApplication(DistribuicaoValorLiquidoModel)` mapeia tudo, inclusive a lista (inclusive vazia) e `PodeConfirmar`.
+
+### 4.2 `DistribuicaoValorLiquidoController`
+
+Arquivo: `Service/Movimentos/DistribuicaoValorLiquidoController.cs`, namespace `Service.Movimentos`.
+
+- Atributos iguais aos demais: `[ApiController]`, `[Authorize]`, `[ServiceFilter(typeof(RetrieveUserIdFromTokenAttribute))]` e `[Route("api/movimentos/distribuicao-valor-liquido")]`. Herda de `BaseApiController`.
+- Construtor com `ISimularDistribuicaoValorLiquidoQuery` e `IDistribuirValorLiquidoCommand`.
+- **`POST simulacao`** → 200 com `DistribuicaoValorLiquidoDto`. Chama a query com `GetCurrentUserId()`, `dto.ToParameters()` e `HttpContext.RequestAborted`. `ProducesResponseType`: 200, 422 e 500.
+- **`POST`** (sem sufixo) → 204. Chama o command com `dto.ToParameters()`, `GetCurrentUserId()` e `HttpContext.RequestAborted`. `ProducesResponseType`: 204, 422 e 500.
+- Os dois são `POST` por serem ações de cálculo com corpo (ADR 0013).
+- **Guarda do corpo:** com `SuppressModelStateInvalidFilter` ligado, um corpo malformado (por exemplo, um GUID inválido ou um número maior que o `decimal`) não é barrado pelo framework e o DTO pode chegar nulo. Nas duas ações, antes de qualquer chamada: se `!ModelState.IsValid` ou o DTO for nulo, lançar `HttpBaseException` com 422 e mensagem em português ("Corpo da requisição inválido."), no mesmo padrão já usado em `GetMovimentos`. Isso foge do que as outras ações de escrita fazem hoje; vale registrar como melhoria separada para as demais (fora desta feature).
+- **Rotas:** os caminhos `.../simulacao` e `.../distribuicao-valor-liquido` são literais e não colidem com as rotas `{id:guid}` do `MovimentosController` (a restrição `:guid` não casa com texto). Confirmar na validação manual.
+
+### 4.3 `Program.cs`
+
+- `IDateTimeProvider` já está registrado na Api (ADR 0011). Nada a acrescentar.
+- A Query e o Command novos devem ser registrados pela convenção do `AddServicesFromAssembly`. **Confirmar**; se a convenção não os pegar, registrá-los explicitamente (`AddScoped`) e registrar o motivo em um comentário.
+
+### 4.4 Testes (`Service.Test`)
+
+**Controller** (`Movimentos/DistribuicaoValorLiquidoControllerTests.cs`), no estilo de `MovimentosControllerTests` (`DefaultHttpContext`, `Items["UserId"]`, `HttpContext.RequestAborted` com `CancellationTokenSource`):
+
+- Simulação: repassa `userId`, os parâmetros mapeados (`It.Is`, conferindo os cinco campos) e o token; devolve `OkObjectResult` com `DistribuicaoValorLiquidoDto` mapeado, incluindo `Aviso` e `PodeConfirmar`.
+- Gravação: chama o command com `userId`, parâmetros e token e devolve `NoContentResult`.
+- Corpo inválido (`ModelState` com erro) e DTO nulo, nas **duas** ações: `HttpBaseException` com 422 e **sem** chamar a query nem o command.
+
+**DTOs** (`Movimentos/DistribuicaoValorLiquidoDtoTests.cs`):
+
+- `ToParameters()` mapeia os cinco campos.
+- `FromApplication` mapeia todos os campos, inclusive os de cada aporte.
+- Modelo com lista vazia e `Aviso`: DTO com lista vazia, aviso preservado e `PodeConfirmar` falso.
+
+**Registro** (`Movimentos/DistribuicaoValorLiquidoRegistroTests.cs`, recomendado): montar um `ServiceCollection` com `AddServicesFromAssembly(typeof(IGetCorretoraQuery).Assembly)`, registrar `Mock` para `IRepositoryManager`, `ILoggerManager` e `IDateTimeProvider`, e verificar que `ISimularDistribuicaoValorLiquidoQuery` e `IDistribuirValorLiquidoCommand` são resolvidos. Evita descobrir um registro faltando só em execução.
+
+### 4.5 Como validar
+
+- `dotnet test Service.Test`.
+- Subir a Api (`dotnet run` no Service) e conferir no OpenAPI (`MapOpenApiDevTools`) as duas rotas novas e as respostas documentadas.
+- Chamadas manuais, com um token válido (exemplos em português nas mensagens esperadas):
+  - `POST /api/movimentos/distribuicao-valor-liquido/simulacao` com os quatro IDs de um título e um valor: 200 e `podeConfirmar: true`.
+  - O mesmo corpo com IDs de título sem aportes ativos: 200, lista vazia e `aviso` preenchido.
+  - `valorLiquidoTotal` negativo, um ID `Guid.Empty` ou um GUID malformado: 422.
+  - Sem token: 401.
+  - `POST /api/movimentos/distribuicao-valor-liquido` com o mesmo corpo: 204; as rotas `PUT`/`PATCH`/`GET` de `{id}` continuam funcionando (sem colisão).
+  - Usuário B com os IDs do título do usuário A: simulação vazia e gravação 422 (isolamento).
+
+**Critério de pronto:** testes verdes, rotas visíveis no OpenAPI, registro por convenção confirmado e nenhuma alteração no `MovimentosController`.
+
+---
+
+_(continua: Passo 5, Presentation)_
