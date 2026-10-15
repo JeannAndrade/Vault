@@ -1,13 +1,13 @@
 # Especificação técnica 0013: Distribuição do Valor Líquido por capital e tempo (Vault)
 
 - Data: 2026-10-14
-- Status: aprovada para implementação
+- Status: implementada (fechamento em 2026-10-15)
 - ADR relacionado: [0013](../adr/0013-distribuicao-do-valor-liquido.md)
 - Repositório afetado: **Vault** (Domain, Persistence, Application, Service, Presentation/Web). **Sem alteração no LumiaFoundation, no schema e sem migration.**
 
 > Este documento é uma especificação para outro dev implementar. Não contém código de implementação: descreve o que fazer em cada classe, a ordem, os testes e a documentação.
 > Todo código, comentário, commit e documentação em português. Nomes de tipos e membros seguem o padrão do repositório.
-> O documento é entregue por camadas. Partes entregues até agora: cabeçalho, Passo 0 (ADR), Passo 1 (Domain), Passo 2 (Persistence), Passo 3 (Application), Passo 4 (Service) e Passo 5 (Presentation).
+> Documento completo, com os Passos 0 a 6, a validação ponta a ponta, os riscos e o que está fora de escopo.
 
 ---
 
@@ -447,4 +447,64 @@ No dropdown **"Manutenção"** já existente, acrescentar o item **"Distribuiç�
 
 ---
 
-_(continua: Passo 6, fechamento, validação ponta a ponta, riscos e fora de escopo)_
+## Passo 6: Documentação final e fechamento — concluído em 2026-10-15
+
+- **ADR 0013:** status atualizado para **Aceita (2026-10-15)**.
+- **ADR 0011:** status complementado com a nota "Complementada pelo ADR 0013 (atualização em lote por título)". Não há conflito entre os dois: a atualização individual continua valendo.
+- **ADR 0012:** sem relação com esta feature. O fechamento do texto dele segue em paralelo, por conta do mantenedor.
+- **READMEs do Vault:** se algum listar endpoints ou telas, incluir os dois endpoints novos (`POST api/movimentos/distribuicao-valor-liquido/simulacao` e `POST api/movimentos/distribuicao-valor-liquido`) e a tela "Distribuição do Valor Líquido". (Nenhum README do Vault foi analisado; o dev verifica.)
+- **Índice de ADRs e de especificações:** atualizar, se existir.
+- **Registro da implementação:** a exceção de regra escolhida foi `CommandValidationException`, que preserva o mapeamento para 422. A query e o command foram confirmados no registro por convenção do `AddServicesFromAssembly`; não foi necessário `AddScoped` explícito.
+- `Docs/Docker.md`, `Docs/MariaDb.md` e `compose.yaml`: sem mudança (não há migration nem variável nova).
+- Esta especificação: status atualizado para **implementada**, com a data de fechamento.
+
+**Critério de pronto:** ADR aceito, notas cruzadas feitas e documentação atualizada. A validação ponta a ponta permanece dependente de ambiente com banco, Docker e execução do runner de testes.
+
+---
+
+## 6. Validação ponta a ponta
+
+Preparar um título de teste (Tipo de Renda, Corretora, Produto e Emissor) com três Movimentos **ativos**: R$ 1.200 com `DataInvestimento` 730 dias antes de hoje, R$ 2.000 com 365 dias antes e R$ 800 com a data de hoje. Antes de usar a tela com dados reais, fazer um backup do banco (`mariadb-dump`, ver `Docs/MariaDb.md`), porque a gravação sobrescreve os valores sem histórico.
+
+1. `dotnet test` na solution inteira, tudo verde.
+2. **Preview do cenário base:** informar `5.000` e simular. Conferir: aportes do mais antigo ao mais recente; soma dos "Novo valor líquido" exatamente `5.000,00`; ganho total `1.000,00`; taxa efetiva anual em torno de 22,5%; valores aproximados de 1.771,70, 2.428,30 e 800,00; ganho do aporte de hoje entre `-0,02` e `0,02`; nenhum valor negativo.
+3. **Confirmar:** a tela volta com a mensagem de sucesso. No banco, `SELECT MovimentoId, ValorLiquidoAtual, DataAtualizacaoValorLiquido FROM Movimentos WHERE ...` mostra os novos valores e a data de hoje, e `SELECT SUM(ValorLiquidoAtual)` do título dá exatamente `5.000,00`. A listagem de Movimentos, filtrada pelo título, mostra os mesmos valores.
+4. **Saída da lista de desatualizados:** ajustar `DataAtualizacaoValorLiquido` dos três para 40 dias atrás, confirmar a distribuição e verificar que os três deixam de aparecer em "Manutenção Valor Líquido".
+5. **Prejuízo moderado:** informar `3.500`. Ganhos negativos em todos os aportes com tempo, soma exata e nenhum valor final negativo.
+6. **Perda total:** informar `0` em um título de teste. Todos os valores ficam `0,00` e a gravação funciona.
+7. **Prejuízo extremo:** título com aportes de R$ 100 (1.095 dias) e R$ 900 (4 dias), valor `50`. O preview mostra o aviso e **não** oferece confirmar. Chamando a Api direto na gravação com o mesmo corpo: 422 e nenhum valor alterado no banco.
+8. **Todos os aportes de hoje:** com o valor diferente da soma, o preview mostra o aviso de falta de base de tempo e a gravação direta responde 422. Com o valor igual à soma, o resultado tem ganhos zero.
+9. **Somente ativos:** marcar um dos aportes como inativo. Ele não entra no preview e não é alterado na gravação. Título sem aportes ativos: preview com aviso; gravação direta 422.
+10. **Isolamento entre usuários:** com o usuário B, chamar a Api com os IDs do título do usuário A. A simulação vem vazia (com aviso), a gravação responde 422 e os dados de A não mudam.
+11. **Validações:** deixar um select em "Selecione..." (mensagem na tela); valor negativo (mensagem); GUID malformado direto na Api (422); sem token (401).
+12. **Recálculo na gravação (D7):** abrir o preview, e em outra aba editar o valor do aporte de um dos Movimentos; confirmar o preview antigo. A gravação usa os dados atuais do banco e fecha em `5.000,00`; os valores gravados podem diferir dos que foram exibidos (comportamento documentado no ADR).
+13. **Docker:** `docker compose up --build -d` e repetir os passos 2 e 3 em `http://localhost:5000`. Não há migration nova, então nada muda na ordem de subida.
+14. **`EXPLAIN` (quando houver volume):** a consulta `WHERE UserId = ? AND EstaAtivo = 1 AND TipoRendaId = ? AND CorretoraId = ? AND ProdutoId = ? AND EmissorId = ? ORDER BY DataInvestimento, MovimentoId` deve usar um dos índices `(UserId, X)`. Se aparecer varredura ou `filesort` relevante, abrir novo ADR (gatilho do ADR 0013).
+
+## 7. Riscos e pontos de atenção
+
+| Risco | Mitigação |
+|---|---|
+| O resultado é uma **estimativa conceitual**, não a rentabilidade real | Texto explicativo na tela; o preview exibe a taxa efetiva para o usuário comparar com o extrato; se houver PUs reais um dia, a distribuição pode ser substituída |
+| A gravação sobrescreve `ValorLiquidoAtual` sem histórico nem desfazer | Preview e diálogo de confirmação; backup do banco antes do primeiro uso em lote real; histórico de valores fica fora de escopo |
+| Preview e gravação podem divergir se os aportes mudarem entre os dois (D7) | Aviso "Os valores são recalculados ao confirmar"; carimbo do preview (409) pode ser adotado em ADR futuro se isso incomodar |
+| Prejuízo extremo é bloqueado (valor negativo) | O usuário usa a atualização individual (Manutenção Valor Líquido); observar a frequência e reavaliar a regra se for comum |
+| O aporte mais recente pode ganhar ou perder centavos por causa da compensação (D10), mesmo com `t = 0` | Aceito; coberto por teste com tolerância de `0,02` |
+| Fronteira UTC: entre 21h e 24h (BRT) "hoje" já é o dia seguinte | Efeito de um dia no tempo de cada aporte; impacto pequeno, registrado no ADR |
+| `[Range(0, double.MaxValue)]` não respeita a capacidade de `decimal(18,2)`; um valor absurdo falha na gravação | O padrão é o mesmo das demais telas de valor; avaliar um limite máximo como melhoria transversal, fora desta feature |
+| Duas confirmações simultâneas do mesmo título: vale a última | Aceito em app pessoal; sem token de concorrência; reavaliar se houver uso multiusuário real concorrente |
+| Nenhuma exceção existente da lib serve para o erro de regra (item 3.0) | Parar e discutir antes de alterar a LumiaFoundation (contrato público) |
+| As outras ações de escrita não têm a guarda de corpo malformado que esta feature adotou | Registrar como melhoria separada, fora desta feature |
+| Título com muitos aportes é processado de uma vez, sem limite | Aceitável na escala atual; o `UPDATE` é uma única transação |
+
+## 8. Fora de escopo
+
+- Histórico de valores líquidos e desfazer a distribuição.
+- Carimbo (hash) do preview e resposta 409 em caso de divergência.
+- Distribuição para vários títulos de uma só vez.
+- Importar PUs reais ou qualquer integração externa.
+- Persistir ou exibir a taxa efetiva calculada depois da gravação.
+- Limite máximo de valor e demais endurecimentos de validação transversais.
+- Mudanças de schema, migration ou índice.
+- Mudanças na LumiaFoundation.
+- Exportar o preview ou paginar a lista de aportes.

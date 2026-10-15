@@ -1,6 +1,6 @@
 # ADR 0013: Distribuição do Valor Líquido entre aportes por capital e tempo
 
-- Status: Aceita (2026-10-14)
+- Status: Aceita (2026-10-15)
 
 ## Contexto
 
@@ -86,3 +86,9 @@ Sem alteração de schema nem migration. Os filtros usam as FKs já indexadas em
 - Prejuízos muito grandes podem ser bloqueados pela regra de valor negativo; o usuário deve usar a atualização individual nesses casos.
 - Sem limite de itens, um título com muitos aportes processa todos de uma vez; aceitável na escala atual.
 - Serviço de domínio puro, testável sem mocks, com testes cobrindo cada caso degenerado e a soma exata.
+
+## Implementação e fechamento
+
+- Os erros de regra da distribuição são convertidos em `CommandValidationException`, preservando a resposta HTTP 422 já utilizada pela aplicação.
+- A query e o command são descobertos e registrados pelo `AddServicesFromAssembly`; não foi necessário registro explícito no `Program.cs`.
+- A feature não altera schema, migration ou índice e não há README ou índice de ADRs separado no repositório para atualizar.
