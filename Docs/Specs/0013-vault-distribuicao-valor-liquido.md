@@ -7,7 +7,7 @@
 
 > Este documento é uma especificação para outro dev implementar. Não contém código de implementação: descreve o que fazer em cada classe, a ordem, os testes e a documentação.
 > Todo código, comentário, commit e documentação em português. Nomes de tipos e membros seguem o padrão do repositório.
-> O documento é entregue por camadas. Partes entregues até agora: cabeçalho, Passo 0 (ADR), Passo 1 (Domain), Passo 2 (Persistence), Passo 3 (Application) e Passo 4 (Service).
+> O documento é entregue por camadas. Partes entregues até agora: cabeçalho, Passo 0 (ADR), Passo 1 (Domain), Passo 2 (Persistence), Passo 3 (Application), Passo 4 (Service) e Passo 5 (Presentation).
 
 ---
 
@@ -367,4 +367,84 @@ Arquivo: `Service/Movimentos/DistribuicaoValorLiquidoController.cs`, namespace `
 
 ---
 
-_(continua: Passo 5, Presentation)_
+## Passo 5: Presentation (Web)
+
+Sem pacote novo. A Web não referencia a Api: usa DTOs próprios, que seguem o contrato HTTP do Passo 4.
+
+### 5.1 Cliente da Api
+
+Pasta: `Presentation/Movimentos/`. Interface **separada** da `IMovimentoApi`, espelhando o controller separado da Api e evitando aumentar a interface (e os mocks) existente.
+
+- **DTOs** (records selados, propriedades `init`, no estilo de `MovimentoDesatualizadoDto`):
+  - `DistribuicaoValorLiquidoSolicitacaoDto`: `TipoRendaId`, `CorretoraId`, `ProdutoId`, `EmissorId` e `ValorLiquidoTotal`.
+  - `AporteDistribuidoDto`: `Id`, `ObjetivoNome`, `DataInvestimento`, `ValorAporte`, `ValorLiquidoAtual`, `NovoValorLiquido` e `Ganho`.
+  - `DistribuicaoValorLiquidoDto`: `Aportes` (lista, padrão vazia), `TotalAportado`, `GanhoTotal`, `ValorLiquidoTotal`, `TaxaEfetivaAnual` (`double?`), `Aviso` e `PodeConfirmar`.
+- **`IDistribuicaoValorLiquidoApi`** e **`DistribuicaoValorLiquidoApi`** (`IApiConnection`, `BasePath = "api/movimentos/distribuicao-valor-liquido"`):
+  - `SimularAsync(solicitacao, cancellationToken)`: `POST {BasePath}/simulacao`; se a Api responder sem corpo, lançar `InvalidOperationException` com mensagem em português (padrão de `GetByIdAsync`).
+  - `DistribuirAsync(solicitacao, cancellationToken)`: `POST {BasePath}`, sem corpo de resposta.
+- **`Program.cs`:** `builder.Services.AddApiResourceClient<IDistribuicaoValorLiquidoApi, DistribuicaoValorLiquidoApi>();` junto dos demais clientes.
+
+### 5.2 Página `/Movimentos/Distribuicao`
+
+Arquivos: `Pages/Movimentos/Distribuicao.cshtml` e `.cshtml.cs`. Modelo `DistribuicaoModel(IDistribuicaoValorLiquidoApi api, IMovimentoFormLookupData lookupData)`. O `AuthorizeFolder("/")` do `Program.cs` já exige login.
+
+**Estado do modelo**
+
+- `[BindProperty] InputModel Input`: `TipoRendaId`, `CorretoraId`, `ProdutoId` e `EmissorId` (`Guid` com `[NotEmptyGuid]` e `[Display]`, como em `CreateModel.InputModel`) e `ValorLiquidoTotal` (`decimal`, `[Required]` e `[Range(0, double.MaxValue)]`, mensagem "O valor líquido total não pode ser negativo."). Método `ToSolicitacaoDto()`.
+- `MovimentoFormLookupData Lookup`, `DistribuicaoValorLiquidoDto? Resultado`, `string? ErrorMessage` e `[TempData] string? MensagemSucesso`.
+- `TotalLiquidoAtual`: soma de `ValorLiquidoAtual` dos aportes do preview (zero se não houver), para o rodapé da tabela, sem lógica na view.
+
+**Handlers**
+
+- `OnGetAsync(ct)`: carrega o `Lookup`. Sem preview.
+- `OnPostSimularAsync(ct)`: carrega o `Lookup`. `ModelState` inválido → `Page()` sem chamar a Api. Válido → `SimularAsync` e guarda o resultado em `Resultado`. `ApiException` → `ErrorMessage` ("Não foi possível simular agora. Tente novamente em instantes."). Devolve `Page()`.
+- `OnPostConfirmarAsync(ct)`: carrega o `Lookup`. `ModelState` inválido → `ErrorMessage` ("Dados inválidos. Refaça a simulação.") e `Page()`, sem chamar a Api. Válido → `DistribuirAsync`. `ApiException` (qualquer uma, inclusive o 422 quando os dados mudaram desde o preview) → `ErrorMessage` ("Não foi possível confirmar agora. Refaça a simulação e tente novamente.") e `Page()`. Sucesso → `MensagemSucesso` ("Valor líquido distribuído com sucesso.") e `RedirectToPage()` (PRG, evita reenvio ao dar F5).
+
+A simulação é `POST` (e não `GET`) para o valor financeiro não ir para a URL, o histórico e os logs, e para valer o antiforgery do Razor Pages. A exceção de não autorizado não é capturada (segue para `ApiUnauthorizedExceptionHandler`, como nas demais páginas).
+
+**View (`Distribuicao.cshtml`)**
+
+- `ViewData["Title"]` e `<h1>`: "Distribuição do Valor Líquido". Parágrafo explicativo curto: o sistema distribui o valor líquido informado entre os aportes ativos do título, ponderando valor e tempo; é uma **estimativa** e não substitui o extrato da corretora.
+- Mensagem de sucesso (`alert-success`) e de erro (`alert-danger`).
+- Formulário de simulação (`method="post"`, `asp-page-handler="Simular"`): os quatro selects (`asp-items` do `Lookup`) com a primeira opção `<option value="">Selecione...</option>` (sem a opção "--": todos são obrigatórios), o campo de valor (`type="number"`, `step="0.01"`, `min="0"`) e o botão **Simular**, cada campo com `asp-validation-for`.
+- Preview (só quando `Resultado` não é nulo):
+  - Se `Aviso` não for nulo: `alert-warning` com o texto, sem tabela e sem botão de confirmar.
+  - Caso contrário: resumo (total aportado, valor líquido informado, ganho total e taxa efetiva anual em percentual `P2`, ou "—" quando nula) e tabela com Objetivo, Data do investimento, Valor do aporte, Valor líquido atual, **Novo valor líquido** e Ganho (valores em `C` com cultura `pt-BR`, data `dd/MM/yyyy`), com rodapé de totais. Cor de ganho positivo/negativo apenas com classes Bootstrap de texto (`text-success`/`text-danger`).
+  - Texto fixo: "Os valores são recalculados ao confirmar."
+  - Formulário de confirmação (`method="post"`, `asp-page-handler="Confirmar"`) com cinco `<input type="hidden">` com os valores **simulados**, e o botão **Confirmar atualização** com `onsubmit="return confirm('Atualizar o valor líquido de N aportes?');"`, como nos botões de excluir.
+- **Cuidado com a cultura nos hidden:** o `asp-for` formataria o decimal com a cultura do servidor. Escrever `name="Input.ValorLiquidoTotal"` à mão, com `value="@Model.Input.ValorLiquidoTotal.ToString(CultureInfo.InvariantCulture)"` (mesmo cuidado da tela de Manutenção Valor Líquido). Os GUIDs podem usar `asp-for`.
+
+### 5.3 Menu (`Pages/Shared/_Layout.cshtml`)
+
+No dropdown **"Manutenção"** já existente, acrescentar o item **"Distribuição Valor Líquido"** apontando para `/Movimentos/Distribuicao`, depois de "Manutenção Valor Líquido", no mesmo padrão de marcação (`dropdown-item`).
+
+### 5.4 Testes (`Presentation.Test`)
+
+**Cliente** (`Movimentos/DistribuicaoValorLiquidoApiTests.cs`), no estilo de `MovimentoApiTests` (`Mock<IApiConnection>`):
+
+- `SimularAsync` envia `POST` para `api/movimentos/distribuicao-valor-liquido/simulacao` com o corpo e devolve a resposta.
+- `SimularAsync` com resposta nula lança `InvalidOperationException`.
+- `DistribuirAsync` envia `POST` para `api/movimentos/distribuicao-valor-liquido` com o corpo (`Verify`, `Times.Once`).
+
+**Página** (`Pages/Movimentos/DistribuicaoModelTests.cs`), no estilo de `IndexModelTests` (`Mock<IMovimentoFormLookupData>` devolvendo listas vazias). O `[TempData]` é só uma propriedade nos testes unitários, sem precisar de `TempDataDictionary`.
+
+- `OnGetAsync`: carrega o `Lookup` e não há `Resultado`.
+- `OnPostSimularAsync` com `ModelState` inválido: `PageResult`, sem chamar a Api, `Lookup` carregado.
+- `OnPostSimularAsync` com sucesso: chama a Api com os cinco campos corretos e o token; `Resultado` atribuído; `PageResult`.
+- `OnPostSimularAsync` com `ApiException`: `ErrorMessage` preenchida e `Resultado` nulo.
+- `OnPostConfirmarAsync` com `ModelState` inválido: sem chamar a Api; `ErrorMessage` preenchida.
+- `OnPostConfirmarAsync` com sucesso: chama `DistribuirAsync` com os campos e o token; `RedirectToPageResult` e `MensagemSucesso` preenchida.
+- `OnPostConfirmarAsync` com `ApiException`: `ErrorMessage` preenchida e `PageResult`.
+- `TotalLiquidoAtual`: soma correta e zero sem `Resultado`.
+
+### 5.5 Como validar
+
+- `dotnet test Presentation.Test` e `dotnet build` (a view é compilada no build; erros de Razor aparecem aqui).
+- Com Api e Web no ar, abrir **Manutenção > Distribuição Valor Líquido** e conferir: selects sem opção "--", validação ao deixar um select em "Selecione...", preview com tabela e rodapé, aviso (sem botão de confirmar) para um título sem aportes ativos, e confirmação com mensagem de sucesso após o redirecionamento.
+- Conferir no navegador que o valor do hidden usa ponto decimal (inspecionar o HTML).
+
+**Critério de pronto:** testes verdes, tela funcionando de ponta a ponta no navegador, menu atualizado e `Program.cs` registrando o novo cliente.
+
+---
+
+_(continua: Passo 6, fechamento, validação ponta a ponta, riscos e fora de escopo)_

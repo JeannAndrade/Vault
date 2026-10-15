@@ -1,0 +1,125 @@
+@page
+@using System.Globalization
+@model DistribuicaoModel
+@{
+  ViewData["Title"] = "Distribuição do Valor Líquido";
+}
+
+<h1 class="h3 mb-3">Distribuição do Valor Líquido</h1>
+<p class="text-muted">
+  Distribui o valor líquido informado entre os aportes ativos, ponderando valor e tempo.
+  É uma estimativa e não substitui o extrato da corretora.
+</p>
+
+@if (Model.MensagemSucesso is not null)
+{
+  <div class="alert alert-success">@Model.MensagemSucesso</div>
+}
+
+@if (Model.ErrorMessage is not null)
+{
+  <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<form method="post" asp-page-handler="Simular">
+  <div class="row">
+    @foreach (var item in new[]
+    {
+            ("TipoRendaId", "Tipo de Renda", Model.Lookup.TiposRenda),
+            ("CorretoraId", "Corretora", Model.Lookup.Corretoras),
+            ("ProdutoId", "Produto", Model.Lookup.Produtos),
+            ("EmissorId", "Emissor", Model.Lookup.Emissores)
+        })
+    {
+      <div class="col-md-3 mb-3">
+        <label class="form-label" for="Input_@item.Item1">@item.Item2</label>
+        <select class="form-select" id="Input_@item.Item1" name="Input.@item.Item1" asp-items="item.Item3">
+          <option value="">Selecione...</option>
+        </select>
+        <span asp-validation-for="Input.TipoRendaId" class="text-danger"></span>
+      </div>
+    }
+
+    <div class="col-md-3 mb-3">
+      <label asp-for="Input.ValorLiquidoTotal" class="form-label"></label>
+      <input asp-for="Input.ValorLiquidoTotal" class="form-control" type="number" step="0.01" min="0" />
+      <span asp-validation-for="Input.ValorLiquidoTotal" class="text-danger"></span>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" type="submit">Simular</button>
+</form>
+
+@if (Model.Resultado is not null)
+{
+  if (Model.Resultado.Aviso is not null)
+  {
+    <div class="alert alert-warning mt-4">@Model.Resultado.Aviso</div>
+  }
+  else
+  {
+    <div class="mt-4">
+      <p>
+        <strong>Total aportado:</strong>
+        @Model.Resultado.TotalAportado.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))
+        &nbsp;
+        <strong>Valor informado:</strong>
+        @Model.Resultado.ValorLiquidoTotal.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))
+        &nbsp;
+        <strong>Ganho:</strong>
+        @Model.Resultado.GanhoTotal.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))
+        &nbsp;
+        <strong>Taxa:</strong>
+        @(Model.Resultado.TaxaEfetivaAnual is double taxa ? taxa.ToString("P2") : "—")
+      </p>
+
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Objetivo</th>
+            <th>Data</th>
+            <th class="text-end">Aporte</th>
+            <th class="text-end">Atual</th>
+            <th class="text-end">Novo</th>
+            <th class="text-end">Ganho</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var a in Model.Resultado.Aportes)
+          {
+            var classe = a.Ganho >= 0 ? "text-success" : "text-danger";
+            <tr>
+              <td>@a.ObjetivoNome</td>
+              <td>@a.DataInvestimento.ToString("dd/MM/yyyy")</td>
+              <td class="text-end">@a.ValorAporte.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</td>
+              <td class="text-end">@a.ValorLiquidoAtual.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</td>
+              <td class="text-end">@a.NovoValorLiquido.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</td>
+              <td class="text-end @classe">@a.Ganho.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3">Totais</th>
+            <th class="text-end">@Model.TotalLiquidoAtual.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</th>
+            <th class="text-end">@Model.Resultado.ValorLiquidoTotal.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</th>
+            <th class="text-end">@Model.Resultado.GanhoTotal.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</th>
+          </tr>
+        </tfoot>
+      </table>
+
+      <p class="text-muted">Os valores são recalculados ao confirmar.</p>
+
+      <form method="post" asp-page-handler="Confirmar"
+            onsubmit="return confirm('Atualizar o valor líquido de @Model.Resultado.Aportes.Count aportes?');">
+        <input asp-for="Input.TipoRendaId" type="hidden" />
+        <input asp-for="Input.CorretoraId" type="hidden" />
+        <input asp-for="Input.ProdutoId" type="hidden" />
+        <input asp-for="Input.EmissorId" type="hidden" />
+        <input name="Input.ValorLiquidoTotal" type="hidden"
+               value="@Model.Input.ValorLiquidoTotal.ToString(CultureInfo.InvariantCulture)" />
+        <button class="btn btn-success" type="submit">Confirmar atualização</button>
+      </form>
+    </div>
+  }
+}
