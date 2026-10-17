@@ -11,6 +11,8 @@ public class IndexModel(IObjetivoApi objetivoApi, IMovimentoApi movimentoApi, ID
     private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
     public List<ResumoObjetivoDto> Objetivos { get; private set; } = [];
 
+    public TotaisObjetivos Totais { get; private set; } = TotaisObjetivos.Vazio;
+
     public List<ProximoVencimentoDto> ProximosVencimentos { get; private set; } = [];
 
     public string? ErrorMessage { get; private set; }
@@ -20,6 +22,7 @@ public class IndexModel(IObjetivoApi objetivoApi, IMovimentoApi movimentoApi, ID
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         Objetivos = await objetivoApi.GetAllComValoresAsync(cancellationToken);
+        Totais = TotaisObjetivos.FromResumo(Objetivos);
 
         try
         {
