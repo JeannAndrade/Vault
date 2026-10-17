@@ -61,11 +61,18 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
             .Take(quantidade)
             .ToListAsync(cancellationToken);
 
+    // A ordem agrupa por título para a manutenção do valor líquido: Corretora, Produto e Emissor (por nome,
+    // ascendente), com DataAtualizacaoValorLiquido e Id como desempate determinístico. O índice
+    // IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido atende apenas o filtro; a ordenação
+    // é feita pelo banco sobre o conjunto filtrado do usuário (filesort): ver ADR 0015.
     public async Task<List<Movimento>> GetDesatualizadosAsync(
         Guid ownerId, DateTime dataLimite, int quantidade, CancellationToken cancellationToken) =>
         await QueryWithRelatedEntities()
             .Where(m => m.UserId == ownerId && m.EstaAtivo && m.DataAtualizacaoValorLiquido < dataLimite)
-            .OrderBy(m => m.DataAtualizacaoValorLiquido)
+            .OrderBy(m => m.Corretora.Nome)
+            .ThenBy(m => m.Produto.Nome)
+            .ThenBy(m => m.Emissor.Nome)
+            .ThenBy(m => m.DataAtualizacaoValorLiquido)
             .ThenBy(m => m.Id)
             .Take(quantidade)
             .ToListAsync(cancellationToken);

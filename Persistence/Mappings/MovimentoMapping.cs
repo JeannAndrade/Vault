@@ -44,8 +44,9 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
         // Acoplado à ordenação de MovimentoRepository.GetProximosVencimentosAsync: ver ADR 0010.
         builder.HasIndex(e => new { e.UserId, e.EstaAtivo, e.DataVencimento });
 
-        // Sustenta os valores líquidos desatualizados (UserId = ? AND EstaAtivo = ? AND DataAtualizacaoValorLiquido < ? ORDER BY DataAtualizacaoValorLiquido, Id).
-        // Acoplado à ordenação de MovimentoRepository.GetDesatualizadosAsync: ver ADR 0011.
+        // Sustenta o filtro dos valores líquidos desatualizados (UserId = ? AND EstaAtivo = ? AND
+        // DataAtualizacaoValorLiquido < ?).
+        // A ordenação (Corretora, Produto, Emissor) não é coberta por este índice: ver ADR 0011 e ADR 0015.
         builder.HasIndex(e => new { e.UserId, e.EstaAtivo, e.DataAtualizacaoValorLiquido })
             .HasDatabaseName("IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido");
 

@@ -564,6 +564,80 @@ public class MovimentoRepositoryTests
         Assert.Equal(EntityState.Unchanged, context.Entry(comTracking!).State);
     }
 
+    [Fact]
+    public async Task GetDesatualizadosAsync_OrdenaPorCorretoraProdutoEmissorEDepoisDataEId()
+    {
+        var userId = Guid.NewGuid();
+        var limite = new DateTime(2026, 2, 1);
+        await using var context = CreateContext();
+
+        // Inseridos fora de ordem de propósito.
+        var c = AdicionarMovimentoDoTitulo(context, userId, "Corretora B", "Produto A", "Emissor A", limite.AddDays(-1));
+        var b = AdicionarMovimentoDoTitulo(context, userId, "Corretora A", "Produto B", "Emissor A", limite.AddDays(-1));
+        var a2 = AdicionarMovimentoDoTitulo(context, userId, "Corretora A", "Produto A", "Emissor B", limite.AddDays(-1));
+        var a1 = AdicionarMovimentoDoTitulo(context, userId, "Corretora A", "Produto A", "Emissor A", limite.AddDays(-1));
+
+        // Mesmo título e data: desempate por Id.
+        var d1 = AdicionarMovimentoDoTitulo(context, userId, "Corretora C", "Produto A", "Emissor A", limite.AddDays(-1));
+        var d2 = AdicionarMovimentoDoTitulo(context, userId, "Corretora C", "Produto A", "Emissor A", limite.AddDays(-1));
+        // Desempate por data de atualização: mesma corretora/produto/emissor, data mais antiga primeiro.
+        var e1 = AdicionarMovimentoDoTitulo(context, userId, "Corretora D", "Produto A", "Emissor A", limite.AddDays(-1));
+        var e2 = AdicionarMovimentoDoTitulo(context, userId, "Corretora D", "Produto A", "Emissor A", limite.AddDays(-5));
+
+        await context.SaveChangesAsync();
+
+        var resultado = await new MovimentoRepository(context)
+            .GetDesatualizadosAsync(userId, limite, quantidade: 20, CancellationToken.None);
+
+        Assert.Equal(
+            [a1.Id, a2.Id, b.Id, c.Id, .. new[] { d1.Id, d2.Id }.Order(), e2.Id, e1.Id],
+            resultado.Select(m => m.Id));
+    }
+
+    [Fact]
+    public async Task GetDesatualizadosAsync_AplicaTakeDepoisDaOrdenacaoPorNome()
+    {
+        var userId = Guid.NewGuid();
+        var limite = new DateTime(2026, 2, 1);
+        await using var context = CreateContext();
+        // O mais antigo (por data) tem a corretora "Z": fica fora do Top 1.
+        AdicionarMovimentoDoTitulo(context, userId, "Z", "P", "E", limite.AddDays(-100));
+        var primeiro = AdicionarMovimentoDoTitulo(context, userId, "A", "P", "E", limite.AddDays(-1));
+        await context.SaveChangesAsync();
+
+        var resultado = await new MovimentoRepository(context)
+            .GetDesatualizadosAsync(userId, limite, quantidade: 1, CancellationToken.None);
+
+        Assert.Equal([primeiro.Id], resultado.Select(m => m.Id));
+    }
+
+    private static Movimento AdicionarMovimentoDoTitulo(
+        VaultDbContext context, Guid userId, string corretora, string produto, string emissor, DateTime dataAtualizacao)
+    {
+        var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
+        var tipoRenda = new TipoRenda { Nome = "CDB", UserId = userId };
+        var corretoraEntidade = new Corretora { Nome = corretora, UserId = userId };
+        var produtoEntidade = new Produto { Nome = produto, UserId = userId };
+        var emissorEntidade = new Emissor { Nome = emissor, UserId = userId };
+        var movimento = new Movimento
+        {
+            UserId = userId,
+            ObjetivoId = objetivo.Id,
+            TipoRendaId = tipoRenda.Id,
+            CorretoraId = corretoraEntidade.Id,
+            ProdutoId = produtoEntidade.Id,
+            EmissorId = emissorEntidade.Id,
+            DataInvestimento = new DateTime(2026, 1, 1),
+            ValorAporte = 100m,
+            ValorLiquidoAtual = 100m,
+            EstaAtivo = true,
+            DataAtualizacaoValorLiquido = dataAtualizacao
+        };
+
+        context.AddRange(objetivo, tipoRenda, corretoraEntidade, produtoEntidade, emissorEntidade, movimento);
+        return movimento;
+    }
+
     private static Movimento AdicionarMovimento(VaultDbContext context, Guid userId, DateTime dataInvestimento)
     {
         var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
