@@ -44,6 +44,16 @@ else
                 </tr>
             }
         </tbody>
+        @* A ordem desta linha acompanha as colunas acima; revisar junto se a tabela mudar. *@
+        <tfoot class="table-group-divider">
+            <tr class="fw-semibold">
+                <th>Total</th>
+                <td colspan="2"></td>
+                <td class="text-end">@Model.Totais.QtdeMovimentos</td>
+                <td class="text-end">@Model.Totais.TotalAportado.ToString("C", culturaMoeda)</td>
+                <td class="text-end">@Model.Totais.TotalLiquido.ToString("C", culturaMoeda)</td>
+            </tr>
+        </tfoot>
     </table>
 }
 

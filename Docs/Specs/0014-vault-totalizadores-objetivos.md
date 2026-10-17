@@ -111,3 +111,105 @@ Arquivo: `Presentation/Objetivos/TotaisObjetivos.cs`, namespace `Presentation.Ob
 - `dotnet build` da solution (a view ainda não usa `Totais`, então nada muda na tela neste passo).
 
 **Critério de pronto:** testes verdes, `TotaisObjetivos` sem dependência nova, `IndexModel` expondo `Totais` calculado uma única vez em `OnGetAsync`, nenhuma alteração fora da Presentation.
+
+---
+
+## Passo 2: Presentation, view
+
+Arquivo: `Presentation/Pages/Index.cshtml`. Sem pacote novo, sem JavaScript.
+
+### 2.1 Onde alterar
+
+Somente o bloco da tabela de objetivos, dentro do `else` de `Model.Objetivos.Count == 0` (D6). Nada muda:
+
+- na seção "Próximos vencimentos";
+- no alerta de erro;
+- no estado vazio ("Nenhum objetivo cadastrado.").
+
+Como a linha de totais fica dentro do `else`, ela some junto com a tabela quando não há objetivos, sem condição extra.
+
+### 2.2 Marcação
+
+Acrescentar um `<tfoot>` na mesma `<table>`, depois do `</tbody>`:
+
+- Uma única `<tr>` com:
+  - `<th>` com o texto **Total** na primeira coluna (Nome);
+  - uma `<td colspan="2"></td>` cobrindo **Meta** e **Percentual Meta** (D4: sem percentual global);
+  - `<td class="text-end">` com `Model.Totais.QtdeMovimentos`, igual ao tratamento da coluna na tabela (inteiro, sem formatação especial);
+  - `<td class="text-end">` com `Model.Totais.TotalAportado.ToString("C", culturaMoeda)`;
+  - `<td class="text-end">` com `Model.Totais.TotalLiquido.ToString("C", culturaMoeda)`.
+- Reutilizar a variável `culturaMoeda` já declarada no topo da view. **Não** criar outra instância de `CultureInfo`.
+- Estilo só com classes Bootstrap já presentes, sem CSS novo:
+  - `table-group-divider` no `<tfoot>` (linha de separação entre as linhas e o total);
+  - `fw-semibold` na `<tr>` para destacar o total.
+- A soma de colunas exige que a ordem das `<td>` do rodapé acompanhe a do cabeçalho: Nome, Meta, Percentual Meta, Qtde Movimentos, Total Aportado, Total Líquido. O `colspan="2"` cobre exatamente Meta e Percentual Meta; se uma coluna for acrescentada à tabela, o rodapé precisa ser revisado junto.
+
+### 2.3 Cuidados
+
+- **Não calcular na view.** Ela só lê `Model.Totais`; a soma vive em `TotaisObjetivos` (D3).
+- **Encoding:** o Razor já escapa as expressões `@`; nenhum `Html.Raw`.
+- **Acessibilidade:** o texto "Total" fica em `<th>`, e não em `<td>`, para leitores de tela associarem a linha ao rótulo.
+- **Tabela estriada:** `table-striped` pinta apenas o `<tbody>`, então o `<tfoot>` não entra na alternância de cores.
+
+### 2.4 Testes
+
+A marcação Razor não tem teste unitário no projeto (as views são compiladas no build). A cobertura vem de três lugares:
+
+- Passo 1: a soma e o `IndexModel` já estão testados.
+- `dotnet build`: erros de Razor (propriedade inexistente, tag mal fechada) aparecem na compilação.
+- Validação manual da seção 5 abaixo.
+
+### 2.5 Como validar
+
+- `dotnet build` e `dotnet test` da solution inteira, tudo verde.
+- Subir Api e Web, abrir `/` e conferir a linha de totais abaixo da tabela, alinhada às três últimas colunas (roteiro completo na seção 5).
+
+**Critério de pronto:** a view compila, o `<tfoot>` aparece só quando há objetivos, os valores batem com a soma das linhas e nenhum outro bloco da página mudou.
+
+---
+
+## Passo 3: Documentação final e fechamento
+
+- `Docs/adr/0014-totalizadores-da-tela-inicial.md`: mudar o status para **Aceita**, com a data de fechamento.
+- **READMEs do Vault:** se algum listar telas ou funcionalidades da tela inicial, incluir os totalizadores. (Nenhum README do Vault foi analisado; o dev verifica.)
+- **Índice de ADRs e de especificações:** atualizar, se existir.
+- **Esta especificação:** atualizar o status para **implementada**, com a data de fechamento.
+- `Docs/Docker.md`, `Docs/MariaDb.md` e `compose.yaml`: sem mudança (não há migration, variável nem serviço novo).
+- **Registro da implementação** no ADR (seção opcional, como no ADR 0013): confirmar que a feature não alterou Api, banco nem lib, e que o gatilho de reavaliação continua descrito.
+
+**Critério de pronto:** ADR aceito, documentação atualizada e validação manual da seção 5 concluída.
+
+---
+
+## 5. Validação ponta a ponta (manual)
+
+Com Api e Web no ar e um usuário com massa de dados variada (alguns objetivos com vários movimentos, ao menos um objetivo inativo e um objetivo sem movimentos ativos):
+
+1. Abrir `/`. Abaixo da tabela de objetivos aparece a linha **Total**, com a Qtde de Movimentos, o Total Aportado e o Total Líquido alinhados sob as respectivas colunas.
+2. **Conferência manual:** somar à mão (ou em planilha) as três colunas visíveis. Os totais devem ser exatamente iguais.
+3. **Objetivo inativo:** marcar um objetivo com movimentos ativos como inativo (tela de Objetivos) e recarregar. Ele sai da tabela e os totais diminuem na mesma proporção. O total continua igual à soma das linhas visíveis.
+4. **Movimento inativo:** inativar um movimento de um objetivo ativo. A Qtde e os valores da linha diminuem, e os totais acompanham.
+5. **Objetivo sem movimentos ativos:** a linha aparece com `0` e `R$ 0,00` e não altera os totais.
+6. **Sem objetivos ativos:** inativar todos os objetivos (em um usuário de teste). Aparece "Nenhum objetivo cadastrado." e **nenhuma** linha de totais.
+7. **Formatação:** os valores usam o mesmo padrão de moeda `pt-BR` das linhas (`R$ 1.234,56`); a quantidade é inteira.
+8. **Regressão visual:** a seção "Próximos vencimentos" continua igual, e a tabela de objetivos mantém as listras e o cabeçalho.
+9. **Isolamento entre usuários:** com dois usuários distintos, cada um vê somente os seus totais.
+10. **Docker:** `docker compose up --build -d` e repetir os passos 1 e 2 em `http://localhost:5000`. Não há migration nova, então nada muda na ordem de subida.
+
+## 6. Riscos e pontos de atenção
+
+| Risco | Mitigação |
+| --- | --- |
+| A soma no Web deixa de representar o conjunto completo se a lista de Objetivos virar paginada ou filtrada na Api | Gatilho de reavaliação registrado no ADR 0014 e na seção 3; nesse caso, abrir novo ADR com endpoint de totais |
+| Alguém acrescentar ou reordenar colunas da tabela e esquecer o rodapé | Comentário na view indicando o acoplamento com a ordem das colunas (2.2) e revisão de PR |
+| O total divergir de uma soma feita "por fora" (por exemplo, incluindo objetivos inativos) | Decisão D1 documentada no ADR: o total é a soma das linhas exibidas |
+| Esquecer o `Setup` de `GetProximosVencimentosAsync` nos testes do `IndexModel` e receber `NullReferenceException` | Já indicado no Passo 1.3 |
+| Percentual de meta global ser cobrado depois | Fora de escopo agora; se pedido, nova decisão (cálculo sobre a soma das metas) |
+
+## 7. Fora de escopo
+
+- Qualquer alteração na Api, no banco ou no LumiaFoundation.
+- Percentual de meta global ou outros indicadores agregados.
+- Totais da listagem de Movimentos (`/Movimentos`) ou dos Próximos vencimentos.
+- Exportar, imprimir ou paginar a tabela de objetivos.
+- Mudanças visuais além do `<tfoot>` (cores por faixa, gráficos).
