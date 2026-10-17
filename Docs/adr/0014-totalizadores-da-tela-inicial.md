@@ -1,6 +1,6 @@
 # ADR 0014: Totalizadores na tela inicial
 
-- Status: Proposta (2026-10-16)
+- Status: Aceita (2026-10-16)
 
 ## Contexto
 
@@ -32,3 +32,7 @@ A lista já chega à tela somente com Objetivos ativos e, dentro deles, somente 
 - O total é, por construção, consistente com a tabela exibida.
 - **Gatilho de reavaliação:** se a lista de Objetivos passar a ser paginada ou filtrada na Api, a soma no Web deixará de representar o conjunto completo; nesse caso, abrir novo ADR avaliando um endpoint de totais (alternativa C).
 - Soma de `decimal` no Web: sem risco de arredondamento acumulado, pois os valores já chegam arredondados pela Api.
+
+## Implementação
+
+Implementada em 2026-10-16 na Presentation/Web, com a agregação em `TotaisObjetivos`, a exposição pelo `IndexModel` e a linha de totais na tabela de objetivos da tela inicial. A implementação não alterou a Api, o banco, o contrato HTTP ou o LumiaFoundation. O gatilho de reavaliação permanece: se a lista de Objetivos passar a ser paginada ou filtrada na Api, deve ser aberto novo ADR.

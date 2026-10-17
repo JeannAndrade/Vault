@@ -1,13 +1,13 @@
 # Especificação técnica 0014: Totalizadores na tela inicial (Vault)
 
 - Data: 2026-10-16
-- Status: aprovada para implementação
+- Status: implementada (2026-10-16)
 - ADR relacionado: [0014](../adr/0014-totalizadores-da-tela-inicial.md)
 - Repositório afetado: **Vault** (somente Presentation/Web). **Sem alteração na Api, no LumiaFoundation, no schema e sem migration.**
 
 > Este documento é uma especificação para outro dev implementar. Não contém código de implementação: descreve o que fazer em cada classe, a ordem, os testes e a documentação.
 > Todo código, comentário, commit e documentação em português. Nomes de tipos e membros seguem o padrão do repositório.
-> Documento entregue em partes: esta contém os Passos 0 e 1.
+> Documento entregue em partes: esta contém os Passos 0, 1, 2 e 3.
 
 ---
 
