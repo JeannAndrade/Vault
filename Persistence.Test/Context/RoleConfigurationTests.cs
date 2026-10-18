@@ -17,7 +17,7 @@ public class RoleConfigurationTests
         Assert.Equal("7729cb8f-9cd8-4292-8f0d-67810bd24e5c", RoleConfiguration.AdministratorConcurrencyStamp);
     }
 
-    /* [Fact]
+    [Fact]
     public void ModeloDeIdentidade_SemeiaAdministratorComIdEConcurrencyStampFixos()
     {
         var opcoes = new DbContextOptionsBuilder<VaultIdentityDbContext>()
@@ -32,5 +32,18 @@ public class RoleConfigurationTests
         Assert.Equal(RoleConfiguration.AdministratorConcurrencyStamp, seed["ConcurrencyStamp"]);
         Assert.Equal("Administrator", seed["Name"]);
         Assert.Equal("ADMINISTRATOR", seed["NormalizedName"]);
-    } */
+    }
+
+    [Fact]
+    public void ModeloDoVaultNaoContemIdentityRole()
+    {
+        var opcoes = new DbContextOptionsBuilder<VaultDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var contexto = new VaultDbContext(opcoes);
+
+        var entidade = contexto.GetService<IDesignTimeModel>().Model.FindEntityType(typeof(IdentityRole));
+
+        Assert.Null(entidade);
+    }
 }

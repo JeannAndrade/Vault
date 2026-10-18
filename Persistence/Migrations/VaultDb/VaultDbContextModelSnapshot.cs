@@ -268,25 +268,6 @@ namespace Persistence.Migrations.VaultDb
                     b.ToTable("TiposRenda", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IdentityRole");
-                });
-
             modelBuilder.Entity("Domain.Movimentos.Movimento", b =>
                 {
                     b.HasOne("Domain.Corretoras.Corretora", "Corretora")

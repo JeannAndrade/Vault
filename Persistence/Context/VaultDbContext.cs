@@ -12,7 +12,9 @@ public class VaultDbContext(DbContextOptions<VaultDbContext> options) : Reposito
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(VaultDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(VaultDbContext).Assembly,
+            type => type != typeof(RoleConfiguration));
 
         base.OnModelCreating(modelBuilder);
     }
