@@ -109,7 +109,7 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (AtualizaPorCotacao && (!Quantidade.HasValue || Quantidade <= 0))
-                yield return new ValidationResult("Informe uma quantidade maior que zero quando o valor varia por cotação.", [nameof(Quantidade)]);
+                yield return new ValidationResult("Informe uma quantidade maior que zero quando o valor varia por cotação.", new[] { nameof(Quantidade) });
         }
 
         public MovimentoForCreationDto ToCreationDto() => new()

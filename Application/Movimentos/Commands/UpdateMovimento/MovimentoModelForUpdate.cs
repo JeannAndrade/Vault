@@ -77,6 +77,8 @@ public record MovimentoModelForUpdate : IValidatableObject
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (AtualizaPorCotacao && (Quantidade is null || Quantidade <= 0))
-            yield return new ValidationResult("Quantidade é obrigatória e deve ser maior que zero quando o valor varia por cotação", [nameof(Quantidade)]);
+            yield return new ValidationResult(
+                "Quantidade é obrigatória e deve ser maior que zero quando o valor varia por cotação",
+                new[] { nameof(Quantidade) });
     }
 }
