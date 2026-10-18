@@ -1,6 +1,6 @@
 # ADR 0011: Atualização do Valor Líquido
 
-- Status: Aceita (2026-10-11). Complementada pelo ADR 0013 (atualização em lote por título). Parcialmente superada pelo ADR 0015 quanto à ordenação da lista.
+- Status: Aceita (2026-10-11). Complementada pelo ADR 0013 (atualização em lote por título) e pelo ADR 0016 (Movimentos por cotação ficam fora da lista de desatualizados). Parcialmente superada pelo ADR 0015 quanto à ordenação da lista.
 
 ## Contexto
 
