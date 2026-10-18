@@ -10,7 +10,7 @@ using Application.Pagination;
 using LumiaFoundation.Abstractions.ErrorModel;
 using LumiaFoundation.Abstractions.Pagination;
 using LumiaFoundation.AspNetCore.Commons.BaseControllers;
-using LumiaFoundation.AspNetCore.Commons.Exceptions;
+using LumiaFoundation.AspNetCore.ActionFilters;
 using LumiaFoundation.AspNetCore.Pagination;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +22,7 @@ namespace Service.Movimentos;
 [ApiController]
 [Authorize]
 [ServiceFilter(typeof(RetrieveUserIdFromTokenAttribute))]
+[RequestValidation]
 [Route("api/movimentos")]
 public class MovimentosController(
     IGetMovimentosListQuery getMovimentosListQuery,
@@ -53,16 +54,6 @@ public class MovimentosController(
     CancellationToken cancellationToken = default)
     {
         filtro ??= new MovimentoFiltroDto();
-
-        // SuppressModelStateInvalidFilter está ligado: sem esta checagem, um valor não numérico
-        // (ex.: page=abc) cairia no padrão e só o ModelState registraria o erro.
-        if (!ModelState.IsValid)
-        {
-            var invalidos = ModelState.Where(e => e.Value?.Errors.Count > 0).Select(e => e.Key);
-            throw new HttpBaseException(
-                StatusCodes.Status422UnprocessableEntity,
-                $"Parâmetros de paginação inválidos: {string.Join(", ", invalidos)}.");
-        }
 
         var userId = GetCurrentUserId();
         var movimentos = await _getMovimentosListQuery.ExecuteAsync(
