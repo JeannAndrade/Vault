@@ -59,6 +59,15 @@ done
 
 ## Subir e parar
 
+Antes do build, restaure as bibliotecas do front-end com o LibMan. Isso é necessário porque `wwwroot/lib` não é versionado e contém o Bootstrap, os ícones e o Chart.js:
+
+```bash
+cd Presentation
+libman restore
+cd ..
+docker compose up --build -d
+```
+
 ```bash
 docker compose up --build -d   # sobe tudo, na ordem abaixo
 docker compose ps -a           # estado dos serviços

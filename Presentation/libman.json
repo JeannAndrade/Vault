@@ -9,6 +9,13 @@
     {
       "library": "bootstrap-icons@1.13.1",
       "destination": "wwwroot/lib/bootstrap-icons"
+    },
+    {
+      "library": "Chart.js@4.5.0",
+      "destination": "wwwroot/lib/chart.js",
+      "files": [
+        "chart.umd.min.js"
+      ]
     }
   ]
 }

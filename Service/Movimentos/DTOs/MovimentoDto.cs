@@ -25,6 +25,7 @@ public class MovimentoDto
     public decimal ValorAporte { get; set; }
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
+    public bool AtualizaPorCotacao { get; set; }
     public decimal ValorLiquidoAtual { get; set; }
 
     public static MovimentoDto FromApplication(MovimentoModel movimento) => new()
@@ -50,7 +51,8 @@ public class MovimentoDto
         ValorAporte = movimento.ValorAporte,
         EhReinvestimento = movimento.EhReinvestimento,
         EstaAtivo = movimento.EstaAtivo,
-        ValorLiquidoAtual = movimento.ValorLiquidoAtual
+        ValorLiquidoAtual = movimento.ValorLiquidoAtual,
+        AtualizaPorCotacao = movimento.AtualizaPorCotacao
     };
 
     public static List<MovimentoDto> FromApplication(List<MovimentoModel> movimentos) => [.. movimentos.Select(FromApplication)];

@@ -27,9 +27,19 @@ public class Movimento : Entity
     public bool EstaAtivo { get; set; }
     public decimal ValorLiquidoAtual { get; set; } = 0M;
     public DateTime DataAtualizacaoValorLiquido { get; set; }
+    public bool AtualizaPorCotacao { get; set; }
     public Objetivo Objetivo { get; set; } = null!;
     public TipoRenda TipoRenda { get; set; } = null!;
     public Corretora Corretora { get; set; } = null!;
     public Produto Produto { get; set; } = null!;
     public Emissor Emissor { get; set; } = null!;
+
+    public void AplicarCotacao(decimal cotacao, DateTime hoje)
+    {
+        if (Quantidade is null || Quantidade <= 0)
+            throw new InvalidOperationException("A quantidade deve ser maior que zero para aplicar uma cotação.");
+
+        ValorLiquidoAtual = decimal.Round(Quantidade.Value * cotacao, 2, MidpointRounding.AwayFromZero);
+        DataAtualizacaoValorLiquido = hoje.Date;
+    }
 }

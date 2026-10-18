@@ -49,7 +49,7 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
         return RedirectToPage("Index", Filtro.ToRouteValues(Pagina));
     }
 
-    public class InputModel
+    public class InputModel : IValidatableObject
     {
         [NotEmptyGuid]
         [Display(Name = "Objetivo")]
@@ -104,6 +104,14 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
         [Range(0, double.MaxValue, ErrorMessage = "O valor líquido atual não pode ser negativo.")]
         public decimal ValorLiquidoAtual { get; set; }
 
+        public bool AtualizaPorCotacao { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (AtualizaPorCotacao && (!Quantidade.HasValue || Quantidade <= 0))
+                yield return new ValidationResult("Informe uma quantidade maior que zero quando o valor varia por cotação.", new[] { nameof(Quantidade) });
+        }
+
         public MovimentoForCreationDto ToCreationDto() => new()
         {
             ObjetivoId = ObjetivoId,
@@ -121,7 +129,8 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
             ValorAporte = ValorAporte,
             EhReinvestimento = EhReinvestimento,
             EstaAtivo = EstaAtivo,
-            ValorLiquidoAtual = ValorLiquidoAtual
+            ValorLiquidoAtual = ValorLiquidoAtual,
+            AtualizaPorCotacao = AtualizaPorCotacao
         };
 
         public MovimentoForUpdateDto ToUpdateDto() => new()
@@ -141,7 +150,8 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
             ValorAporte = ValorAporte,
             EhReinvestimento = EhReinvestimento,
             EstaAtivo = EstaAtivo,
-            ValorLiquidoAtual = ValorLiquidoAtual
+            ValorLiquidoAtual = ValorLiquidoAtual,
+            AtualizaPorCotacao = AtualizaPorCotacao
         };
     }
 }

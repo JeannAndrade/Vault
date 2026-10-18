@@ -1,6 +1,6 @@
 # ADR 0013: Distribuição do Valor Líquido entre aportes por capital e tempo
 
-- Status: Aceita (2026-10-15)
+- Status: Aceita (2026-10-15). Complementada pelo ADR 0016 (Movimentos por cotação ficam fora da distribuição).
 
 ## Contexto
 

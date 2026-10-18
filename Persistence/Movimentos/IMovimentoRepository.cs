@@ -5,6 +5,8 @@ namespace Persistence.Movimentos;
 
 public interface IMovimentoRepository
 {
+    Task<List<string>> GetPapeisPorCotacaoAsync(Guid ownerId, CancellationToken cancellationToken);
+    Task<List<Movimento>> GetAtivosPorCotacaoDoPapelAsync(Guid ownerId, string papel, CancellationToken cancellationToken);
     Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges);
     Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default);
     Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, MovimentoFiltro filtro, int page, int pageSize, CancellationToken cancellationToken);
@@ -13,11 +15,6 @@ public interface IMovimentoRepository
     Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges);
     Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken);
     Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId);
-    Task<List<Movimento>> GetAtivosPorTituloAsync(
-        Guid ownerId,
-        TituloFiltro titulo,
-        bool trackChanges,
-        CancellationToken cancellationToken);
     Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken);
     Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken);
     Task<bool> ExistemPorObjetivoAsync(Guid objetivoId);

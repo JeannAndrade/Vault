@@ -9,7 +9,7 @@ using Application.Movimentos.Queries.GetMovimentosDesatualizados;
 using Application.Movimentos.Queries.GetProximosVencimentos;
 using Application.Pagination;
 using LumiaFoundation.Abstractions.Pagination;
-using LumiaFoundation.AspNetCore.Commons.Exceptions;
+using LumiaFoundation.AspNetCore.ActionFilters;
 using LumiaFoundation.Core.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -110,17 +110,9 @@ public class MovimentosControllerTests
     }
 
     [Fact]
-    public async Task GetMovimentos_ComParametroNaoNumerico_Lanca422SemConsultar()
+    public void PossuiFiltroDeValidacaoDeRequisicao()
     {
-        _controller.ModelState.AddModelError("page", "valor inválido");
-
-        var exception = await Assert.ThrowsAsync<HttpBaseException>(() => _controller.GetMovimentos(new MovimentoFiltroDto(), 1, 20));
-
-        Assert.Equal(StatusCodes.Status422UnprocessableEntity, exception.StatusCode);
-        Assert.Contains("page", exception.Message);
-        _getMovimentosListQuery.Verify(
-            q => q.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<MovimentoFiltroParameters>(), It.IsAny<PaginationParameters>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        Assert.Contains(typeof(RequestValidationAttribute), typeof(MovimentosController).GetCustomAttributes(true).Select(a => a.GetType()));
     }
 
     [Fact]

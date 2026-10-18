@@ -1,7 +1,7 @@
 # Especificação técnica 0015: Atualização do Valor Líquido por cotação (Vault), parte 3 de 3
 
 - Data: 2026-10-18
-- Status: **em elaboração (parte 3 de 3: Passos L, L2, 6 e 7). Com esta parte a especificação fica completa para revisão.**
+- Status: **implementada (2026-10-18). Passos L, L2, 6 e 7 concluídos.**
 - ADR relacionado: 0016 (texto revisado entregue junto; substitui o das partes 1 e 2)
 - Repositórios afetados: **LumiaFoundation** (`AspNetCore`) e **Vault**.
 

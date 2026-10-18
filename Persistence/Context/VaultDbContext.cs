@@ -1,4 +1,5 @@
 using Domain.Corretoras;
+using Domain.Cotacoes;
 using Domain.Emissores;
 using Domain.Objetivos;
 using Domain.Produtos;
@@ -20,6 +21,7 @@ public class VaultDbContext(DbContextOptions<VaultDbContext> options) : Reposito
     }
 
     public DbSet<Corretora> Corretoras => Set<Corretora>();
+    public DbSet<Cotacao> Cotacoes => Set<Cotacao>();
     public DbSet<Emissor> Emissores => Set<Emissor>();
     public DbSet<Produto> Produtos => Set<Produto>();
     public DbSet<Objetivo> Objetivos => Set<Objetivo>();

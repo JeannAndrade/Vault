@@ -1,6 +1,6 @@
 # ADR 0016: Atualização do Valor Líquido por cotação
 
-- Status: Proposta (2026-10-17, revisada em 2026-10-18)
+- Status: Aceita (2026-10-18, revisada em 2026-10-18)
 
 ## Contexto
 
@@ -39,6 +39,7 @@ Além do cálculo, o usuário quer um histórico de cotações que **sobreviva**
 
 - Página com seleção do papel (papéis distintos de `Cotacoes`, inclusive os sem Movimento) e gráfico de linhas Valor × Data com **todos** os registros, sem filtro de período.
 - Biblioteca: **Chart.js**, baixada por LibMan (`libman.json`, como Bootstrap) e servida localmente. Eixo de categorias (datas como rótulos), sem adaptador de datas, evitando uma segunda dependência. Os dados vêm da Api e são entregues à página como JSON em atributo `data-*`; o script fica em arquivo estático (`wwwroot/js`), sem script inline.
+- Versão registrada: **Chart.js 4.5.0**, arquivo `dist/chart.umd.min.js`, restaurado pelo LibMan em `wwwroot/lib/chart.js`.
 
 ### Api
 

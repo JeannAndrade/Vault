@@ -24,4 +24,5 @@ public sealed record MovimentoDto
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
     public decimal ValorLiquidoAtual { get; set; }
+    public bool AtualizaPorCotacao { get; set; }
 }

@@ -1,0 +1,3 @@
+namespace Application.Movimentos.AtualizacaoPorCotacao;
+
+public record AtualizacaoPorCotacaoResultadoModel(bool MovimentosAtualizados, int QuantidadeMovimentos);
