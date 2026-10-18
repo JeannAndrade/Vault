@@ -9,6 +9,15 @@ namespace Persistence.Movimentos;
 
 public class MovimentoRepository(VaultDbContext repositoryContext) : BaseRepository<Movimento>(repositoryContext), IMovimentoRepository
 {
+    public Task<List<string>> GetPapeisPorCotacaoAsync(Guid ownerId, CancellationToken cancellationToken) =>
+        RepositoryContext.Set<Movimento>().AsNoTracking()
+            .Where(m => m.UserId == ownerId && m.EstaAtivo && m.AtualizaPorCotacao && m.Quantidade != null)
+            .Select(m => m.Emissor.Nome).Distinct().OrderBy(nome => nome).ToListAsync(cancellationToken);
+
+    public Task<List<Movimento>> GetAtivosPorCotacaoDoPapelAsync(Guid ownerId, string papel, CancellationToken cancellationToken) =>
+        FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && m.AtualizaPorCotacao &&
+            m.Quantidade != null && m.Emissor.Nome == papel, true).ToListAsync(cancellationToken);
+
     public async Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges) =>
         await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.DataInvestimento).ToListAsync();
 
@@ -68,7 +77,7 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     public async Task<List<Movimento>> GetDesatualizadosAsync(
         Guid ownerId, DateTime dataLimite, int quantidade, CancellationToken cancellationToken) =>
         await QueryWithRelatedEntities()
-            .Where(m => m.UserId == ownerId && m.EstaAtivo && m.DataAtualizacaoValorLiquido < dataLimite)
+            .Where(m => m.UserId == ownerId && m.EstaAtivo && !m.AtualizaPorCotacao && m.DataAtualizacaoValorLiquido < dataLimite)
             .OrderBy(m => m.Corretora.Nome)
             .ThenBy(m => m.Produto.Nome)
             .ThenBy(m => m.Emissor.Nome)
@@ -125,7 +134,7 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
         ConsultarAtivosDoTitulo(ownerId, titulo, true).ToListAsync(cancellationToken);
 
     private IQueryable<Movimento> ConsultarAtivosDoTitulo(Guid ownerId, MovimentoTituloFiltro titulo, bool rastrear) =>
-        FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && m.TipoRendaId == titulo.TipoRendaId &&
+        FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && !m.AtualizaPorCotacao && m.TipoRendaId == titulo.TipoRendaId &&
             m.CorretoraId == titulo.CorretoraId && m.ProdutoId == titulo.ProdutoId && m.EmissorId == titulo.EmissorId, rastrear)
             .OrderBy(m => m.DataInvestimento).ThenBy(m => m.Id);
 

@@ -1,4 +1,5 @@
 using Persistence.Corretoras;
+using Persistence.Cotacoes;
 using Persistence.Emissores;
 using Persistence.Managment;
 using Persistence.Movimentos;
@@ -14,6 +15,7 @@ internal sealed class FakeRepositoryManager : IRepositoryManager
     public bool SaveAsyncChamado { get; private set; }
 
     public ICorretoraRepository Corretora => throw new NotSupportedException();
+    public ICotacaoRepository Cotacao => throw new NotSupportedException();
     public IEmissorRepository Emissor => throw new NotSupportedException();
     public IProdutoRepository Produto => throw new NotSupportedException();
     public IObjetivoRepository Objetivo => throw new NotSupportedException();

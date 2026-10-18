@@ -1,6 +1,7 @@
 
 using LumiaFoundation.EFRepository.Repository;
 using Persistence.Corretoras;
+using Persistence.Cotacoes;
 using Persistence.Emissores;
 using Persistence.Movimentos;
 using Persistence.Objetivos;
@@ -12,6 +13,7 @@ namespace Persistence.Managment;
 public interface IRepositoryManager : IBaseRepositoryManager
 {
     ICorretoraRepository Corretora { get; }
+    ICotacaoRepository Cotacao { get; }
     IEmissorRepository Emissor { get; }
     IProdutoRepository Produto { get; }
     IObjetivoRepository Objetivo { get; }

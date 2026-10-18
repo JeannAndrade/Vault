@@ -5,6 +5,8 @@ namespace Persistence.Movimentos;
 
 public interface IMovimentoRepository
 {
+    Task<List<string>> GetPapeisPorCotacaoAsync(Guid ownerId, CancellationToken cancellationToken);
+    Task<List<Movimento>> GetAtivosPorCotacaoDoPapelAsync(Guid ownerId, string papel, CancellationToken cancellationToken);
     Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges);
     Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default);
     Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, MovimentoFiltro filtro, int page, int pageSize, CancellationToken cancellationToken);

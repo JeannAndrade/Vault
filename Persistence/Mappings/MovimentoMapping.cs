@@ -22,6 +22,7 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
         builder.Property(e => e.EstaAtivo).IsRequired();
         builder.Property(e => e.ValorLiquidoAtual).IsRequired().HasPrecision(18, 2);
         builder.Property(e => e.DataAtualizacaoValorLiquido).IsRequired().HasColumnType("datetime(6)");
+        builder.Property(e => e.AtualizaPorCotacao).IsRequired();
         builder.Property(e => e.UserId).HasColumnName("UserId").IsRequired();
         builder.Property(e => e.ObjetivoId).HasColumnName("ObjetivoId").IsRequired();
         builder.Property(e => e.TipoRendaId).HasColumnName("TipoRendaId").IsRequired();

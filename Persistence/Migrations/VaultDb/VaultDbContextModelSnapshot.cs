@@ -45,6 +45,37 @@ namespace Persistence.Migrations.VaultDb
                     b.ToTable("Corretoras", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Cotacoes.Cotacao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("CotacaoId");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Papel")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal>("Valor")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Papel", "Data")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Cotacoes_UserId_Papel_Data");
+
+                    b.ToTable("Cotacoes", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Emissores.Emissor", b =>
                 {
                     b.Property<Guid>("Id")
@@ -74,6 +105,9 @@ namespace Persistence.Migrations.VaultDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("MovimentoId");
+
+                    b.Property<bool>("AtualizaPorCotacao")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid>("CorretoraId")
                         .HasColumnType("char(36)")

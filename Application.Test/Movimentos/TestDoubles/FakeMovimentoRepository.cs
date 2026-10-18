@@ -6,6 +6,8 @@ namespace Application.Test.Movimentos.TestDoubles;
 
 internal sealed class FakeMovimentoRepository : IMovimentoRepository
 {
+    public Task<List<string>> GetPapeisPorCotacaoAsync(Guid ownerId, CancellationToken cancellationToken) => throw new NotSupportedException();
+    public Task<List<Movimento>> GetAtivosPorCotacaoDoPapelAsync(Guid ownerId, string papel, CancellationToken cancellationToken) => throw new NotSupportedException();
     public bool CreateChamado { get; private set; }
     public Movimento? MovimentoCriado { get; private set; }
     public bool UpdateChamado { get; private set; }
