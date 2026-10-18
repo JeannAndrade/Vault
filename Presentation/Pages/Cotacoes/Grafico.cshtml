@@ -1,0 +1,47 @@
+@page
+@model Presentation.Pages.Cotacoes.GraficoModel
+
+@{
+    ViewData["Title"] = "Gráfico de Cotações";
+}
+
+<h1 class="h3">Gráfico de Cotações</h1>
+
+<form method="get" class="row g-2 mb-4 align-items-end">
+    <div class="col-md-5">
+        <label asp-for="Papel" class="form-label">Papel</label>
+        <select asp-for="Papel" class="form-select">
+            <option value="">Selecione...</option>
+            @foreach (var papel in Model.Papeis)
+            {
+                <option value="@papel">@papel</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Ver gráfico</button>
+    </div>
+</form>
+
+@if (string.IsNullOrWhiteSpace(Model.Papel))
+{
+    <p class="text-muted">Selecione um papel para visualizar o gráfico.</p>
+}
+else if (!Model.Pontos.Any())
+{
+    <p class="text-muted">Nenhum registro para este papel.</p>
+}
+else
+{
+    <canvas id="grafico-cotacao" data-pontos="@Model.DadosJson"></canvas>
+}
+
+<div class="mt-3">
+    <a asp-page="Index" class="btn btn-outline-secondary btn-sm">Voltar para Cotações</a>
+</div>
+
+@section Scripts {
+    <script src="~/lib/chart.js/chart.umd.min.js"></script>
+    <script src="~/js/cotacao-grafico.js"></script>
+}

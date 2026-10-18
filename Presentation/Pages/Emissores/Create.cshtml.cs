@@ -8,37 +8,37 @@ namespace Presentation.Pages.Emissores;
 
 public class CreateModel(IEmissorApi emissorApi) : PageModel
 {
-  [BindProperty]
-  public InputModel Input { get; set; } = new();
+    [BindProperty]
+    public InputModel Input { get; set; } = new();
 
-  public string? ErrorMessage { get; private set; }
+    public string? ErrorMessage { get; private set; }
 
-  public void OnGet()
-  {
-  }
-
-  public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
-  {
-    if (!ModelState.IsValid)
-      return Page();
-
-    try
+    public void OnGet()
     {
-      await emissorApi.CreateAsync(new EmissorForCreationDto(Input.Nome.Trim()), cancellationToken);
-    }
-    catch (ApiException)
-    {
-      ErrorMessage = "Não foi possível salvar o emissor agora. Tente novamente em instantes.";
-      return Page();
     }
 
-    return RedirectToPage("Index");
-  }
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+            return Page();
 
-  public class InputModel
-  {
-    [Required(ErrorMessage = "Informe o nome.")]
-    [StringLength(60, ErrorMessage = "O nome não deve exceder 60 caracteres.")]
-    public string Nome { get; set; } = string.Empty;
-  }
+        try
+        {
+            await emissorApi.CreateAsync(new EmissorForCreationDto(Input.Nome.Trim()), cancellationToken);
+        }
+        catch (ApiException)
+        {
+            ErrorMessage = "Não foi possível salvar o emissor agora. Tente novamente em instantes.";
+            return Page();
+        }
+
+        return RedirectToPage("Index");
+    }
+
+    public class InputModel
+    {
+        [Required(ErrorMessage = "Informe o nome.")]
+        [StringLength(60, ErrorMessage = "O nome não deve exceder 60 caracteres.")]
+        public string Nome { get; set; } = string.Empty;
+    }
 }

@@ -93,6 +93,12 @@
       <span asp-validation-for="Input.Quantidade" class="text-danger"></span>
     </div>
     <div class="col-md-4 mb-3">
+      <label asp-for="Input.AtualizaPorCotacao" class="form-label">Valor por cotação</label>
+      <div class="form-check"><input asp-for="Input.AtualizaPorCotacao" class="form-check-input" />
+        <label asp-for="Input.AtualizaPorCotacao" class="form-check-label">Valor varia por cotação</label></div>
+      <div class="form-text">A quantidade é obrigatória quando marcada.</div>
+    </div>
+    <div class="col-md-4 mb-3">
       <label asp-for="Input.Protocolo" class="form-label">Protocolo</label>
       <input asp-for="Input.Protocolo" class="form-control" maxlength="30" />
       <span asp-validation-for="Input.Protocolo" class="text-danger"></span>

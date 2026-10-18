@@ -1,68 +1,68 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>@ViewData["Title"] - Vault</title>
-  <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Vault</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" />
 </head>
-
 <body>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container">
-      <a class="navbar-brand" asp-page="/Index">Vault</a>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container">
+            <a class="navbar-brand" asp-page="/Index">Vault</a>
 
-      @if (User.Identity?.IsAuthenticated == true)
-      {
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-        <div class="collapse navbar-collapse" id="navbarContent">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" asp-page="/Movimentos/Index">Movimentos</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Cadastros
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" asp-page="/Objetivos/Index">Objetivos</a></li>
-                <li><a class="dropdown-item" asp-page="/TiposRenda/Index">Tipo de Renda</a></li>
-                <li><a class="dropdown-item" asp-page="/Corretoras/Index">Corretoras</a></li>
-                <li><a class="dropdown-item" asp-page="/Produtos/Index">Produtos</a></li>
-                <li><a class="dropdown-item" asp-page="/Emissores/Index">Emissores</a></li>
-              </ul>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Manutenção
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" asp-page="/Movimentos/Desatualizados">Manutenção Valor Líquido</a></li>
-                <li><a class="dropdown-item" asp-page="/Movimentos/Distribuicao">Distribuição Valor Líquido</a></li>
-              </ul>
-            </li>
-          </ul>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Movimentos/Index">Movimentos</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Cadastros
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-page="/Objetivos/Index">Objetivos</a></li>
+                                <li><a class="dropdown-item" asp-page="/TiposRenda/Index">Tipo de Renda</a></li>
+                                <li><a class="dropdown-item" asp-page="/Corretoras/Index">Corretoras</a></li>
+                                <li><a class="dropdown-item" asp-page="/Produtos/Index">Produtos</a></li>
+                                <li><a class="dropdown-item" asp-page="/Emissores/Index">Emissores</a></li>
+                                <li><a class="dropdown-item" asp-page="/Cotacoes/Index">Cotações</a></li>
+                                <li><a class="dropdown-item" asp-page="/Cotacoes/Grafico">Gráfico de Cotações</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Manutenção
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-page="/Movimentos/Desatualizados">Manutenção Valor Líquido</a></li>
+                                <li><a class="dropdown-item" asp-page="/Movimentos/AtualizacaoPorCotacao">Atualização por Cotação</a></li>
+                                <li><a class="dropdown-item" asp-page="/Movimentos/Distribuicao">Distribuição Valor Líquido</a></li>
+                            </ul>
+                        </li>
+                    </ul>
 
-          <form method="post" asp-page="/Logout" class="d-flex align-items-center gap-2 mb-0">
-            <span class="navbar-text">@User.Identity.Name</span>
-            <button type="submit" class="btn btn-outline-secondary btn-sm">Sair</button>
-          </form>
+                    <form method="post" asp-page="/Logout" class="d-flex align-items-center gap-2 mb-0">
+                        <span class="navbar-text">@User.Identity.Name</span>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Sair</button>
+                    </form>
+                </div>
+            }
         </div>
-      }
-    </div>
-  </nav>
+    </nav>
 
-  <main class="container py-4">
-    @RenderBody()
-  </main>
+    <main class="container py-4">
+        @RenderBody()
+    </main>
 
-  <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-  @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
-
 </html>

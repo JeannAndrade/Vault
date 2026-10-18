@@ -1,168 +1,166 @@
 @page
 @model IndexModel
 @{
-  ViewData["Title"] = "Movimentos";
-  var filtroAtivo = Model.Filtro.HasValue;
+    ViewData["Title"] = "Movimentos";
+    var filtroAtivo = Model.Filtro.HasValue;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">Movimentos</h1>
-  <a class="btn btn-primary btn-sm" asp-page="Create" asp-route-pagina="@Model.Pagina" asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId" asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId" asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId" asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId" asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId" asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Novo movimento</a>
+    <h1 class="h3 mb-0">Movimentos</h1>
+    <a class="btn btn-primary btn-sm" asp-page="Create" asp-route-pagina="@Model.Pagina" asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId" asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId" asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId" asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId" asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId" asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Novo movimento</a>
 </div>
 
 <form method="get" class="row g-3 mb-4 align-items-end">
-  <div class="col-md-2">
-    <label asp-for="Filtro.ObjetivoId" class="form-label">Objetivo</label>
-    <select asp-for="Filtro.ObjetivoId" asp-items="Model.Lookup.Objetivos" class="form-select">
-      <option value="">--</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <label asp-for="Filtro.TipoRendaId" class="form-label">Tipo de Renda</label>
-    <select asp-for="Filtro.TipoRendaId" asp-items="Model.Lookup.TiposRenda" class="form-select">
-      <option value="">--</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <label asp-for="Filtro.CorretoraId" class="form-label">Corretora</label>
-    <select asp-for="Filtro.CorretoraId" asp-items="Model.Lookup.Corretoras" class="form-select">
-      <option value="">--</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <label asp-for="Filtro.ProdutoId" class="form-label">Produto</label>
-    <select asp-for="Filtro.ProdutoId" asp-items="Model.Lookup.Produtos" class="form-select">
-      <option value="">--</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <label asp-for="Filtro.EmissorId" class="form-label">Emissor</label>
-    <select asp-for="Filtro.EmissorId" asp-items="Model.Lookup.Emissores" class="form-select">
-      <option value="">--</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <label asp-for="Filtro.EstaAtivo" class="form-label">Status</label>
-    <select asp-for="Filtro.EstaAtivo" class="form-select">
-      <option value="">--</option>
-      <option value="true">Ativos</option>
-      <option value="false">Inativos</option>
-    </select>
-  </div>
-  <div class="col-12 d-flex gap-2">
-    <button type="submit" class="btn btn-primary">Filtrar</button>
-    <a class="btn btn-outline-secondary" asp-page="/Movimentos/Index">Limpar filtro</a>
-  </div>
+    <div class="col-md-2">
+        <label asp-for="Filtro.ObjetivoId" class="form-label">Objetivo</label>
+        <select asp-for="Filtro.ObjetivoId" asp-items="Model.Lookup.Objetivos" class="form-select">
+            <option value="">--</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Filtro.TipoRendaId" class="form-label">Tipo de Renda</label>
+        <select asp-for="Filtro.TipoRendaId" asp-items="Model.Lookup.TiposRenda" class="form-select">
+            <option value="">--</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Filtro.CorretoraId" class="form-label">Corretora</label>
+        <select asp-for="Filtro.CorretoraId" asp-items="Model.Lookup.Corretoras" class="form-select">
+            <option value="">--</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Filtro.ProdutoId" class="form-label">Produto</label>
+        <select asp-for="Filtro.ProdutoId" asp-items="Model.Lookup.Produtos" class="form-select">
+            <option value="">--</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Filtro.EmissorId" class="form-label">Emissor</label>
+        <select asp-for="Filtro.EmissorId" asp-items="Model.Lookup.Emissores" class="form-select">
+            <option value="">--</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Filtro.EstaAtivo" class="form-label">Status</label>
+        <select asp-for="Filtro.EstaAtivo" class="form-select">
+            <option value="">--</option>
+            <option value="true">Ativos</option>
+            <option value="false">Inativos</option>
+        </select>
+    </div>
+    <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a class="btn btn-outline-secondary" asp-page="/Movimentos/Index">Limpar filtro</a>
+    </div>
 </form>
 
 @if (Model.ErrorMessage is not null)
 {
-  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+    <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
 }
 
 @if (Model.Movimentos.Count == 0)
 {
-  <p class="text-muted">@(filtroAtivo ? "Nenhum movimento encontrado com os filtros selecionados." : "Nenhum movimento cadastrado.")</p>
+    <p class="text-muted">@(filtroAtivo ? "Nenhum movimento encontrado com os filtros selecionados." : "Nenhum movimento cadastrado.")</p>
 }
 else
 {
-  <table class="table table-hover align-middle">
-    <thead>
-      <tr>
-        <th style="width: 2rem"></th>
-        <th>Objetivo</th>
-        <th>Tipo de Renda</th>
-        <th>Corretora</th>
-        <th>Produto</th>
-        <th>Emissor</th>
-        <th>Quando Vence?</th>
-        <th class="text-end">Valor Líquido Atual</th>
-        <th class="text-end">Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      @foreach (var movimento in Model.Movimentos)
-      {
-        var detalheId = $"detalhe-{movimento.Id}";
-        <tr class="@(movimento.EstaAtivo ? "" : "opacity-50")">
-          <td>
-            <button type="button" class="btn btn-link p-0 text-body" data-bs-toggle="collapse" data-bs-target="#@detalheId"
-                    aria-controls="@detalheId" aria-expanded="false" aria-label="Exibir detalhes do movimento">
-              <i class="bi bi-chevron-down"></i>
-            </button>
-          </td>
-          <td>@movimento.ObjetivoNome</td>
-          <td>@movimento.TipoRendaNome</td>
-          <td>@movimento.CorretoraNome</td>
-          <td>@movimento.ProdutoNome</td>
-          <td>@movimento.EmissorNome</td>
-          <td>@(movimento.DataVencimento?.ToString("dd/MM/yyyy") ?? "—")</td>
-          <td class="text-end">@movimento.ValorLiquidoAtual.ToString("C", new System.Globalization.CultureInfo("pt-BR"))
-          </td>
-          <td class="text-end text-nowrap">
-            <div class="d-inline-flex gap-1">
-              <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@movimento.Id"
-                 asp-route-pagina="@Model.Pagina"
-                 asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId"
-                 asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId"
-                 asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId"
-                 asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId"
-                 asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId"
-                 asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Editar</a>
-              <form method="post" asp-page-handler="Delete" asp-route-id="@movimento.Id"
-                    asp-route-pagina="@Model.Pagina"
-                    asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId"
-                    asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId"
-                    asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId"
-                    asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId"
-                    asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId"
-                    asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo" class="mb-0" onsubmit="return confirm('Excluir este movimento?');">
-                <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="9" class="p-0">
-            <div class="collapse" id="@detalheId">
-              <div class="p-3">
-                <dl class="row mb-0">
-                  <dt class="col-sm-3">Data do investimento</dt>
-                  <dd class="col-sm-3">@movimento.DataInvestimento.ToString("dd/MM/yyyy")</dd>
-                  <dt class="col-sm-3">Valor do aporte</dt>
-                  <dd class="col-sm-3">@movimento.ValorAporte.ToString("C", new System.Globalization.CultureInfo("pt-BR"))
-                  </dd>
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th style="width: 2rem"></th>
+                <th>Objetivo</th>
+                <th>Tipo de Renda</th>
+                <th>Corretora</th>
+                <th>Produto</th>
+                <th>Emissor</th>
+                <th>Quando Vence?</th>
+                <th class="text-end">Valor Líquido Atual</th>
+                <th class="text-end">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var movimento in Model.Movimentos)
+            {
+                var detalheId = $"detalhe-{movimento.Id}";
 
-                  <dt class="col-sm-3">Rentabilidade contratada</dt>
-                  <dd class="col-sm-3">@(movimento.RentabilidadeContratada ?? "—")</dd>
-                  <dt class="col-sm-3">Cotação na compra</dt>
-                  <dd class="col-sm-3">@(movimento.CotacaoNaCompra ?? "—")</dd>
+                <tr class="@(movimento.EstaAtivo ? "" : "opacity-50")">
+                    <td>
+                        <button type="button"
+                                class="btn btn-link p-0 text-body"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@detalheId"
+                                aria-controls="@detalheId"
+                                aria-expanded="false"
+                                aria-label="Exibir detalhes do movimento">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </td>
+                    <td>@movimento.ObjetivoNome</td>
+                    <td>@movimento.TipoRendaNome</td>
+                    <td>@movimento.CorretoraNome</td>
+                    <td>@movimento.ProdutoNome</td>
+                    <td>@movimento.EmissorNome</td>
+                    <td>@(movimento.DataVencimento?.ToString("dd/MM/yyyy") ?? "—")</td>
+                    <td class="text-end">@movimento.ValorLiquidoAtual.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</td>
+                    <td class="text-end text-nowrap">
+                        <div class="d-inline-flex gap-1">
+                            <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@movimento.Id" asp-route-pagina="@Model.Pagina" asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId" asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId" asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId" asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId" asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId" asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Editar</a>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@movimento.Id" asp-route-pagina="@Model.Pagina" asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId" asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId" asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId" asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId" asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId" asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo" class="mb-0" onsubmit="return confirm('Excluir este movimento?');">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
 
-                  <dt class="col-sm-3">Quantidade</dt>
-                  <dd class="col-sm-3">@(movimento.Quantidade?.ToString("N2", new System.Globalization.CultureInfo("pt-BR"))
-                                                                                                ?? "—")</dd>
-                    <dt class="col-sm-3">Protocolo</dt>
-                    <dd class="col-sm-3">@(movimento.Protocolo ?? "—")</dd>
+                <tr>
+                    <td colspan="9" class="p-0">
+                        <div class="collapse" id="@detalheId">
+                            <div class="p-3">
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-3">Data do investimento</dt>
+                                    <dd class="col-sm-3">@movimento.DataInvestimento.ToString("dd/MM/yyyy")</dd>
 
-                    <dt class="col-sm-3">Observação</dt>
-                    <dd class="col-sm-9">@(movimento.Observacao ?? "—")</dd>
+                                    <dt class="col-sm-3">Valor do aporte</dt>
+                                    <dd class="col-sm-3">@movimento.ValorAporte.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</dd>
 
-                    <dt class="col-sm-3">Reinvestimento</dt>
-                    <dd class="col-sm-3">@(movimento.EhReinvestimento ? "Sim" : "Não")</dd>
-                    <dt class="col-sm-3">Status</dt>
-                    <dd class="col-sm-3">@(movimento.EstaAtivo ? "Ativo" : "Inativo")</dd>
-                  </dl>
-                </div>
-              </div>
-            </td>
-          </tr>
-        }
-      </tbody>
+                                    <dt class="col-sm-3">Rentabilidade contratada</dt>
+                                    <dd class="col-sm-3">@(movimento.RentabilidadeContratada ?? "—")</dd>
+
+                                    <dt class="col-sm-3">Cotação na compra</dt>
+                                    <dd class="col-sm-3">@(movimento.CotacaoNaCompra ?? "—")</dd>
+
+                                    <dt class="col-sm-3">Quantidade</dt>
+                                    <dd class="col-sm-3">@(movimento.Quantidade?.ToString("N2", new System.Globalization.CultureInfo("pt-BR")) ?? "—")</dd>
+
+                                    <dt class="col-sm-3">Protocolo</dt>
+                                    <dd class="col-sm-3">@(movimento.Protocolo ?? "—")</dd>
+
+                                    <dt class="col-sm-3">Observação</dt>
+                                    <dd class="col-sm-9">@(movimento.Observacao ?? "—")</dd>
+
+                                    <dt class="col-sm-3">Reinvestimento</dt>
+                                    <dd class="col-sm-3">@(movimento.EhReinvestimento ? "Sim" : "Não")</dd>
+
+                                    <dt class="col-sm-3">Status</dt>
+                                    <dd class="col-sm-3">@(movimento.EstaAtivo ? "Ativo" : "Inativo")</dd>
+
+                                    <dt class="col-sm-3">Varia por cotação</dt>
+                                    <dd class="col-sm-3">@(movimento.AtualizaPorCotacao ? "Sim" : "Não")</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
     </table>
+
     <div class="d-flex justify-content-between align-items-center">
-      <span class="text-muted small">
-        Página @Model.Resultado.Page de @Model.Resultado.TotalPages · @Model.Resultado.TotalCount movimento(s)
-      </span>
-      <lumia-pagination page="Model.Resultado.Page" total-pages="Model.Resultado.TotalPages" />
+        <span class="text-muted small">
+            Página @Model.Resultado.Page de @Model.Resultado.TotalPages · @Model.Resultado.TotalCount movimento(s)
+        </span>
+        <lumia-pagination page="Model.Resultado.Page" total-pages="Model.Resultado.TotalPages" />
     </div>
-  }
+}
