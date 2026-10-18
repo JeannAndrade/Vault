@@ -15,11 +15,6 @@ public interface IMovimentoRepository
     Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges);
     Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken);
     Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId);
-    Task<List<Movimento>> GetAtivosPorTituloAsync(
-        Guid ownerId,
-        TituloFiltro titulo,
-        bool trackChanges,
-        CancellationToken cancellationToken);
     Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken);
     Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken);
     Task<bool> ExistemPorObjetivoAsync(Guid objetivoId);

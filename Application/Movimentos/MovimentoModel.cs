@@ -31,6 +31,7 @@ public record MovimentoModel
     public decimal ValorAporte { get; set; }
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
+    public bool AtualizaPorCotacao { get; set; }
     public decimal ValorLiquidoAtual { get; set; }
 
     public static MovimentoModel FromDomain(Movimento movimento)
@@ -59,7 +60,8 @@ public record MovimentoModel
             ValorAporte = movimento.ValorAporte,
             EhReinvestimento = movimento.EhReinvestimento,
             EstaAtivo = movimento.EstaAtivo,
-            ValorLiquidoAtual = movimento.ValorLiquidoAtual
+            ValorLiquidoAtual = movimento.ValorLiquidoAtual,
+            AtualizaPorCotacao = movimento.AtualizaPorCotacao
         };
     }
 }

@@ -4,7 +4,7 @@ using LumiaFoundation.Core.ValidationAttributes;
 
 namespace Application.Movimentos.Commands.UpdateMovimento;
 
-public record MovimentoModelForUpdate
+public record MovimentoModelForUpdate : IValidatableObject
 {
     [NotEmptyGuid]
     public Guid ObjetivoId { get; set; }
@@ -46,6 +46,7 @@ public record MovimentoModelForUpdate
     public bool EhReinvestimento { get; set; }
 
     public bool EstaAtivo { get; set; }
+    public bool AtualizaPorCotacao { get; set; }
 
     [Required(ErrorMessage = "Valor líquido atual é obrigatório")]
     [Range(0, double.MaxValue, ErrorMessage = "O valor líquido atual não pode ser negativo")]
@@ -69,6 +70,13 @@ public record MovimentoModelForUpdate
         movimento.EhReinvestimento = EhReinvestimento;
         movimento.EstaAtivo = EstaAtivo;
         movimento.ValorLiquidoAtual = ValorLiquidoAtual;
+        movimento.AtualizaPorCotacao = AtualizaPorCotacao;
         return movimento;
+    }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (AtualizaPorCotacao && (Quantidade is null || Quantidade <= 0))
+            yield return new ValidationResult("Quantidade é obrigatória e deve ser maior que zero quando o valor varia por cotação", [nameof(Quantidade)]);
     }
 }
