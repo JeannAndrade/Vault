@@ -21,21 +21,21 @@ public class AtualizacaoPorCotacaoController(
     private readonly IAtualizarPorCotacaoCommand _command = command;
 
     [HttpGet]
-    public async Task<ActionResult> Get()
+    public async Task<ActionResult> Get(CancellationToken cancellationToken)
     {
-        var papeis = await _query.ExecuteAsync(GetCurrentUserId(), HttpContext.RequestAborted);
+        var papeis = await _query.ExecuteAsync(GetCurrentUserId(), cancellationToken);
         return Ok(PapelParaCotacaoDto.FromApplication(papeis));
     }
 
     [HttpPost]
-    public async Task<ActionResult> Post([FromBody] AtualizacaoPorCotacaoSolicitacaoDto? dto)
+    public async Task<ActionResult> Post([FromBody] AtualizacaoPorCotacaoSolicitacaoDto? dto, CancellationToken cancellationToken)
     {
         this.ValidarCorpo(dto);
 
         var resultado = await _command.ExecuteAsync(
             dto!.ToParameters(),
             GetCurrentUserId(),
-            HttpContext.RequestAborted);
+            cancellationToken);
 
         return Ok(AtualizacaoPorCotacaoResultadoDto.FromApplication(resultado));
     }

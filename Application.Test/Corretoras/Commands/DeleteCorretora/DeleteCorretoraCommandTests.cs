@@ -18,10 +18,10 @@ public class DeleteCorretoraCommandTests
         var corretora = new Corretora { UserId = ownerId };
 
         var corretoraRepository = new Mock<ICorretoraRepository>();
-        corretoraRepository.Setup(r => r.GetAsync(ownerId, corretora.Id, true)).ReturnsAsync(corretora);
+        corretoraRepository.Setup(r => r.GetAsync(ownerId, corretora.Id, true, CancellationToken.None)).ReturnsAsync(corretora);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorCorretoraAsync(corretora.Id)).ReturnsAsync(false);
+        movimentoRepository.Setup(r => r.ExistemPorCorretoraAsync(corretora.Id, CancellationToken.None)).ReturnsAsync(false);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Corretora).Returns(corretoraRepository.Object);
@@ -30,11 +30,11 @@ public class DeleteCorretoraCommandTests
         var command = new DeleteCorretoraCommand(repositoryManager.Object);
 
         // Act
-        await command.ExecuteAsync(ownerId, corretora.Id);
+        await command.ExecuteAsync(ownerId, corretora.Id, CancellationToken.None);
 
         // Assert
         corretoraRepository.Verify(r => r.Delete(corretora), Times.Once);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Once);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -45,10 +45,10 @@ public class DeleteCorretoraCommandTests
         var corretora = new Corretora { UserId = ownerId };
 
         var corretoraRepository = new Mock<ICorretoraRepository>();
-        corretoraRepository.Setup(r => r.GetAsync(ownerId, corretora.Id, true)).ReturnsAsync(corretora);
+        corretoraRepository.Setup(r => r.GetAsync(ownerId, corretora.Id, true, CancellationToken.None)).ReturnsAsync(corretora);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorCorretoraAsync(corretora.Id)).ReturnsAsync(true);
+        movimentoRepository.Setup(r => r.ExistemPorCorretoraAsync(corretora.Id, CancellationToken.None)).ReturnsAsync(true);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Corretora).Returns(corretoraRepository.Object);
@@ -57,9 +57,9 @@ public class DeleteCorretoraCommandTests
         var command = new DeleteCorretoraCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, corretora.Id));
+        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, corretora.Id, CancellationToken.None));
         corretoraRepository.Verify(r => r.Delete(It.IsAny<Corretora>()), Times.Never);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class DeleteCorretoraCommandTests
         var corretoraId = Guid.NewGuid();
 
         var corretoraRepository = new Mock<ICorretoraRepository>();
-        corretoraRepository.Setup(r => r.GetAsync(ownerId, corretoraId, true)).ReturnsAsync((Corretora?)null);
+        corretoraRepository.Setup(r => r.GetAsync(ownerId, corretoraId, true, CancellationToken.None)).ReturnsAsync((Corretora?)null);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Corretora).Returns(corretoraRepository.Object);
@@ -78,7 +78,7 @@ public class DeleteCorretoraCommandTests
         var command = new DeleteCorretoraCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, corretoraId));
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, corretoraId, CancellationToken.None));
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 }

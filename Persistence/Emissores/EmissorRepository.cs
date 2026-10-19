@@ -7,9 +7,9 @@ namespace Persistence.Emissores;
 
 public class EmissorRepository(VaultDbContext repositoryContext) : BaseRepository<Emissor>(repositoryContext), IEmissorRepository
 {
-    public async Task<IEnumerable<Emissor>> GetAllAsync(Guid ownerId, bool trackChanges) =>
-        await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.Nome).ToListAsync();
+    public async Task<IEnumerable<Emissor>> GetAllAsync(Guid ownerId, bool trackChanges, CancellationToken cancellationToken) =>
+        await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.Nome).ToListAsync(cancellationToken);
 
-    public async Task<Emissor?> GetAsync(Guid ownerId, Guid emissorId, bool trackChanges) =>
-        await FindByCondition(c => c.UserId == ownerId && c.Id == emissorId, trackChanges).SingleOrDefaultAsync();
+    public async Task<Emissor?> GetAsync(Guid ownerId, Guid emissorId, bool trackChanges, CancellationToken cancellationToken) =>
+        await FindByCondition(c => c.UserId == ownerId && c.Id == emissorId, trackChanges).SingleOrDefaultAsync(cancellationToken);
 }

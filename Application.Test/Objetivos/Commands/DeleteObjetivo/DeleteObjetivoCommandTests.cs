@@ -18,10 +18,10 @@ public class DeleteObjetivoCommandTests
         var objetivo = new Objetivo { UserId = ownerId };
 
         var objetivoRepository = new Mock<IObjetivoRepository>();
-        objetivoRepository.Setup(r => r.GetAsync(ownerId, objetivo.Id, true)).ReturnsAsync(objetivo);
+        objetivoRepository.Setup(r => r.GetAsync(ownerId, objetivo.Id, true, CancellationToken.None)).ReturnsAsync(objetivo);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorObjetivoAsync(objetivo.Id)).ReturnsAsync(false);
+        movimentoRepository.Setup(r => r.ExistemPorObjetivoAsync(objetivo.Id, CancellationToken.None)).ReturnsAsync(false);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Objetivo).Returns(objetivoRepository.Object);
@@ -30,11 +30,11 @@ public class DeleteObjetivoCommandTests
         var command = new DeleteObjetivoCommand(repositoryManager.Object);
 
         // Act
-        await command.ExecuteAsync(ownerId, objetivo.Id);
+        await command.ExecuteAsync(ownerId, objetivo.Id, CancellationToken.None);
 
         // Assert
         objetivoRepository.Verify(r => r.Delete(objetivo), Times.Once);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Once);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -45,10 +45,10 @@ public class DeleteObjetivoCommandTests
         var objetivo = new Objetivo { UserId = ownerId };
 
         var objetivoRepository = new Mock<IObjetivoRepository>();
-        objetivoRepository.Setup(r => r.GetAsync(ownerId, objetivo.Id, true)).ReturnsAsync(objetivo);
+        objetivoRepository.Setup(r => r.GetAsync(ownerId, objetivo.Id, true, CancellationToken.None)).ReturnsAsync(objetivo);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorObjetivoAsync(objetivo.Id)).ReturnsAsync(true);
+        movimentoRepository.Setup(r => r.ExistemPorObjetivoAsync(objetivo.Id, CancellationToken.None)).ReturnsAsync(true);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Objetivo).Returns(objetivoRepository.Object);
@@ -57,9 +57,9 @@ public class DeleteObjetivoCommandTests
         var command = new DeleteObjetivoCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, objetivo.Id));
+        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, objetivo.Id, CancellationToken.None));
         objetivoRepository.Verify(r => r.Delete(It.IsAny<Objetivo>()), Times.Never);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class DeleteObjetivoCommandTests
         var objetivoId = Guid.NewGuid();
 
         var objetivoRepository = new Mock<IObjetivoRepository>();
-        objetivoRepository.Setup(r => r.GetAsync(ownerId, objetivoId, true)).ReturnsAsync((Objetivo?)null);
+        objetivoRepository.Setup(r => r.GetAsync(ownerId, objetivoId, true, CancellationToken.None)).ReturnsAsync((Objetivo?)null);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Objetivo).Returns(objetivoRepository.Object);
@@ -78,7 +78,7 @@ public class DeleteObjetivoCommandTests
         var command = new DeleteObjetivoCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, objetivoId));
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, objetivoId, CancellationToken.None));
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 }

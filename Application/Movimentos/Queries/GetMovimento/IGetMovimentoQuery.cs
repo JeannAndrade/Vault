@@ -2,5 +2,5 @@ namespace Application.Movimentos.Queries.GetMovimento;
 
 public interface IGetMovimentoQuery
 {
-    Task<MovimentoModel> ExecuteAsync(Guid ownerId, Guid movimentoId);
+    Task<MovimentoModel> ExecuteAsync(Guid ownerId, Guid movimentoId, CancellationToken cancellationToken);
 }

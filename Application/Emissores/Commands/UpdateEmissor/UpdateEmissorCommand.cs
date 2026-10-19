@@ -8,15 +8,15 @@ public class UpdateEmissorCommand(IRepositoryManager repositoryManager) : IUpdat
 {
   private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-  public async Task<EmissorModel> ExecuteAsync(EmissorModelForUpdate emissorModel, Guid ownerId, Guid emissorId)
+  public async Task<EmissorModel> ExecuteAsync(EmissorModelForUpdate emissorModel, Guid ownerId, Guid emissorId, CancellationToken cancellationToken)
   {
     CommandValidator.Validate(emissorModel);
 
-    var emissor = await _repositoryManager.Emissor.GetAsync(ownerId, emissorId, trackChanges: true)
+    var emissor = await _repositoryManager.Emissor.GetAsync(ownerId, emissorId, trackChanges: true, cancellationToken)
     ?? throw new EntityNotFoundException("Emissor not found");
 
     _repositoryManager.Emissor.Update(emissorModel.UpdateDomain(emissor));
-    await _repositoryManager.SaveAsync();
+    await _repositoryManager.SaveAsync(cancellationToken);
 
     return EmissorModel.FromDomain(emissor);
   }

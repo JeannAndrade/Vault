@@ -2,5 +2,5 @@ namespace Application.Corretoras.Queries.GetCorretoraList;
 
 public interface IGetCorretorasListQuery
 {
-  Task<List<CorretoraModel>> ExecuteAsync(Guid ownerId);
+  Task<List<CorretoraModel>> ExecuteAsync(Guid ownerId, CancellationToken cancellationToken);
 }

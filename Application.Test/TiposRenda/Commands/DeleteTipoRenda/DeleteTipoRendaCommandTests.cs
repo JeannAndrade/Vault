@@ -18,10 +18,10 @@ public class DeleteTipoRendaCommandTests
         var tipoRenda = new TipoRenda { UserId = ownerId };
 
         var tipoRendaRepository = new Mock<ITipoRendaRepository>();
-        tipoRendaRepository.Setup(r => r.GetAsync(ownerId, tipoRenda.Id, true)).ReturnsAsync(tipoRenda);
+        tipoRendaRepository.Setup(r => r.GetAsync(ownerId, tipoRenda.Id, true, CancellationToken.None)).ReturnsAsync(tipoRenda);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorTipoRendaAsync(tipoRenda.Id)).ReturnsAsync(false);
+        movimentoRepository.Setup(r => r.ExistemPorTipoRendaAsync(tipoRenda.Id, CancellationToken.None)).ReturnsAsync(false);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.TipoRenda).Returns(tipoRendaRepository.Object);
@@ -30,11 +30,11 @@ public class DeleteTipoRendaCommandTests
         var command = new DeleteTipoRendaCommand(repositoryManager.Object);
 
         // Act
-        await command.ExecuteAsync(ownerId, tipoRenda.Id);
+        await command.ExecuteAsync(ownerId, tipoRenda.Id, CancellationToken.None);
 
         // Assert
         tipoRendaRepository.Verify(r => r.Delete(tipoRenda), Times.Once);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Once);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -45,10 +45,10 @@ public class DeleteTipoRendaCommandTests
         var tipoRenda = new TipoRenda { UserId = ownerId };
 
         var tipoRendaRepository = new Mock<ITipoRendaRepository>();
-        tipoRendaRepository.Setup(r => r.GetAsync(ownerId, tipoRenda.Id, true)).ReturnsAsync(tipoRenda);
+        tipoRendaRepository.Setup(r => r.GetAsync(ownerId, tipoRenda.Id, true, CancellationToken.None)).ReturnsAsync(tipoRenda);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorTipoRendaAsync(tipoRenda.Id)).ReturnsAsync(true);
+        movimentoRepository.Setup(r => r.ExistemPorTipoRendaAsync(tipoRenda.Id, CancellationToken.None)).ReturnsAsync(true);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.TipoRenda).Returns(tipoRendaRepository.Object);
@@ -57,9 +57,9 @@ public class DeleteTipoRendaCommandTests
         var command = new DeleteTipoRendaCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, tipoRenda.Id));
+        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, tipoRenda.Id, CancellationToken.None));
         tipoRendaRepository.Verify(r => r.Delete(It.IsAny<TipoRenda>()), Times.Never);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class DeleteTipoRendaCommandTests
         var tipoRendaId = Guid.NewGuid();
 
         var tipoRendaRepository = new Mock<ITipoRendaRepository>();
-        tipoRendaRepository.Setup(r => r.GetAsync(ownerId, tipoRendaId, true)).ReturnsAsync((TipoRenda?)null);
+        tipoRendaRepository.Setup(r => r.GetAsync(ownerId, tipoRendaId, true, CancellationToken.None)).ReturnsAsync((TipoRenda?)null);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.TipoRenda).Returns(tipoRendaRepository.Object);
@@ -78,7 +78,7 @@ public class DeleteTipoRendaCommandTests
         var command = new DeleteTipoRendaCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, tipoRendaId));
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, tipoRendaId, CancellationToken.None));
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 }

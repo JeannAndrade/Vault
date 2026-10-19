@@ -7,9 +7,9 @@ public class GetObjetivoQuery(IRepositoryManager repositoryManager) : IGetObjeti
 {
     private readonly IRepositoryManager _repository = repositoryManager;
 
-    public async Task<ObjetivoModel> ExecuteAsync(Guid ownerId, Guid objetivoId)
+    public async Task<ObjetivoModel> ExecuteAsync(Guid ownerId, Guid objetivoId, CancellationToken cancellationToken)
     {
-        var objetivo = await _repository.Objetivo.GetAsync(ownerId, objetivoId, trackChanges: false)
+        var objetivo = await _repository.Objetivo.GetAsync(ownerId, objetivoId, trackChanges: false, cancellationToken)
             ?? throw new EntityNotFoundException("Objetivo não encontrado");
 
         return ObjetivoModel.FromDomain(objetivo);

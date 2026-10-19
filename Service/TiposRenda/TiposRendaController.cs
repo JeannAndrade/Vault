@@ -33,10 +33,10 @@ public class TiposRendaController(
     [ProducesResponseType(typeof(IEnumerable<TipoRendaDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<TipoRendaDto>>> GetTiposRenda()
+    public async Task<ActionResult<IEnumerable<TipoRendaDto>>> GetTiposRenda(CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var tiposRenda = await _getTiposRendaListQuery.ExecuteAsync(userId);
+        var tiposRenda = await _getTiposRendaListQuery.ExecuteAsync(userId, cancellationToken);
 
         return Ok(TipoRendaDto.FromApplication(tiposRenda));
     }
@@ -45,10 +45,10 @@ public class TiposRendaController(
     [ProducesResponseType(typeof(TipoRendaDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<TipoRendaDto>> GetTipoRenda(Guid id)
+    public async Task<ActionResult<TipoRendaDto>> GetTipoRenda(Guid id, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var tipoRenda = await _getTipoRendaQuery.ExecuteAsync(userId, id);
+        var tipoRenda = await _getTipoRendaQuery.ExecuteAsync(userId, id, cancellationToken);
 
         return Ok(TipoRendaDto.FromApplication(tipoRenda));
     }
@@ -57,9 +57,9 @@ public class TiposRendaController(
     [ProducesResponseType(typeof(TipoRendaDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<TipoRendaDto>> CreateTipoRenda([FromBody] TipoRendaForCreationDto tipoRenda)
+    public async Task<ActionResult<TipoRendaDto>> CreateTipoRenda([FromBody] TipoRendaForCreationDto tipoRenda, CancellationToken cancellationToken)
     {
-        var createdTipoRenda = await _createTipoRendaCommand.ExecuteAsync(tipoRenda.ToCreateTipoRendaCommand(GetCurrentUserId()));
+        var createdTipoRenda = await _createTipoRendaCommand.ExecuteAsync(tipoRenda.ToCreateTipoRendaCommand(GetCurrentUserId()), cancellationToken);
 
         return CreatedAtRoute("TipoRendaById", new { id = createdTipoRenda.Id }, TipoRendaDto.FromApplication(createdTipoRenda));
     }
@@ -69,9 +69,9 @@ public class TiposRendaController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<TipoRendaDto>> UpdateTipoRenda(Guid id, [FromBody] TipoRendaForUpdateDto tipoRenda)
+    public async Task<ActionResult<TipoRendaDto>> UpdateTipoRenda(Guid id, [FromBody] TipoRendaForUpdateDto tipoRenda, CancellationToken cancellationToken)
     {
-        _ = await _updateTipoRendaCommand.ExecuteAsync(tipoRenda.ToUpdateTipoRendaCommand(), GetCurrentUserId(), id);
+        _ = await _updateTipoRendaCommand.ExecuteAsync(tipoRenda.ToUpdateTipoRendaCommand(), GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }
@@ -81,9 +81,9 @@ public class TiposRendaController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteTipoRenda(Guid id)
+    public async Task<IActionResult> DeleteTipoRenda(Guid id, CancellationToken cancellationToken)
     {
-        await _deleteTipoRendaCommand.ExecuteAsync(GetCurrentUserId(), id);
+        await _deleteTipoRendaCommand.ExecuteAsync(GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }

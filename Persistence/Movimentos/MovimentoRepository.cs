@@ -18,15 +18,15 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
         FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && m.AtualizaPorCotacao &&
             m.Quantidade != null && m.Emissor.Nome == papel, true).ToListAsync(cancellationToken);
 
-    public async Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges) =>
-        await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.DataInvestimento).ToListAsync();
+    public async Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges, CancellationToken cancellationToken) =>
+        await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.DataInvestimento).ToListAsync(cancellationToken);
 
     // A ordem é toda descendente (DataInvestimento e Id) para o banco percorrer o índice
     // IX_Movimentos_UserId_DataInvestimento (UserId, DataInvestimento e, implicitamente, a PK)
     // de trás para a frente, sem ordenar em memória. Mudar a direção ou o critério desfaz
     // esse ganho: ver ADR 0009. O Id é só desempate; basta ser determinístico.
     public async Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(
-        Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default) =>
+        Guid ownerId, int page, int pageSize, CancellationToken cancellationToken) =>
         await GetPagedWithRelatedEntitiesAsync(ownerId, MovimentoFiltro.Vazio, page, pageSize, cancellationToken);
 
     public async Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(
@@ -62,7 +62,7 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     }
 
     public async Task<List<Movimento>> GetProximosVencimentosAsync(
-        Guid ownerId, int quantidade = 15, CancellationToken cancellationToken = default) =>
+        Guid ownerId, int quantidade, CancellationToken cancellationToken) =>
         await QueryWithRelatedEntities()
             .Where(m => m.UserId == ownerId && m.EstaAtivo && m.DataVencimento != null)
             .OrderBy(m => m.DataVencimento)
@@ -86,17 +86,14 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
             .Take(quantidade)
             .ToListAsync(cancellationToken);
 
-    public async Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) =>
-        await FindByCondition(c => c.UserId == ownerId && c.Id == movimentoId, trackChanges).SingleOrDefaultAsync();
-
     public async Task<Movimento?> GetAsync(
         Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken) =>
         await FindByCondition(c => c.UserId == ownerId && c.Id == movimentoId, trackChanges)
             .SingleOrDefaultAsync(cancellationToken);
 
-    public async Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId) =>
+    public async Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId, CancellationToken cancellationToken) =>
         await QueryWithRelatedEntities()
-            .SingleOrDefaultAsync(m => m.UserId == ownerId && m.Id == movimentoId);
+            .SingleOrDefaultAsync(m => m.UserId == ownerId && m.Id == movimentoId, cancellationToken);
 
     public Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) =>
         ConsultarAtivosDoTitulo(ownerId, titulo, false).Include(m => m.Objetivo).ToListAsync(cancellationToken);
@@ -109,20 +106,20 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
             m.CorretoraId == titulo.CorretoraId && m.ProdutoId == titulo.ProdutoId && m.EmissorId == titulo.EmissorId, rastrear)
             .OrderBy(m => m.DataInvestimento).ThenBy(m => m.Id);
 
-    public async Task<bool> ExistemPorObjetivoAsync(Guid objetivoId) =>
-        await FindByCondition(m => m.ObjetivoId == objetivoId, trackChanges: false).AnyAsync();
+    public async Task<bool> ExistemPorObjetivoAsync(Guid objetivoId, CancellationToken cancellationToken) =>
+        await FindByCondition(m => m.ObjetivoId == objetivoId, trackChanges: false).AnyAsync(cancellationToken);
 
-    public async Task<bool> ExistemPorTipoRendaAsync(Guid tipoRendaId) =>
-        await FindByCondition(m => m.TipoRendaId == tipoRendaId, trackChanges: false).AnyAsync();
+    public async Task<bool> ExistemPorTipoRendaAsync(Guid tipoRendaId, CancellationToken cancellationToken) =>
+        await FindByCondition(m => m.TipoRendaId == tipoRendaId, trackChanges: false).AnyAsync(cancellationToken);
 
-    public async Task<bool> ExistemPorCorretoraAsync(Guid corretoraId) =>
-        await FindByCondition(m => m.CorretoraId == corretoraId, trackChanges: false).AnyAsync();
+    public async Task<bool> ExistemPorCorretoraAsync(Guid corretoraId, CancellationToken cancellationToken) =>
+        await FindByCondition(m => m.CorretoraId == corretoraId, trackChanges: false).AnyAsync(cancellationToken);
 
-    public async Task<bool> ExistemPorProdutoAsync(Guid produtoId) =>
-        await FindByCondition(m => m.ProdutoId == produtoId, trackChanges: false).AnyAsync();
+    public async Task<bool> ExistemPorProdutoAsync(Guid produtoId, CancellationToken cancellationToken) =>
+        await FindByCondition(m => m.ProdutoId == produtoId, trackChanges: false).AnyAsync(cancellationToken);
 
-    public async Task<bool> ExistemPorEmissorAsync(Guid emissorId) =>
-        await FindByCondition(m => m.EmissorId == emissorId, trackChanges: false).AnyAsync();
+    public async Task<bool> ExistemPorEmissorAsync(Guid emissorId, CancellationToken cancellationToken) =>
+        await FindByCondition(m => m.EmissorId == emissorId, trackChanges: false).AnyAsync(cancellationToken);
 
     private IQueryable<Movimento> QueryWithRelatedEntities() =>
         RepositoryContext.Set<Movimento>()

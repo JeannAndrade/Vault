@@ -8,15 +8,15 @@ public class UpdateTipoRendaCommand(IRepositoryManager repositoryManager) : IUpd
 {
   private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-  public async Task<TipoRendaModel> ExecuteAsync(TipoRendaModelForUpdate tipoRendaModel, Guid ownerId, Guid tipoRendaId)
+  public async Task<TipoRendaModel> ExecuteAsync(TipoRendaModelForUpdate tipoRendaModel, Guid ownerId, Guid tipoRendaId, CancellationToken cancellationToken)
   {
     CommandValidator.Validate(tipoRendaModel);
 
-    var tipoRenda = await _repositoryManager.TipoRenda.GetAsync(ownerId, tipoRendaId, trackChanges: true)
+    var tipoRenda = await _repositoryManager.TipoRenda.GetAsync(ownerId, tipoRendaId, trackChanges: true, cancellationToken)
     ?? throw new EntityNotFoundException("Tipo de Renda not found");
 
     _repositoryManager.TipoRenda.Update(tipoRendaModel.UpdateDomain(tipoRenda));
-    await _repositoryManager.SaveAsync();
+    await _repositoryManager.SaveAsync(cancellationToken);
 
     return TipoRendaModel.FromDomain(tipoRenda);
   }

@@ -8,15 +8,15 @@ public class GetCorretorasListQuery(IRepositoryManager repositoryManager, ILogge
     private readonly IRepositoryManager _repository = repositoryManager;
     private readonly ILoggerManager _logger = logger;
 
-    public async Task<List<CorretoraModel>> ExecuteAsync(Guid ownerId)
+    public async Task<List<CorretoraModel>> ExecuteAsync(Guid ownerId, CancellationToken cancellationToken)
     {
         try
         {
-            var corretoras = await _repository.Corretora.GetAllAsync(ownerId, trackChanges: false);
+            var corretoras = await _repository.Corretora.GetAllAsync(ownerId, trackChanges: false, cancellationToken);
 
             return [.. corretoras.Select(CorretoraModel.FromDomain)];
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError($"Algo deu errado no método de serviço {nameof(GetCorretorasListQuery)}: {ex}");
             throw;

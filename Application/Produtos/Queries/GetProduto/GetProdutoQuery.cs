@@ -7,9 +7,9 @@ public class GetProdutoQuery(IRepositoryManager repositoryManager) : IGetProduto
 {
     private readonly IRepositoryManager _repository = repositoryManager;
 
-    public async Task<ProdutoModel> ExecuteAsync(Guid ownerId, Guid produtoId)
+    public async Task<ProdutoModel> ExecuteAsync(Guid ownerId, Guid produtoId, CancellationToken cancellationToken)
     {
-        var produto = await _repository.Produto.GetAsync(ownerId, produtoId, trackChanges: false)
+        var produto = await _repository.Produto.GetAsync(ownerId, produtoId, trackChanges: false, cancellationToken)
             ?? throw new EntityNotFoundException("Produto não encontrado");
 
         return ProdutoModel.FromDomain(produto);

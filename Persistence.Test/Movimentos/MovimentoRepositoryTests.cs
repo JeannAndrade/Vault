@@ -42,7 +42,7 @@ public class MovimentoRepositoryTests
         var repository = new MovimentoRepository(context);
 
         // Act
-        var resultado = await repository.GetWithRelatedEntitiesAsync(userId, movimento.Id);
+        var resultado = await repository.GetWithRelatedEntitiesAsync(userId, movimento.Id, CancellationToken.None);
 
         // Assert
         Assert.NotNull(resultado);
@@ -83,7 +83,7 @@ public class MovimentoRepositoryTests
         var repository = new MovimentoRepository(context);
 
         // Act
-        var resultado = await repository.GetWithRelatedEntitiesAsync(Guid.NewGuid(), movimento.Id);
+        var resultado = await repository.GetWithRelatedEntitiesAsync(Guid.NewGuid(), movimento.Id, CancellationToken.None);
 
         // Assert
         Assert.Null(resultado);
@@ -113,7 +113,7 @@ public class MovimentoRepositoryTests
         var repository = new MovimentoRepository(context);
 
         // Act
-        var resultado = await repository.ExistemPorObjetivoAsync(objetivoId);
+        var resultado = await repository.ExistemPorObjetivoAsync(objetivoId, CancellationToken.None);
 
         // Assert
         Assert.True(resultado);
@@ -127,7 +127,7 @@ public class MovimentoRepositoryTests
         var repository = new MovimentoRepository(context);
 
         // Act
-        var resultado = await repository.ExistemPorObjetivoAsync(Guid.NewGuid());
+        var resultado = await repository.ExistemPorObjetivoAsync(Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         Assert.False(resultado);
@@ -157,7 +157,7 @@ public class MovimentoRepositoryTests
         var repository = new MovimentoRepository(context);
 
         // Act
-        var resultado = await repository.ExistemPorCorretoraAsync(corretoraId);
+        var resultado = await repository.ExistemPorCorretoraAsync(corretoraId, CancellationToken.None);
 
         // Assert
         Assert.True(resultado);
@@ -171,7 +171,7 @@ public class MovimentoRepositoryTests
         var repository = new MovimentoRepository(context);
 
         // Act
-        var resultado = await repository.ExistemPorCorretoraAsync(Guid.NewGuid());
+        var resultado = await repository.ExistemPorCorretoraAsync(Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         Assert.False(resultado);
@@ -210,7 +210,7 @@ public class MovimentoRepositoryTests
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
-        var resultado = await repository.GetProximosVencimentosAsync(userId, quantidade: 15);
+        var resultado = await repository.GetProximosVencimentosAsync(userId, quantidade: 15, CancellationToken.None);
 
         Assert.Equal(
             [movimentoJaVenceu.Id, movimentoVenceEm5Dias.Id, movimentoVenceEm10Dias.Id],
@@ -233,7 +233,7 @@ public class MovimentoRepositoryTests
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
-        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 10);
+        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 10, CancellationToken.None);
 
         Assert.Equal(2, resultado.TotalCount);
         Assert.All(resultado.Items, m => Assert.Equal(userId, m.UserId));
@@ -250,8 +250,8 @@ public class MovimentoRepositoryTests
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
-        var primeira = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 2);
-        var segunda = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 2, pageSize: 2);
+        var primeira = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 2, CancellationToken.None);
+        var segunda = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 2, pageSize: 2, CancellationToken.None);
 
         Assert.Equal([new DateTime(2026, 1, 3), new DateTime(2026, 1, 2)], primeira.Items.Select(m => m.DataInvestimento));
         Assert.Equal([new DateTime(2026, 1, 1)], segunda.Items.Select(m => m.DataInvestimento));
@@ -272,7 +272,7 @@ public class MovimentoRepositoryTests
         var coletados = new List<Guid>();
         for (var pagina = 1; pagina <= 3; pagina++)
         {
-            var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, pagina, pageSize: 2);
+            var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, pagina, pageSize: 2, CancellationToken.None);
             coletados.AddRange(resultado.Items.Select(m => m.Id));
         }
 
@@ -288,7 +288,7 @@ public class MovimentoRepositoryTests
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
-        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 10);
+        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 10, CancellationToken.None);
 
         var movimento = Assert.Single(resultado.Items);
         Assert.Equal("Objetivo", movimento.Objetivo.Nome);

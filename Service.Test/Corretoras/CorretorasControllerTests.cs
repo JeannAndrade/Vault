@@ -41,9 +41,9 @@ public class CorretorasControllerTests
     {
         // Arrange: CorretoraModel tem UserId; CorretoraDto não — o teste prova a conversão.
         var corretoras = new List<CorretoraModel> { new() { Id = Guid.NewGuid(), Nome = "XP", UserId = _userId } };
-        _getCorretorasListQuery.Setup(q => q.ExecuteAsync(_userId)).ReturnsAsync(corretoras);
+        _getCorretorasListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(corretoras);
 
-        var result = await _controller.GetCorretoras();
+        var result = await _controller.GetCorretoras(CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dtos = Assert.IsType<List<CorretoraDto>>(ok.Value);
@@ -56,9 +56,9 @@ public class CorretorasControllerTests
     {
         var corretoraId = Guid.NewGuid();
         var corretora = new CorretoraModel { Id = corretoraId, Nome = "XP", UserId = _userId };
-        _getCorretoraQuery.Setup(q => q.ExecuteAsync(_userId, corretoraId)).ReturnsAsync(corretora);
+        _getCorretoraQuery.Setup(q => q.ExecuteAsync(_userId, corretoraId, It.IsAny<CancellationToken>())).ReturnsAsync(corretora);
 
-        var result = await _controller.GetCorretora(corretoraId);
+        var result = await _controller.GetCorretora(corretoraId, CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dto = Assert.IsType<CorretoraDto>(ok.Value);
@@ -70,10 +70,10 @@ public class CorretorasControllerTests
     {
         var created = new CorretoraModel { Id = Guid.NewGuid(), Nome = "XP", UserId = _userId };
         _createCorretoraCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<CorretoraModelForCreation>(), _userId))
+            .Setup(c => c.ExecuteAsync(It.IsAny<CorretoraModelForCreation>(), _userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
-        var result = await _controller.CreateCorretora(new CorretoraForCreationDto("XP"));
+        var result = await _controller.CreateCorretora(new CorretoraForCreationDto("XP"), CancellationToken.None);
 
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<CorretoraDto>(createdResult.Value);
@@ -85,9 +85,9 @@ public class CorretorasControllerTests
     {
         var corretoraId = Guid.NewGuid();
 
-        var result = await _controller.DeleteCorretora(corretoraId);
+        var result = await _controller.DeleteCorretora(corretoraId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteCorretoraCommand.Verify(c => c.ExecuteAsync(_userId, corretoraId), Times.Once);
+        _deleteCorretoraCommand.Verify(c => c.ExecuteAsync(_userId, corretoraId, CancellationToken.None), Times.Once);
     }
 }

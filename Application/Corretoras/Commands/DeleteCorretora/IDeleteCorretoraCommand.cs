@@ -2,5 +2,5 @@ namespace Application.Corretoras.Commands.DeleteCorretora;
 
 public interface IDeleteCorretoraCommand
 {
-    Task ExecuteAsync(Guid ownerId, Guid corretoraId);
+    Task ExecuteAsync(Guid ownerId, Guid corretoraId, CancellationToken cancellationToken);
 }

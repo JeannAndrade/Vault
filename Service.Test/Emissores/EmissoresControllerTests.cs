@@ -40,9 +40,9 @@ public class EmissoresControllerTests
     public async Task GetEmissores_ReturnsDtosWithoutLeakingUserId()
     {
         var emissores = new List<EmissorModel> { new() { Id = Guid.NewGuid(), Nome = "Tesouro Nacional", UserId = _userId } };
-        _getEmissoresListQuery.Setup(q => q.ExecuteAsync(_userId)).ReturnsAsync(emissores);
+        _getEmissoresListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(emissores);
 
-        var result = await _controller.GetEmissores();
+        var result = await _controller.GetEmissores(CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dtos = Assert.IsType<List<EmissorDto>>(ok.Value);
@@ -55,9 +55,9 @@ public class EmissoresControllerTests
     {
         var emissorId = Guid.NewGuid();
         var emissor = new EmissorModel { Id = emissorId, Nome = "Tesouro Nacional", UserId = _userId };
-        _getEmissorQuery.Setup(q => q.ExecuteAsync(_userId, emissorId)).ReturnsAsync(emissor);
+        _getEmissorQuery.Setup(q => q.ExecuteAsync(_userId, emissorId, It.IsAny<CancellationToken>())).ReturnsAsync(emissor);
 
-        var result = await _controller.GetEmissor(emissorId);
+        var result = await _controller.GetEmissor(emissorId, CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dto = Assert.IsType<EmissorDto>(ok.Value);
@@ -69,10 +69,10 @@ public class EmissoresControllerTests
     {
         var created = new EmissorModel { Id = Guid.NewGuid(), Nome = "Tesouro Nacional", UserId = _userId };
         _createEmissorCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<EmissorModelForCreation>()))
+            .Setup(c => c.ExecuteAsync(It.IsAny<EmissorModelForCreation>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
-        var result = await _controller.CreateEmissor(new EmissorForCreationDto("Tesouro Nacional"));
+        var result = await _controller.CreateEmissor(new EmissorForCreationDto("Tesouro Nacional"), CancellationToken.None);
 
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<EmissorDto>(createdResult.Value);
@@ -84,9 +84,9 @@ public class EmissoresControllerTests
     {
         var emissorId = Guid.NewGuid();
 
-        var result = await _controller.DeleteEmissor(emissorId);
+        var result = await _controller.DeleteEmissor(emissorId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteEmissorCommand.Verify(c => c.ExecuteAsync(_userId, emissorId), Times.Once);
+        _deleteEmissorCommand.Verify(c => c.ExecuteAsync(_userId, emissorId, CancellationToken.None), Times.Once);
     }
 }

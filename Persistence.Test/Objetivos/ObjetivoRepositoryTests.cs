@@ -37,7 +37,7 @@ public class ObjetivoRepositoryTests
         context.ChangeTracker.Clear();
         var repository = new ObjetivoRepository(context);
 
-        var result = (await repository.GetAllWithRelatedEntitiesAsync(ownerId)).ToList();
+        var result = (await repository.GetAllWithRelatedEntitiesAsync(ownerId, CancellationToken.None)).ToList();
 
         Assert.Equal(new[] { "Aposentadoria", "Viagem" }, result.Select(objective => objective.Nome));
         Assert.Equal(100m, Assert.Single(result[0].Movimentos).ValorAporte);

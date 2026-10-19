@@ -7,15 +7,15 @@ namespace Persistence.Produtos;
 
 public class ProdutoRepository(VaultDbContext repositoryContext) : BaseRepository<Produto>(repositoryContext), IProdutoRepository
 {
-    public async Task<IEnumerable<Produto>> GetAllAsync(Guid ownerId, bool trackChanges) =>
-        await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.Nome).ToListAsync();
+    public async Task<IEnumerable<Produto>> GetAllAsync(Guid ownerId, bool trackChanges, CancellationToken cancellationToken) =>
+        await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.Nome).ToListAsync(cancellationToken);
 
-    public async Task<Produto?> GetAsync(Guid ownerId, Guid produtoId, bool trackChanges) =>
-        await FindByCondition(c => c.UserId == ownerId && c.Id == produtoId, trackChanges).SingleOrDefaultAsync();
+    public async Task<Produto?> GetAsync(Guid ownerId, Guid produtoId, bool trackChanges, CancellationToken cancellationToken) =>
+        await FindByCondition(c => c.UserId == ownerId && c.Id == produtoId, trackChanges).SingleOrDefaultAsync(cancellationToken);
 
-    public async Task DeleteAsync(Guid ownerId, Guid produtoId)
+    public async Task DeleteAsync(Guid ownerId, Guid produtoId, CancellationToken cancellationToken)
     {
-        var produto = await GetAsync(ownerId, produtoId, true);
+        var produto = await GetAsync(ownerId, produtoId, true, cancellationToken);
 
         if (produto is not null)
             Delete(produto);

@@ -20,7 +20,7 @@ public class UpdateMovimentoCommandTests
         var command = new UpdateMovimentoCommand(repositoryManager, validator);
 
         // Act
-        await command.ExecuteAsync(CriarModeloValido(), ownerId, movimentoExistente.Id);
+        await command.ExecuteAsync(CriarModeloValido(), ownerId, movimentoExistente.Id, CancellationToken.None);
 
         // Assert
         Assert.True(validator.Chamado);
@@ -39,7 +39,7 @@ public class UpdateMovimentoCommandTests
 
         // Act & Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(
-            () => command.ExecuteAsync(CriarModeloValido(), Guid.NewGuid(), Guid.NewGuid()));
+            () => command.ExecuteAsync(CriarModeloValido(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None));
         Assert.False(repositoryManager.MovimentoRepository.UpdateChamado);
         Assert.False(repositoryManager.SaveAsyncChamado);
     }

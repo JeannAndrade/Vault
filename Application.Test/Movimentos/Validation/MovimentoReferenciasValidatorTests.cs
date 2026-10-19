@@ -24,7 +24,7 @@ public class MovimentoReferenciasValidatorTests
 
         // Act
         var exception = await Record.ExceptionAsync(() => validator.ValidarAsync(
-            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None));
 
         // Assert
         Assert.Null(exception);
@@ -40,7 +40,7 @@ public class MovimentoReferenciasValidatorTests
 
         // Act
         var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() => validator.ValidarAsync(
-            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None));
 
         // Assert
         Assert.Equal("Objetivo not found", exception.Message);
@@ -56,7 +56,7 @@ public class MovimentoReferenciasValidatorTests
 
         // Act
         var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() => validator.ValidarAsync(
-            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None));
 
         // Assert
         Assert.Equal("Emissor not found", exception.Message);
@@ -79,7 +79,7 @@ public class MovimentoReferenciasValidatorTests
 
     private sealed class FakeGetObjetivoQuery(List<string> chamadas, bool deveFalhar) : IGetObjetivoQuery
     {
-        public Task<ObjetivoModel> ExecuteAsync(Guid ownerId, Guid objetivoId)
+        public Task<ObjetivoModel> ExecuteAsync(Guid ownerId, Guid objetivoId, CancellationToken cancellationToken)
         {
             chamadas.Add("Objetivo");
             return deveFalhar
@@ -90,7 +90,7 @@ public class MovimentoReferenciasValidatorTests
 
     private sealed class FakeGetTipoRendaQuery(List<string> chamadas, bool deveFalhar) : IGetTipoRendaQuery
     {
-        public Task<TipoRendaModel> ExecuteAsync(Guid ownerId, Guid tipoRendaId)
+        public Task<TipoRendaModel> ExecuteAsync(Guid ownerId, Guid tipoRendaId, CancellationToken cancellationToken)
         {
             chamadas.Add("TipoRenda");
             return deveFalhar
@@ -101,7 +101,7 @@ public class MovimentoReferenciasValidatorTests
 
     private sealed class FakeGetCorretoraQuery(List<string> chamadas, bool deveFalhar) : IGetCorretoraQuery
     {
-        public Task<CorretoraModel> ExecuteAsync(Guid ownerId, Guid corretoraId)
+        public Task<CorretoraModel> ExecuteAsync(Guid ownerId, Guid corretoraId, CancellationToken cancellationToken)
         {
             chamadas.Add("Corretora");
             return deveFalhar
@@ -112,7 +112,7 @@ public class MovimentoReferenciasValidatorTests
 
     private sealed class FakeGetProdutoQuery(List<string> chamadas, bool deveFalhar) : IGetProdutoQuery
     {
-        public Task<ProdutoModel> ExecuteAsync(Guid ownerId, Guid produtoId)
+        public Task<ProdutoModel> ExecuteAsync(Guid ownerId, Guid produtoId, CancellationToken cancellationToken)
         {
             chamadas.Add("Produto");
             return deveFalhar
@@ -123,7 +123,7 @@ public class MovimentoReferenciasValidatorTests
 
     private sealed class FakeGetEmissorQuery(List<string> chamadas, bool deveFalhar) : IGetEmissorQuery
     {
-        public Task<EmissorModel> ExecuteAsync(Guid ownerId, Guid emissorId)
+        public Task<EmissorModel> ExecuteAsync(Guid ownerId, Guid emissorId, CancellationToken cancellationToken)
         {
             chamadas.Add("Emissor");
             return deveFalhar

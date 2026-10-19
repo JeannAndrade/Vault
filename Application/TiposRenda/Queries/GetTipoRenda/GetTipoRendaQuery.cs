@@ -7,9 +7,9 @@ public class GetTipoRendaQuery(IRepositoryManager repositoryManager) : IGetTipoR
 {
     private readonly IRepositoryManager _repository = repositoryManager;
 
-    public async Task<TipoRendaModel> ExecuteAsync(Guid ownerId, Guid tipoRendaId)
+    public async Task<TipoRendaModel> ExecuteAsync(Guid ownerId, Guid tipoRendaId, CancellationToken cancellationToken)
     {
-        var tipoRenda = await _repository.TipoRenda.GetAsync(ownerId, tipoRendaId, trackChanges: false)
+        var tipoRenda = await _repository.TipoRenda.GetAsync(ownerId, tipoRendaId, trackChanges: false, cancellationToken)
             ?? throw new EntityNotFoundException("Tipo de renda não encontrado");
 
         return TipoRendaModel.FromDomain(tipoRenda);

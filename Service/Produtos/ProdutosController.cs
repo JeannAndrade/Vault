@@ -34,10 +34,10 @@ public class ProdutosController(
     [ProducesResponseType(typeof(IEnumerable<ProdutoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<ProdutoDto>>> GetProdutos()
+    public async Task<ActionResult<IEnumerable<ProdutoDto>>> GetProdutos(CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var produtos = await _getProdutosListQuery.ExecuteAsync(userId);
+        var produtos = await _getProdutosListQuery.ExecuteAsync(userId, cancellationToken);
 
         return Ok(ProdutoDto.FromApplication(produtos));
     }
@@ -46,10 +46,10 @@ public class ProdutosController(
     [ProducesResponseType(typeof(ProdutoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ProdutoDto>> GetProduto(Guid id)
+    public async Task<ActionResult<ProdutoDto>> GetProduto(Guid id, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var produto = await _getProdutoQuery.ExecuteAsync(userId, id);
+        var produto = await _getProdutoQuery.ExecuteAsync(userId, id, cancellationToken);
 
         return Ok(ProdutoDto.FromApplication(produto));
     }
@@ -58,9 +58,9 @@ public class ProdutosController(
     [ProducesResponseType(typeof(ProdutoDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<ProdutoDto>> CreateProduto([FromBody] ProdutoForCreationDto produto)
+    public async Task<ActionResult<ProdutoDto>> CreateProduto([FromBody] ProdutoForCreationDto produto, CancellationToken cancellationToken)
     {
-        var createdProduto = await _createProdutoCommand.ExecuteAsync(produto.ToCreateProdutoCommand(GetCurrentUserId()));
+        var createdProduto = await _createProdutoCommand.ExecuteAsync(produto.ToCreateProdutoCommand(GetCurrentUserId()), cancellationToken);
 
         return CreatedAtRoute("ProdutoById", new { id = createdProduto.Id }, ProdutoDto.FromApplication(createdProduto));
     }
@@ -70,9 +70,9 @@ public class ProdutosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<ProdutoDto>> UpdateProduto(Guid id, [FromBody] ProdutoForUpdateDto produto)
+    public async Task<ActionResult<ProdutoDto>> UpdateProduto(Guid id, [FromBody] ProdutoForUpdateDto produto, CancellationToken cancellationToken)
     {
-        _ = await _updateProdutoCommand.ExecuteAsync(produto.ToUpdateProdutoCommand(), GetCurrentUserId(), id);
+        _ = await _updateProdutoCommand.ExecuteAsync(produto.ToUpdateProdutoCommand(), GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }
@@ -82,9 +82,9 @@ public class ProdutosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteProduto(Guid id)
+    public async Task<IActionResult> DeleteProduto(Guid id, CancellationToken cancellationToken)
     {
-        await _deleteProdutoCommand.ExecuteAsync(GetCurrentUserId(), id);
+        await _deleteProdutoCommand.ExecuteAsync(GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }

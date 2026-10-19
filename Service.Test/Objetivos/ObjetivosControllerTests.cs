@@ -46,9 +46,9 @@ public class ObjetivosControllerTests
         {
             new() { Id = Guid.NewGuid(), Nome = "Reserva de emergência", UserId = _userId }
         };
-        _getObjetivosListQuery.Setup(q => q.ExecuteAsync(_userId)).ReturnsAsync(objetivos);
+        _getObjetivosListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(objetivos);
 
-        var result = await _controller.GetObjetivos();
+        var result = await _controller.GetObjetivos(CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dtos = Assert.IsType<List<ObjetivoDto>>(ok.Value);
@@ -74,10 +74,10 @@ public class ObjetivosControllerTests
             }
         };
         _getResumoObjetivosListQuery
-            .Setup(q => q.ExecuteAsync(_userId))
+            .Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(objetivos);
 
-        var result = await _controller.GetObjetivosComValores();
+        var result = await _controller.GetObjetivosComValores(CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dtos = Assert.IsType<List<ResumoObjetivoDto>>(ok.Value);
@@ -89,7 +89,7 @@ public class ObjetivosControllerTests
         Assert.Equal(2, dto.QtdeMovimentos);
         Assert.Equal(1500m, dto.TotalAportado);
         Assert.Equal(1575m, dto.TotalLiquido);
-        _getResumoObjetivosListQuery.Verify(q => q.ExecuteAsync(_userId), Times.Once);
+        _getResumoObjetivosListQuery.Verify(q => q.ExecuteAsync(_userId, CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -97,9 +97,9 @@ public class ObjetivosControllerTests
     {
         var objetivoId = Guid.NewGuid();
         var objetivo = new ObjetivoModel { Id = objetivoId, Nome = "Reserva de emergência", UserId = _userId };
-        _getObjetivoQuery.Setup(q => q.ExecuteAsync(_userId, objetivoId)).ReturnsAsync(objetivo);
+        _getObjetivoQuery.Setup(q => q.ExecuteAsync(_userId, objetivoId, It.IsAny<CancellationToken>())).ReturnsAsync(objetivo);
 
-        var result = await _controller.GetObjetivo(objetivoId);
+        var result = await _controller.GetObjetivo(objetivoId, CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dto = Assert.IsType<ObjetivoDto>(ok.Value);
@@ -111,11 +111,11 @@ public class ObjetivosControllerTests
     {
         var created = new ObjetivoModel { Id = Guid.NewGuid(), Nome = "Reserva de emergência", UserId = _userId };
         _createObjetivoCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<ObjetivoModelForCreation>()))
+            .Setup(c => c.ExecuteAsync(It.IsAny<ObjetivoModelForCreation>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
         var result = await _controller.CreateObjetivo(new ObjetivoForCreationDto(
-            "Reserva de emergência", "Descrição", 10000m, "Salário", 500m, "Tesouro Selic", true));
+            "Reserva de emergência", "Descrição", 10000m, "Salário", 500m, "Tesouro Selic", true), CancellationToken.None);
 
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<ObjetivoDto>(createdResult.Value);
@@ -127,9 +127,9 @@ public class ObjetivosControllerTests
     {
         var objetivoId = Guid.NewGuid();
 
-        var result = await _controller.DeleteObjetivo(objetivoId);
+        var result = await _controller.DeleteObjetivo(objetivoId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteObjetivoCommand.Verify(c => c.ExecuteAsync(_userId, objetivoId), Times.Once);
+        _deleteObjetivoCommand.Verify(c => c.ExecuteAsync(_userId, objetivoId, CancellationToken.None), Times.Once);
     }
 }

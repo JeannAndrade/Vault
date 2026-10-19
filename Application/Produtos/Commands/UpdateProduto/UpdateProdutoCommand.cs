@@ -8,15 +8,15 @@ public class UpdateProdutoCommand(IRepositoryManager repositoryManager) : IUpdat
 {
   private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-  public async Task<ProdutoModel> ExecuteAsync(ProdutoModelForUpdate produtoModel, Guid ownerId, Guid produtoId)
+  public async Task<ProdutoModel> ExecuteAsync(ProdutoModelForUpdate produtoModel, Guid ownerId, Guid produtoId, CancellationToken cancellationToken)
   {
     CommandValidator.Validate(produtoModel);
 
-    var produto = await _repositoryManager.Produto.GetAsync(ownerId, produtoId, trackChanges: true)
+    var produto = await _repositoryManager.Produto.GetAsync(ownerId, produtoId, trackChanges: true, cancellationToken)
     ?? throw new EntityNotFoundException("Produto not found");
 
     _repositoryManager.Produto.Update(produtoModel.UpdateDomain(produto));
-    await _repositoryManager.SaveAsync();
+    await _repositoryManager.SaveAsync(cancellationToken);
 
     return ProdutoModel.FromDomain(produto);
   }

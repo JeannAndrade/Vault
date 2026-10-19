@@ -7,9 +7,9 @@ public class GetMovimentoQuery(IRepositoryManager repositoryManager) : IGetMovim
 {
     private readonly IRepositoryManager _repository = repositoryManager;
 
-    public async Task<MovimentoModel> ExecuteAsync(Guid ownerId, Guid movimentoId)
+    public async Task<MovimentoModel> ExecuteAsync(Guid ownerId, Guid movimentoId, CancellationToken cancellationToken)
     {
-        var movimento = await _repository.Movimento.GetWithRelatedEntitiesAsync(ownerId, movimentoId)
+        var movimento = await _repository.Movimento.GetWithRelatedEntitiesAsync(ownerId, movimentoId, cancellationToken)
             ?? throw new EntityNotFoundException("Movimento não encontrado");
 
         return MovimentoModel.FromDomain(movimento);

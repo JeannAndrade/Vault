@@ -18,10 +18,10 @@ public class DeleteProdutoCommandTests
         var produto = new Produto { UserId = ownerId };
 
         var produtoRepository = new Mock<IProdutoRepository>();
-        produtoRepository.Setup(r => r.GetAsync(ownerId, produto.Id, true)).ReturnsAsync(produto);
+        produtoRepository.Setup(r => r.GetAsync(ownerId, produto.Id, true, CancellationToken.None)).ReturnsAsync(produto);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorProdutoAsync(produto.Id)).ReturnsAsync(false);
+        movimentoRepository.Setup(r => r.ExistemPorProdutoAsync(produto.Id, CancellationToken.None)).ReturnsAsync(false);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Produto).Returns(produtoRepository.Object);
@@ -30,11 +30,11 @@ public class DeleteProdutoCommandTests
         var command = new DeleteProdutoCommand(repositoryManager.Object);
 
         // Act
-        await command.ExecuteAsync(ownerId, produto.Id);
+        await command.ExecuteAsync(ownerId, produto.Id, CancellationToken.None);
 
         // Assert
         produtoRepository.Verify(r => r.Delete(produto), Times.Once);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Once);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -45,10 +45,10 @@ public class DeleteProdutoCommandTests
         var produto = new Produto { UserId = ownerId };
 
         var produtoRepository = new Mock<IProdutoRepository>();
-        produtoRepository.Setup(r => r.GetAsync(ownerId, produto.Id, true)).ReturnsAsync(produto);
+        produtoRepository.Setup(r => r.GetAsync(ownerId, produto.Id, true, CancellationToken.None)).ReturnsAsync(produto);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorProdutoAsync(produto.Id)).ReturnsAsync(true);
+        movimentoRepository.Setup(r => r.ExistemPorProdutoAsync(produto.Id, CancellationToken.None)).ReturnsAsync(true);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Produto).Returns(produtoRepository.Object);
@@ -57,9 +57,9 @@ public class DeleteProdutoCommandTests
         var command = new DeleteProdutoCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, produto.Id));
+        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, produto.Id, CancellationToken.None));
         produtoRepository.Verify(r => r.Delete(It.IsAny<Produto>()), Times.Never);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class DeleteProdutoCommandTests
         var produtoId = Guid.NewGuid();
 
         var produtoRepository = new Mock<IProdutoRepository>();
-        produtoRepository.Setup(r => r.GetAsync(ownerId, produtoId, true)).ReturnsAsync((Produto?)null);
+        produtoRepository.Setup(r => r.GetAsync(ownerId, produtoId, true, CancellationToken.None)).ReturnsAsync((Produto?)null);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Produto).Returns(produtoRepository.Object);
@@ -78,7 +78,7 @@ public class DeleteProdutoCommandTests
         var command = new DeleteProdutoCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, produtoId));
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, produtoId, CancellationToken.None));
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 }

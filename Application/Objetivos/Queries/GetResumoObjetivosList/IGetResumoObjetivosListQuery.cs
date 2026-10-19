@@ -2,5 +2,5 @@ namespace Application.Objetivos.Queries.GetResumoObjetivosList;
 
 public interface IGetResumoObjetivosListQuery
 {
-    Task<List<ResumoObjetivoModel>> ExecuteAsync(Guid ownerId);
+    Task<List<ResumoObjetivoModel>> ExecuteAsync(Guid ownerId, CancellationToken cancellationToken);
 }

@@ -1,6 +1,6 @@
 # ADR 0017: Propagação do CancellationToken
 
-- Status: Proposta (2026-10-19)
+- Status: Aceita (2026-10-19)
 
 ## Contexto
 

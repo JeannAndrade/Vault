@@ -34,10 +34,10 @@ public class EmissoresController(
     [ProducesResponseType(typeof(IEnumerable<EmissorDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<EmissorDto>>> GetEmissores()
+    public async Task<ActionResult<IEnumerable<EmissorDto>>> GetEmissores(CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var emissores = await _getEmissoresListQuery.ExecuteAsync(userId);
+        var emissores = await _getEmissoresListQuery.ExecuteAsync(userId, cancellationToken);
 
         return Ok(EmissorDto.FromApplication(emissores));
     }
@@ -46,10 +46,10 @@ public class EmissoresController(
     [ProducesResponseType(typeof(EmissorDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<EmissorDto>> GetEmissor(Guid id)
+    public async Task<ActionResult<EmissorDto>> GetEmissor(Guid id, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var emissor = await _getEmissorQuery.ExecuteAsync(userId, id);
+        var emissor = await _getEmissorQuery.ExecuteAsync(userId, id, cancellationToken);
 
         return Ok(EmissorDto.FromApplication(emissor));
     }
@@ -58,9 +58,9 @@ public class EmissoresController(
     [ProducesResponseType(typeof(EmissorDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<EmissorDto>> CreateEmissor([FromBody] EmissorForCreationDto emissor)
+    public async Task<ActionResult<EmissorDto>> CreateEmissor([FromBody] EmissorForCreationDto emissor, CancellationToken cancellationToken)
     {
-        var createdEmissor = await _createEmissorCommand.ExecuteAsync(emissor.ToCreateEmissorCommand(GetCurrentUserId()));
+        var createdEmissor = await _createEmissorCommand.ExecuteAsync(emissor.ToCreateEmissorCommand(GetCurrentUserId()), cancellationToken);
 
         return CreatedAtRoute("EmissorById", new { id = createdEmissor.Id }, EmissorDto.FromApplication(createdEmissor));
     }
@@ -70,9 +70,9 @@ public class EmissoresController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<EmissorDto>> UpdateEmissor(Guid id, [FromBody] EmissorForUpdateDto emissor)
+    public async Task<ActionResult<EmissorDto>> UpdateEmissor(Guid id, [FromBody] EmissorForUpdateDto emissor, CancellationToken cancellationToken)
     {
-        _ = await _updateEmissorCommand.ExecuteAsync(emissor.ToUpdateEmissorCommand(), GetCurrentUserId(), id);
+        _ = await _updateEmissorCommand.ExecuteAsync(emissor.ToUpdateEmissorCommand(), GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }
@@ -82,9 +82,9 @@ public class EmissoresController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteEmissor(Guid id)
+    public async Task<IActionResult> DeleteEmissor(Guid id, CancellationToken cancellationToken)
     {
-        await _deleteEmissorCommand.ExecuteAsync(GetCurrentUserId(), id);
+        await _deleteEmissorCommand.ExecuteAsync(GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }

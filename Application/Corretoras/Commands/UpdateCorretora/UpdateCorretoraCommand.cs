@@ -8,15 +8,15 @@ public class UpdateCorretoraCommand(IRepositoryManager repositoryManager) : IUpd
 {
     private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-    public async Task<CorretoraModel> ExecuteAsync(CorretoraModelForUpdate corretoraModel, Guid ownerId, Guid corretoraId)
+    public async Task<CorretoraModel> ExecuteAsync(CorretoraModelForUpdate corretoraModel, Guid ownerId, Guid corretoraId, CancellationToken cancellationToken)
     {
         CommandValidator.Validate(corretoraModel);
 
-        var corretora = await _repositoryManager.Corretora.GetAsync(ownerId, corretoraId, trackChanges: true)
+        var corretora = await _repositoryManager.Corretora.GetAsync(ownerId, corretoraId, trackChanges: true, cancellationToken)
         ?? throw new EntityNotFoundException("Corretora not found");
 
         _repositoryManager.Corretora.Update(corretoraModel.UpdateDomain(corretora));
-        await _repositoryManager.SaveAsync();
+        await _repositoryManager.SaveAsync(cancellationToken);
 
         return CorretoraModel.FromDomain(corretora);
     }

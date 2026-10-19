@@ -5,6 +5,6 @@ namespace Application.Movimentos.Queries.GetMovimentoList;
 
 public interface IGetMovimentosListQuery
 {
-    Task<PagedList<MovimentoModel>> ExecuteAsync(Guid ownerId, PaginationParameters parameters, CancellationToken cancellationToken = default);
+    Task<PagedList<MovimentoModel>> ExecuteAsync(Guid ownerId, PaginationParameters parameters, CancellationToken cancellationToken);
     Task<PagedList<MovimentoModel>> ExecuteAsync(Guid ownerId, MovimentoFiltroParameters filtro, PaginationParameters paginacao, CancellationToken cancellationToken);
 }

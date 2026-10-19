@@ -17,7 +17,7 @@ public class DeleteMovimentoCommandTests
         var movimento = new Movimento { UserId = ownerId };
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.GetAsync(ownerId, movimento.Id, true)).ReturnsAsync(movimento);
+        movimentoRepository.Setup(r => r.GetAsync(ownerId, movimento.Id, true, CancellationToken.None)).ReturnsAsync(movimento);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Movimento).Returns(movimentoRepository.Object);
@@ -25,11 +25,11 @@ public class DeleteMovimentoCommandTests
         var command = new DeleteMovimentoCommand(repositoryManager.Object);
 
         // Act
-        await command.ExecuteAsync(ownerId, movimento.Id);
+        await command.ExecuteAsync(ownerId, movimento.Id, CancellationToken.None);
 
         // Assert
         movimentoRepository.Verify(r => r.Delete(movimento), Times.Once);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Once);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class DeleteMovimentoCommandTests
         var movimentoId = Guid.NewGuid();
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.GetAsync(ownerId, movimentoId, true)).ReturnsAsync((Movimento?)null);
+        movimentoRepository.Setup(r => r.GetAsync(ownerId, movimentoId, true, CancellationToken.None)).ReturnsAsync((Movimento?)null);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Movimento).Returns(movimentoRepository.Object);
@@ -48,7 +48,7 @@ public class DeleteMovimentoCommandTests
         var command = new DeleteMovimentoCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, movimentoId));
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, movimentoId, CancellationToken.None));
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 }

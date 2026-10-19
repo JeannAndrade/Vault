@@ -7,7 +7,7 @@ internal sealed class FakeMovimentoReferenciasValidator(bool deveFalhar = false)
 {
     public bool Chamado { get; private set; }
 
-    public Task ValidarAsync(Guid ownerId, Guid objetivoId, Guid tipoRendaId, Guid corretoraId, Guid produtoId, Guid emissorId)
+    public Task ValidarAsync(Guid ownerId, Guid objetivoId, Guid tipoRendaId, Guid corretoraId, Guid produtoId, Guid emissorId, CancellationToken cancellationToken)
     {
         Chamado = true;
         return deveFalhar

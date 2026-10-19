@@ -2,5 +2,5 @@ namespace Application.Movimentos.Queries.GetProximosVencimentos;
 
 public interface IGetProximosVencimentosQuery
 {
-    Task<List<ProximoVencimentoModel>> ExecuteAsync(Guid ownerId);
+    Task<List<ProximoVencimentoModel>> ExecuteAsync(Guid ownerId, CancellationToken cancellationToken);
 }

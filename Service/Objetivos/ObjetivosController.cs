@@ -36,10 +36,10 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(IEnumerable<ObjetivoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<ObjetivoDto>>> GetObjetivos()
+    public async Task<ActionResult<IEnumerable<ObjetivoDto>>> GetObjetivos(CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var objetivos = await _getObjetivosListQuery.ExecuteAsync(userId);
+        var objetivos = await _getObjetivosListQuery.ExecuteAsync(userId, cancellationToken);
 
         return Ok(ObjetivoDto.FromApplication(objetivos));
     }
@@ -48,10 +48,10 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(IEnumerable<ResumoObjetivoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<ResumoObjetivoDto>>> GetObjetivosComValores()
+    public async Task<ActionResult<IEnumerable<ResumoObjetivoDto>>> GetObjetivosComValores(CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var objetivos = await _getResumoObjetivosListQuery.ExecuteAsync(userId);
+        var objetivos = await _getResumoObjetivosListQuery.ExecuteAsync(userId, cancellationToken);
 
         return Ok(ResumoObjetivoDto.FromApplication(objetivos));
     }
@@ -60,10 +60,10 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(ObjetivoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ObjetivoDto>> GetObjetivo(Guid id)
+    public async Task<ActionResult<ObjetivoDto>> GetObjetivo(Guid id, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var objetivo = await _getObjetivoQuery.ExecuteAsync(userId, id);
+        var objetivo = await _getObjetivoQuery.ExecuteAsync(userId, id, cancellationToken);
 
         return Ok(ObjetivoDto.FromApplication(objetivo));
     }
@@ -72,9 +72,9 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(ObjetivoDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<ObjetivoDto>> CreateObjetivo([FromBody] ObjetivoForCreationDto objetivo)
+    public async Task<ActionResult<ObjetivoDto>> CreateObjetivo([FromBody] ObjetivoForCreationDto objetivo, CancellationToken cancellationToken)
     {
-        var createdObjetivo = await _createObjetivoCommand.ExecuteAsync(objetivo.ToCreateObjetivoCommand(GetCurrentUserId()));
+        var createdObjetivo = await _createObjetivoCommand.ExecuteAsync(objetivo.ToCreateObjetivoCommand(GetCurrentUserId()), cancellationToken);
 
         return CreatedAtRoute("ObjetivoById", new { id = createdObjetivo.Id }, ObjetivoDto.FromApplication(createdObjetivo));
     }
@@ -84,9 +84,9 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<ObjetivoDto>> UpdateObjetivo(Guid id, [FromBody] ObjetivoForUpdateDto objetivo)
+    public async Task<ActionResult<ObjetivoDto>> UpdateObjetivo(Guid id, [FromBody] ObjetivoForUpdateDto objetivo, CancellationToken cancellationToken)
     {
-        _ = await _updateObjetivoCommand.ExecuteAsync(objetivo.ToUpdateObjetivoCommand(), GetCurrentUserId(), id);
+        _ = await _updateObjetivoCommand.ExecuteAsync(objetivo.ToUpdateObjetivoCommand(), GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }
@@ -96,9 +96,9 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteObjetivo(Guid id)
+    public async Task<IActionResult> DeleteObjetivo(Guid id, CancellationToken cancellationToken)
     {
-        await _deleteObjetivoCommand.ExecuteAsync(GetCurrentUserId(), id);
+        await _deleteObjetivoCommand.ExecuteAsync(GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }

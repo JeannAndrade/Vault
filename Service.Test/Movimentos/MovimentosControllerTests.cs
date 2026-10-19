@@ -68,9 +68,9 @@ public class MovimentosControllerTests
 
         var result = await _controller.GetMovimentos(
             new MovimentoFiltroDto { ObjetivoId = objetivoId, EstaAtivo = true },
+            cts.Token,
             2,
-            10,
-            cts.Token);
+            10);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var resposta = Assert.IsType<PagedResponse<MovimentoDto>>(ok.Value);
@@ -95,10 +95,10 @@ public class MovimentosControllerTests
             ValorLiquidoAtual = 1234.56m
         };
         _getProximosVencimentosQuery
-            .Setup(q => q.ExecuteAsync(_userId))
+            .Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([movimento]);
 
-        var result = await _controller.GetProximosVencimentos();
+        var result = await _controller.GetProximosVencimentos(CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var resposta = Assert.IsType<List<ProximoVencimentoDto>>(ok.Value);
@@ -130,7 +130,7 @@ public class MovimentosControllerTests
             .Setup(q => q.ExecuteAsync(_userId, cts.Token))
             .ReturnsAsync([movimento]);
 
-        var result = await _controller.GetMovimentosDesatualizados();
+        var result = await _controller.GetMovimentosDesatualizados(cts.Token);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var resposta = Assert.IsType<List<MovimentoDesatualizadoDto>>(ok.Value);
@@ -149,7 +149,7 @@ public class MovimentosControllerTests
         var id = Guid.NewGuid();
         var dto = new MovimentoForUpdateValorLiquidoDto { ValorLiquidoAtual = 987.65m };
 
-        var result = await _controller.UpdateValorLiquidoMovimento(id, dto);
+        var result = await _controller.UpdateValorLiquidoMovimento(id, dto, cts.Token);
 
         Assert.IsType<NoContentResult>(result);
         _updateValorLiquidoMovimentoCommand.Verify(c => c.ExecuteAsync(

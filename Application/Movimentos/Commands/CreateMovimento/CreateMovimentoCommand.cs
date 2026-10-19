@@ -14,7 +14,7 @@ public class CreateMovimentoCommand(
     private readonly IMovimentoReferenciasValidator _referenciasValidator = referenciasValidator;
     private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
 
-    public async Task<MovimentoModel> ExecuteAsync(MovimentoModelForCreation movimentoModel, Guid userId)
+    public async Task<MovimentoModel> ExecuteAsync(MovimentoModelForCreation movimentoModel, Guid userId, CancellationToken cancellationToken)
     {
         CommandValidator.Validate(movimentoModel);
 
@@ -24,11 +24,12 @@ public class CreateMovimentoCommand(
             movimentoModel.TipoRendaId,
             movimentoModel.CorretoraId,
             movimentoModel.ProdutoId,
-            movimentoModel.EmissorId);
+            movimentoModel.EmissorId,
+            cancellationToken);
 
         var movimento = movimentoModel.ToDomain(userId, _dateTimeProvider.GetDateTime().Date);
         _repositoryManager.Movimento.Create(movimento);
-        await _repositoryManager.SaveAsync();
+        await _repositoryManager.SaveAsync(cancellationToken);
 
         return MovimentoModel.FromDomain(movimento);
     }

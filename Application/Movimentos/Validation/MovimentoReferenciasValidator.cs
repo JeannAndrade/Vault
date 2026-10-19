@@ -25,15 +25,16 @@ public class MovimentoReferenciasValidator(
         Guid tipoRendaId,
         Guid corretoraId,
         Guid produtoId,
-        Guid emissorId)
+        Guid emissorId,
+        CancellationToken cancellationToken)
     {
         // Sequencial (sem Task.WhenAll): cada Query já valida existência + posse
         // (ownerId) da entidade, e queremos que a primeira referência inválida
         // interrompa a validação com uma mensagem clara sobre qual entidade falhou.
-        await _getObjetivoQuery.ExecuteAsync(ownerId, objetivoId);
-        await _getTipoRendaQuery.ExecuteAsync(ownerId, tipoRendaId);
-        await _getCorretoraQuery.ExecuteAsync(ownerId, corretoraId);
-        await _getProdutoQuery.ExecuteAsync(ownerId, produtoId);
-        await _getEmissorQuery.ExecuteAsync(ownerId, emissorId);
+        await _getObjetivoQuery.ExecuteAsync(ownerId, objetivoId, cancellationToken);
+        await _getTipoRendaQuery.ExecuteAsync(ownerId, tipoRendaId, cancellationToken);
+        await _getCorretoraQuery.ExecuteAsync(ownerId, corretoraId, cancellationToken);
+        await _getProdutoQuery.ExecuteAsync(ownerId, produtoId, cancellationToken);
+        await _getEmissorQuery.ExecuteAsync(ownerId, emissorId, cancellationToken);
     }
 }

@@ -7,15 +7,15 @@ public class DeleteProdutoCommand(IRepositoryManager repositoryManager) : IDelet
 {
     private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-    public async Task ExecuteAsync(Guid ownerId, Guid produtoId)
+    public async Task ExecuteAsync(Guid ownerId, Guid produtoId, CancellationToken cancellationToken)
     {
-        var produto = await _repositoryManager.Produto.GetAsync(ownerId, produtoId, trackChanges: true)
+        var produto = await _repositoryManager.Produto.GetAsync(ownerId, produtoId, trackChanges: true, cancellationToken)
             ?? throw new EntityNotFoundException("Produto não encontrado");
 
-        if (await _repositoryManager.Movimento.ExistemPorProdutoAsync(produtoId))
+        if (await _repositoryManager.Movimento.ExistemPorProdutoAsync(produtoId, cancellationToken))
             throw new EntityInUseException("Não é possível excluir o Produto pois existem Movimentos associados a ele.");
 
         _repositoryManager.Produto.Delete(produto);
-        await _repositoryManager.SaveAsync();
+        await _repositoryManager.SaveAsync(cancellationToken);
     }
 }

@@ -9,11 +9,11 @@ public class GetProximosVencimentosQuery(IRepositoryManager repositoryManager, I
     private readonly IRepositoryManager _repository = repositoryManager;
     private readonly ILoggerManager _logger = logger;
 
-    public async Task<List<ProximoVencimentoModel>> ExecuteAsync(Guid ownerId)
+    public async Task<List<ProximoVencimentoModel>> ExecuteAsync(Guid ownerId, CancellationToken cancellationToken)
     {
         try
         {
-            var movimentos = await _repository.Movimento.GetProximosVencimentosAsync(ownerId, QuantidadeMaxima);
+            var movimentos = await _repository.Movimento.GetProximosVencimentosAsync(ownerId, QuantidadeMaxima, cancellationToken);
 
             return [.. movimentos.Select(ProximoVencimentoModel.FromDomain)];
         }

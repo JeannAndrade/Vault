@@ -13,14 +13,14 @@ internal sealed class FakeMovimentoRepository : IMovimentoRepository
     public bool UpdateChamado { get; private set; }
     public Movimento? MovimentoParaRetornar { get; set; }
 
-    public Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges) => throw new NotSupportedException();
+    public Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, MovimentoFiltro filtro, int page, int pageSize, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<List<Movimento>> GetProximosVencimentosAsync(Guid ownerId, int quantidade = 15, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public Task<List<Movimento>> GetDesatualizadosAsync(Guid ownerId, DateTime dataLimite, int quantidade, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) => Task.FromResult(MovimentoParaRetornar);
     public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken) => Task.FromResult(MovimentoParaRetornar);
-    public Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
+    public Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task DeleteAsync(Guid ownerId, Guid movimentoId) => throw new NotSupportedException();
@@ -31,27 +31,27 @@ internal sealed class FakeMovimentoRepository : IMovimentoRepository
     }
     public void Update(Movimento movimento) => UpdateChamado = true;
 
-    public Task<bool> ExistemPorObjetivoAsync(Guid objetivoId)
+    public Task<bool> ExistemPorObjetivoAsync(Guid objetivoId, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> ExistemPorTipoRendaAsync(Guid tipoRendaId)
+    public Task<bool> ExistemPorTipoRendaAsync(Guid tipoRendaId, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> ExistemPorCorretoraAsync(Guid corretoraId)
+    public Task<bool> ExistemPorCorretoraAsync(Guid corretoraId, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> ExistemPorProdutoAsync(Guid produtoId)
+    public Task<bool> ExistemPorProdutoAsync(Guid produtoId, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> ExistemPorEmissorAsync(Guid emissorId)
+    public Task<bool> ExistemPorEmissorAsync(Guid emissorId, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

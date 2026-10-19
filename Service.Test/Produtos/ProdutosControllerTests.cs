@@ -40,9 +40,9 @@ public class ProdutosControllerTests
     public async Task GetProdutos_ReturnsDtosWithoutLeakingUserId()
     {
         var produtos = new List<ProdutoModel> { new() { Id = Guid.NewGuid(), Nome = "Tesouro Selic", UserId = _userId } };
-        _getProdutosListQuery.Setup(q => q.ExecuteAsync(_userId)).ReturnsAsync(produtos);
+        _getProdutosListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(produtos);
 
-        var result = await _controller.GetProdutos();
+        var result = await _controller.GetProdutos(CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dtos = Assert.IsType<List<ProdutoDto>>(ok.Value);
@@ -55,9 +55,9 @@ public class ProdutosControllerTests
     {
         var produtoId = Guid.NewGuid();
         var produto = new ProdutoModel { Id = produtoId, Nome = "Tesouro Selic", UserId = _userId };
-        _getProdutoQuery.Setup(q => q.ExecuteAsync(_userId, produtoId)).ReturnsAsync(produto);
+        _getProdutoQuery.Setup(q => q.ExecuteAsync(_userId, produtoId, It.IsAny<CancellationToken>())).ReturnsAsync(produto);
 
-        var result = await _controller.GetProduto(produtoId);
+        var result = await _controller.GetProduto(produtoId, CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dto = Assert.IsType<ProdutoDto>(ok.Value);
@@ -69,10 +69,10 @@ public class ProdutosControllerTests
     {
         var created = new ProdutoModel { Id = Guid.NewGuid(), Nome = "Tesouro Selic", UserId = _userId };
         _createProdutoCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<ProdutoModelForCreation>()))
+            .Setup(c => c.ExecuteAsync(It.IsAny<ProdutoModelForCreation>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
-        var result = await _controller.CreateProduto(new ProdutoForCreationDto("Tesouro Selic"));
+        var result = await _controller.CreateProduto(new ProdutoForCreationDto("Tesouro Selic"), CancellationToken.None);
 
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<ProdutoDto>(createdResult.Value);
@@ -84,9 +84,9 @@ public class ProdutosControllerTests
     {
         var produtoId = Guid.NewGuid();
 
-        var result = await _controller.DeleteProduto(produtoId);
+        var result = await _controller.DeleteProduto(produtoId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteProdutoCommand.Verify(c => c.ExecuteAsync(_userId, produtoId), Times.Once);
+        _deleteProdutoCommand.Verify(c => c.ExecuteAsync(_userId, produtoId, CancellationToken.None), Times.Once);
     }
 }

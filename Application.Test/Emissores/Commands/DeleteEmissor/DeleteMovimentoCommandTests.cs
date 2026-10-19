@@ -18,10 +18,10 @@ public class DeleteEmissorCommandTests
         var emissor = new Emissor { UserId = ownerId };
 
         var emissorRepository = new Mock<IEmissorRepository>();
-        emissorRepository.Setup(r => r.GetAsync(ownerId, emissor.Id, true)).ReturnsAsync(emissor);
+        emissorRepository.Setup(r => r.GetAsync(ownerId, emissor.Id, true, CancellationToken.None)).ReturnsAsync(emissor);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorEmissorAsync(emissor.Id)).ReturnsAsync(false);
+        movimentoRepository.Setup(r => r.ExistemPorEmissorAsync(emissor.Id, CancellationToken.None)).ReturnsAsync(false);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Emissor).Returns(emissorRepository.Object);
@@ -30,11 +30,11 @@ public class DeleteEmissorCommandTests
         var command = new DeleteEmissorCommand(repositoryManager.Object);
 
         // Act
-        await command.ExecuteAsync(ownerId, emissor.Id);
+        await command.ExecuteAsync(ownerId, emissor.Id, CancellationToken.None);
 
         // Assert
         emissorRepository.Verify(r => r.Delete(emissor), Times.Once);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Once);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -45,10 +45,10 @@ public class DeleteEmissorCommandTests
         var emissor = new Emissor { UserId = ownerId };
 
         var emissorRepository = new Mock<IEmissorRepository>();
-        emissorRepository.Setup(r => r.GetAsync(ownerId, emissor.Id, true)).ReturnsAsync(emissor);
+        emissorRepository.Setup(r => r.GetAsync(ownerId, emissor.Id, true, CancellationToken.None)).ReturnsAsync(emissor);
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
-        movimentoRepository.Setup(r => r.ExistemPorEmissorAsync(emissor.Id)).ReturnsAsync(true);
+        movimentoRepository.Setup(r => r.ExistemPorEmissorAsync(emissor.Id, CancellationToken.None)).ReturnsAsync(true);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Emissor).Returns(emissorRepository.Object);
@@ -57,9 +57,9 @@ public class DeleteEmissorCommandTests
         var command = new DeleteEmissorCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, emissor.Id));
+        await Assert.ThrowsAsync<EntityInUseException>(() => command.ExecuteAsync(ownerId, emissor.Id, CancellationToken.None));
         emissorRepository.Verify(r => r.Delete(It.IsAny<Emissor>()), Times.Never);
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class DeleteEmissorCommandTests
         var emissorId = Guid.NewGuid();
 
         var emissorRepository = new Mock<IEmissorRepository>();
-        emissorRepository.Setup(r => r.GetAsync(ownerId, emissorId, true)).ReturnsAsync((Emissor?)null);
+        emissorRepository.Setup(r => r.GetAsync(ownerId, emissorId, true, CancellationToken.None)).ReturnsAsync((Emissor?)null);
 
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Emissor).Returns(emissorRepository.Object);
@@ -78,7 +78,7 @@ public class DeleteEmissorCommandTests
         var command = new DeleteEmissorCommand(repositoryManager.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, emissorId));
-        repositoryManager.Verify(r => r.SaveAsync(), Times.Never);
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(ownerId, emissorId, CancellationToken.None));
+        repositoryManager.Verify(r => r.SaveAsync(CancellationToken.None), Times.Never);
     }
 }

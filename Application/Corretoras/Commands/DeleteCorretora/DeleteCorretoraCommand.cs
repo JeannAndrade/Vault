@@ -7,15 +7,15 @@ public class DeleteCorretoraCommand(IRepositoryManager repositoryManager) : IDel
 {
     private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-    public async Task ExecuteAsync(Guid ownerId, Guid corretoraId)
+    public async Task ExecuteAsync(Guid ownerId, Guid corretoraId, CancellationToken cancellationToken)
     {
-        var corretora = await _repositoryManager.Corretora.GetAsync(ownerId, corretoraId, trackChanges: true)
+        var corretora = await _repositoryManager.Corretora.GetAsync(ownerId, corretoraId, trackChanges: true, cancellationToken)
             ?? throw new EntityNotFoundException("Corretora não encontrada");
 
-        if (await _repositoryManager.Movimento.ExistemPorCorretoraAsync(corretoraId))
+        if (await _repositoryManager.Movimento.ExistemPorCorretoraAsync(corretoraId, cancellationToken))
             throw new EntityInUseException("Não é possível excluir a Corretora pois existem Movimentos associados a ela.");
 
         _repositoryManager.Corretora.Delete(corretora);
-        await _repositoryManager.SaveAsync();
+        await _repositoryManager.SaveAsync(cancellationToken);
     }
 }

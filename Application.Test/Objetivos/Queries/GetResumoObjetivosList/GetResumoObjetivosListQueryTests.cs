@@ -33,14 +33,14 @@ public class GetResumoObjetivosListQueryTests
         var objetivos = new[] { objetivo };
         var objetivoRepository = new Mock<IObjetivoRepository>();
         objetivoRepository
-            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId))
+            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId, CancellationToken.None))
             .ReturnsAsync(objetivos);
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
         var logger = new Mock<ILoggerManager>();
         var query = new GetResumoObjetivosListQuery(repositoryManager.Object, logger.Object);
 
-        var result = await query.ExecuteAsync(ownerId);
+        var result = await query.ExecuteAsync(ownerId, CancellationToken.None);
 
         var model = Assert.Single(result);
         Assert.Equal(objetivo.Id, model.Id);
@@ -50,7 +50,7 @@ public class GetResumoObjetivosListQueryTests
         Assert.Equal(2, model.QtdeMovimentos);
         Assert.Equal(1500m, model.TotalAportado);
         Assert.Equal(1575m, model.TotalLiquido);
-        objetivoRepository.Verify(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId), Times.Once);
+        objetivoRepository.Verify(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId, CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -60,13 +60,13 @@ public class GetResumoObjetivosListQueryTests
         var objetivo = new Objetivo { UserId = ownerId, Nome = "Novo objetivo", Meta = 5000m };
         var objetivoRepository = new Mock<IObjetivoRepository>();
         objetivoRepository
-            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId))
+            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId, CancellationToken.None))
             .ReturnsAsync(new[] { objetivo });
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
         var query = new GetResumoObjetivosListQuery(repositoryManager.Object, Mock.Of<ILoggerManager>());
 
-        var result = await query.ExecuteAsync(ownerId);
+        var result = await query.ExecuteAsync(ownerId, CancellationToken.None);
 
         var model = Assert.Single(result);
         Assert.Equal(0m, model.PercentualMeta);
@@ -83,13 +83,13 @@ public class GetResumoObjetivosListQueryTests
         var objetivoInativo = new Objetivo { UserId = ownerId, Nome = "Inativo", Meta = 100m, EstaAtivo = false };
         var objetivoRepository = new Mock<IObjetivoRepository>();
         objetivoRepository
-            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId))
+            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId, CancellationToken.None))
             .ReturnsAsync([objetivoAtivo, objetivoInativo]);
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
         var query = new GetResumoObjetivosListQuery(repositoryManager.Object, Mock.Of<ILoggerManager>());
 
-        var result = await query.ExecuteAsync(ownerId);
+        var result = await query.ExecuteAsync(ownerId, CancellationToken.None);
 
         var resumo = Assert.Single(result);
         Assert.Equal(objetivoAtivo.Id, resumo.Id);
@@ -102,18 +102,37 @@ public class GetResumoObjetivosListQueryTests
         var exception = new InvalidOperationException("Falha ao consultar objetivos");
         var objetivoRepository = new Mock<IObjetivoRepository>();
         objetivoRepository
-            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId))
+            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId, CancellationToken.None))
             .ThrowsAsync(exception);
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
         var logger = new Mock<ILoggerManager>();
         var query = new GetResumoObjetivosListQuery(repositoryManager.Object, logger.Object);
 
-        var actualException = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ExecuteAsync(ownerId));
+        var actualException = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ExecuteAsync(ownerId, CancellationToken.None));
 
         Assert.Same(exception, actualException);
         logger.Verify(
             log => log.LogError(It.Is<string>(message => message.Contains(nameof(GetResumoObjetivosListQuery)))),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenCancelled_RethrowsWithoutLoggingAsError()
+    {
+        var ownerId = Guid.NewGuid();
+        var cancellationToken = new CancellationToken(canceled: true);
+        var objetivoRepository = new Mock<IObjetivoRepository>();
+        objetivoRepository
+            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId, cancellationToken))
+            .ThrowsAsync(new OperationCanceledException(cancellationToken));
+        var repositoryManager = new Mock<IRepositoryManager>();
+        repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
+        var logger = new Mock<ILoggerManager>();
+        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, logger.Object);
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => query.ExecuteAsync(ownerId, cancellationToken));
+
+        logger.Verify(log => log.LogError(It.IsAny<string>()), Times.Never);
     }
 }

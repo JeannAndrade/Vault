@@ -51,7 +51,7 @@ public class GetMovimentosListQueryTests
             .Setup(r => r.GetPagedWithRelatedEntitiesAsync(_ownerId, It.Is<MovimentoFiltro>(f => f == MovimentoFiltro.Vazio), 1, 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedList<Movimento>([], 1, 20, 0));
 
-        await _query.ExecuteAsync(_ownerId, new PaginationParameters());
+        await _query.ExecuteAsync(_ownerId, new PaginationParameters(), CancellationToken.None);
 
         _movimentoRepository.Verify(
             r => r.GetPagedWithRelatedEntitiesAsync(_ownerId, It.Is<MovimentoFiltro>(f => f == MovimentoFiltro.Vazio), 1, 20, It.IsAny<CancellationToken>()), Times.Once);
@@ -65,7 +65,7 @@ public class GetMovimentosListQueryTests
     public async Task ExecuteAsync_ComParametrosInvalidos_LancaCommandValidationExceptionSemConsultar(int page, int pageSize)
     {
         await Assert.ThrowsAsync<CommandValidationException>(
-            () => _query.ExecuteAsync(_ownerId, new PaginationParameters { Page = page, PageSize = pageSize }));
+            () => _query.ExecuteAsync(_ownerId, new PaginationParameters { Page = page, PageSize = pageSize }, CancellationToken.None));
 
         _movimentoRepository.Verify(
             r => r.GetPagedWithRelatedEntitiesAsync(It.IsAny<Guid>(), It.IsAny<MovimentoFiltro>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
@@ -126,7 +126,7 @@ public class GetMovimentosListQueryTests
             .ThrowsAsync(falha);
 
         var lancada = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _query.ExecuteAsync(_ownerId, new PaginationParameters()));
+            () => _query.ExecuteAsync(_ownerId, new PaginationParameters(), CancellationToken.None));
 
         Assert.Same(falha, lancada);
         _logger.Verify(l => l.LogError(It.Is<string>(m => m.Contains(nameof(GetMovimentosListQuery)))), Times.Once);
@@ -140,7 +140,7 @@ public class GetMovimentosListQueryTests
             .ThrowsAsync(new OperationCanceledException());
 
         await Assert.ThrowsAsync<OperationCanceledException>(
-            () => _query.ExecuteAsync(_ownerId, new PaginationParameters()));
+            () => _query.ExecuteAsync(_ownerId, new PaginationParameters(), CancellationToken.None));
 
         _logger.Verify(l => l.LogError(It.IsAny<string>()), Times.Never);
     }

@@ -41,6 +41,7 @@ public class CotacoesController(
     [HttpGet]
     public async Task<ActionResult> Get(
         [FromQuery] string? papel,
+        CancellationToken cancellationToken,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = PaginationParameters.PageSizeDefault)
     {
@@ -51,47 +52,47 @@ public class CotacoesController(
             GetCurrentUserId(),
             papel,
             new PaginationParameters { Page = page, PageSize = pageSize },
-            HttpContext.RequestAborted);
+            cancellationToken);
 
         return Ok(cotacoes.Map(CotacaoDto.FromApplication).ToPagedResponse());
     }
 
     [HttpGet("papeis")]
-    public async Task<ActionResult> GetPapeis()
+    public async Task<ActionResult> GetPapeis(CancellationToken cancellationToken)
     {
-        var papeis = await _getPapeisCotadosQuery.ExecuteAsync(GetCurrentUserId(), HttpContext.RequestAborted);
+        var papeis = await _getPapeisCotadosQuery.ExecuteAsync(GetCurrentUserId(), cancellationToken);
         return Ok(papeis);
     }
 
     [HttpGet("serie")]
-    public async Task<ActionResult> GetSerie([FromQuery] string papel)
+    public async Task<ActionResult> GetSerie([FromQuery] string papel, CancellationToken cancellationToken)
     {
-        var serie = await _getSerieCotacaoQuery.ExecuteAsync(GetCurrentUserId(), papel, HttpContext.RequestAborted);
+        var serie = await _getSerieCotacaoQuery.ExecuteAsync(GetCurrentUserId(), papel, cancellationToken);
         return Ok(CotacaoPontoDto.FromApplication(serie));
     }
 
     [HttpGet("{id:guid}", Name = "CotacaoById")]
-    public async Task<ActionResult> Get(Guid id)
+    public async Task<ActionResult> Get(Guid id, CancellationToken cancellationToken)
     {
-        var cotacao = await _getCotacaoQuery.ExecuteAsync(GetCurrentUserId(), id, HttpContext.RequestAborted);
+        var cotacao = await _getCotacaoQuery.ExecuteAsync(GetCurrentUserId(), id, cancellationToken);
         return Ok(CotacaoDto.FromApplication(cotacao));
     }
 
     [HttpPost]
-    public async Task<ActionResult> Post([FromBody] CotacaoForCreationDto? dto)
+    public async Task<ActionResult> Post([FromBody] CotacaoForCreationDto? dto, CancellationToken cancellationToken)
     {
         this.ValidarCorpo(dto);
 
         var cotacaoCriada = await _createCotacaoCommand.ExecuteAsync(
             dto!.ToCreateCotacaoCommand(),
             GetCurrentUserId(),
-            HttpContext.RequestAborted);
+            cancellationToken);
 
         return CreatedAtRoute("CotacaoById", new { id = cotacaoCriada.Id }, CotacaoDto.FromApplication(cotacaoCriada));
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Put(Guid id, [FromBody] CotacaoForUpdateDto? dto)
+    public async Task<IActionResult> Put(Guid id, [FromBody] CotacaoForUpdateDto? dto, CancellationToken cancellationToken)
     {
         this.ValidarCorpo(dto);
 
@@ -99,15 +100,15 @@ public class CotacoesController(
             dto!.ToUpdateCotacaoCommand(),
             GetCurrentUserId(),
             id,
-            HttpContext.RequestAborted);
+            cancellationToken);
 
         return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        await _deleteCotacaoCommand.ExecuteAsync(GetCurrentUserId(), id, HttpContext.RequestAborted);
+        await _deleteCotacaoCommand.ExecuteAsync(GetCurrentUserId(), id, cancellationToken);
         return NoContent();
     }
 }

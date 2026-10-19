@@ -24,9 +24,9 @@ public class DistribuicaoValorLiquidoController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<DistribuicaoValorLiquidoDto>> Simular(
-        [FromBody] DistribuicaoValorLiquidoSolicitacaoDto dto)
+        [FromBody] DistribuicaoValorLiquidoSolicitacaoDto dto, CancellationToken cancellationToken)
     {
-        var model = await simulacao.ExecuteAsync(GetCurrentUserId(), dto.ToParameters(), HttpContext.RequestAborted);
+        var model = await simulacao.ExecuteAsync(GetCurrentUserId(), dto.ToParameters(), cancellationToken);
         return Ok(DistribuicaoValorLiquidoDto.FromApplication(model));
     }
 
@@ -34,9 +34,9 @@ public class DistribuicaoValorLiquidoController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Distribuir([FromBody] DistribuicaoValorLiquidoSolicitacaoDto dto)
+    public async Task<IActionResult> Distribuir([FromBody] DistribuicaoValorLiquidoSolicitacaoDto dto, CancellationToken cancellationToken)
     {
-        await distribuicao.ExecuteAsync(dto.ToParameters(), GetCurrentUserId(), HttpContext.RequestAborted);
+        await distribuicao.ExecuteAsync(dto.ToParameters(), GetCurrentUserId(), cancellationToken);
         return NoContent();
     }
 

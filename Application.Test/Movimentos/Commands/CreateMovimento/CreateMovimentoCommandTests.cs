@@ -21,7 +21,7 @@ public class CreateMovimentoCommandTests
         var userId = Guid.NewGuid();
 
         // Act
-        var resultado = await command.ExecuteAsync(CriarModeloValido(), userId);
+        var resultado = await command.ExecuteAsync(CriarModeloValido(), userId, CancellationToken.None);
 
         // Assert
         Assert.True(validator.Chamado);
@@ -41,7 +41,7 @@ public class CreateMovimentoCommandTests
         var command = new CreateMovimentoCommand(repositoryManager, validator, new Mock<IDateTimeProvider>().Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(CriarModeloValido(), Guid.NewGuid()));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => command.ExecuteAsync(CriarModeloValido(), Guid.NewGuid(), CancellationToken.None));
         Assert.False(repositoryManager.MovimentoRepository.CreateChamado);
         Assert.False(repositoryManager.SaveAsyncChamado);
     }

@@ -2,5 +2,5 @@ namespace Application.Movimentos.Commands.DeleteMovimento;
 
 public interface IDeleteMovimentoCommand
 {
-    Task ExecuteAsync(Guid ownerId, Guid movimentoId);
+    Task ExecuteAsync(Guid ownerId, Guid movimentoId, CancellationToken cancellationToken);
 }

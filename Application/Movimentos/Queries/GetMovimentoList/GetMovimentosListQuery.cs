@@ -12,7 +12,7 @@ public class GetMovimentosListQuery(IRepositoryManager repositoryManager, ILogge
     private readonly ILoggerManager _logger = logger;
 
     public Task<PagedList<MovimentoModel>> ExecuteAsync(
-        Guid ownerId, PaginationParameters parameters, CancellationToken cancellationToken = default) =>
+        Guid ownerId, PaginationParameters parameters, CancellationToken cancellationToken) =>
         ExecuteAsync(ownerId, new MovimentoFiltroParameters(), parameters, cancellationToken);
 
     public async Task<PagedList<MovimentoModel>> ExecuteAsync(

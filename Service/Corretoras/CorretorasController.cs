@@ -34,10 +34,10 @@ public class CorretorasController(
     [ProducesResponseType(typeof(IEnumerable<CorretoraDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<CorretoraDto>>> GetCorretoras()
+    public async Task<ActionResult<IEnumerable<CorretoraDto>>> GetCorretoras(CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var corretoras = await _getCorretorasListQuery.ExecuteAsync(userId);
+        var corretoras = await _getCorretorasListQuery.ExecuteAsync(userId, cancellationToken);
 
         return Ok(CorretoraDto.FromApplication(corretoras));
     }
@@ -46,10 +46,10 @@ public class CorretorasController(
     [ProducesResponseType(typeof(CorretoraDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<CorretoraDto>> GetCorretora(Guid id)
+    public async Task<ActionResult<CorretoraDto>> GetCorretora(Guid id, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var corretora = await _getCorretoraQuery.ExecuteAsync(userId, id);
+        var corretora = await _getCorretoraQuery.ExecuteAsync(userId, id, cancellationToken);
 
         return Ok(CorretoraDto.FromApplication(corretora));
     }
@@ -58,9 +58,9 @@ public class CorretorasController(
     [ProducesResponseType(typeof(CorretoraDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<CorretoraDto>> CreateCorretora([FromBody] CorretoraForCreationDto corretora)
+    public async Task<ActionResult<CorretoraDto>> CreateCorretora([FromBody] CorretoraForCreationDto corretora, CancellationToken cancellationToken)
     {
-        var createdCorretora = await _createCorretoraCommand.ExecuteAsync(corretora.ToCreateCorretoraCommand(), GetCurrentUserId());
+        var createdCorretora = await _createCorretoraCommand.ExecuteAsync(corretora.ToCreateCorretoraCommand(), GetCurrentUserId(), cancellationToken);
 
         return CreatedAtRoute("CorretoraById", new { id = createdCorretora.Id }, CorretoraDto.FromApplication(createdCorretora));
     }
@@ -70,9 +70,9 @@ public class CorretorasController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<CorretoraDto>> UpdateCorretora(Guid id, [FromBody] CorretoraForUpdateDto corretora)
+    public async Task<ActionResult<CorretoraDto>> UpdateCorretora(Guid id, [FromBody] CorretoraForUpdateDto corretora, CancellationToken cancellationToken)
     {
-        _ = await _updateCorretoraCommand.ExecuteAsync(corretora.ToUpdateCorretoraCommand(), GetCurrentUserId(), id);
+        _ = await _updateCorretoraCommand.ExecuteAsync(corretora.ToUpdateCorretoraCommand(), GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }
@@ -82,9 +82,9 @@ public class CorretorasController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteCorretora(Guid id)
+    public async Task<IActionResult> DeleteCorretora(Guid id, CancellationToken cancellationToken)
     {
-        await _deleteCorretoraCommand.ExecuteAsync(GetCurrentUserId(), id);
+        await _deleteCorretoraCommand.ExecuteAsync(GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }

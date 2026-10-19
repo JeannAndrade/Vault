@@ -2,5 +2,5 @@ namespace Application.Objetivos.Commands.DeleteObjetivo;
 
 public interface IDeleteObjetivoCommand
 {
-    Task ExecuteAsync(Guid ownerId, Guid objetivoId);
+    Task ExecuteAsync(Guid ownerId, Guid objetivoId, CancellationToken cancellationToken);
 }

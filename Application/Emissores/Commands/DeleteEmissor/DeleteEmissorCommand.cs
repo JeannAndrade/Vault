@@ -7,15 +7,15 @@ public class DeleteEmissorCommand(IRepositoryManager repositoryManager) : IDelet
 {
     private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-    public async Task ExecuteAsync(Guid ownerId, Guid emissorId)
+    public async Task ExecuteAsync(Guid ownerId, Guid emissorId, CancellationToken cancellationToken)
     {
-        var emissor = await _repositoryManager.Emissor.GetAsync(ownerId, emissorId, trackChanges: true)
+        var emissor = await _repositoryManager.Emissor.GetAsync(ownerId, emissorId, trackChanges: true, cancellationToken)
             ?? throw new EntityNotFoundException("Emissor não encontrado");
 
-        if (await _repositoryManager.Movimento.ExistemPorEmissorAsync(emissorId))
+        if (await _repositoryManager.Movimento.ExistemPorEmissorAsync(emissorId, cancellationToken))
             throw new EntityInUseException("Não é possível excluir o Emissor pois existem Movimentos associados a ele.");
 
         _repositoryManager.Emissor.Delete(emissor);
-        await _repositoryManager.SaveAsync();
+        await _repositoryManager.SaveAsync(cancellationToken);
     }
 }

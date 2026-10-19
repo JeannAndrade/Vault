@@ -2,5 +2,5 @@ namespace Application.Corretoras.Commands.CreateCorretora;
 
 public interface ICreateCorretoraCommand
 {
-    Task<CorretoraModel> ExecuteAsync(CorretoraModelForCreation corretoraModel, Guid userId);
+    Task<CorretoraModel> ExecuteAsync(CorretoraModelForCreation corretoraModel, Guid userId, CancellationToken cancellationToken);
 }

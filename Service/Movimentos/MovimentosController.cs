@@ -49,9 +49,9 @@ public class MovimentosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<PagedResponse<MovimentoDto>>> GetMovimentos(
     [FromQuery] MovimentoFiltroDto filtro,
+    CancellationToken cancellationToken,
     [FromQuery] int page = 1,
-    [FromQuery] int pageSize = PaginationParameters.PageSizeDefault,
-    CancellationToken cancellationToken = default)
+    [FromQuery] int pageSize = PaginationParameters.PageSizeDefault)
     {
         filtro ??= new MovimentoFiltroDto();
 
@@ -68,10 +68,10 @@ public class MovimentosController(
     [HttpGet("proximos-vencimentos")]
     [ProducesResponseType(typeof(IEnumerable<ProximoVencimentoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<ProximoVencimentoDto>>> GetProximosVencimentos()
+    public async Task<ActionResult<IEnumerable<ProximoVencimentoDto>>> GetProximosVencimentos(CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var proximosVencimentos = await _getProximosVencimentosQuery.ExecuteAsync(userId);
+        var proximosVencimentos = await _getProximosVencimentosQuery.ExecuteAsync(userId, cancellationToken);
 
         return Ok(ProximoVencimentoDto.FromApplication(proximosVencimentos));
     }
@@ -79,10 +79,10 @@ public class MovimentosController(
     [HttpGet("desatualizados")]
     [ProducesResponseType(typeof(IEnumerable<MovimentoDesatualizadoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<MovimentoDesatualizadoDto>>> GetMovimentosDesatualizados()
+    public async Task<ActionResult<IEnumerable<MovimentoDesatualizadoDto>>> GetMovimentosDesatualizados(CancellationToken cancellationToken)
     {
         var movimentos = await _getMovimentosDesatualizadosQuery.ExecuteAsync(
-            GetCurrentUserId(), HttpContext.RequestAborted);
+            GetCurrentUserId(), cancellationToken);
 
         return Ok(MovimentoDesatualizadoDto.FromApplication(movimentos));
     }
@@ -91,10 +91,10 @@ public class MovimentosController(
     [ProducesResponseType(typeof(MovimentoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<MovimentoDto>> GetMovimento(Guid id)
+    public async Task<ActionResult<MovimentoDto>> GetMovimento(Guid id, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var movimento = await _getMovimentoQuery.ExecuteAsync(userId, id);
+        var movimento = await _getMovimentoQuery.ExecuteAsync(userId, id, cancellationToken);
 
         return Ok(MovimentoDto.FromApplication(movimento));
     }
@@ -104,9 +104,9 @@ public class MovimentosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<MovimentoDto>> CreateMovimento([FromBody] MovimentoForCreationDto movimento)
+    public async Task<ActionResult<MovimentoDto>> CreateMovimento([FromBody] MovimentoForCreationDto movimento, CancellationToken cancellationToken)
     {
-        var createdMovimento = await _createMovimentoCommand.ExecuteAsync(movimento.ToCreateMovimentoCommand(), GetCurrentUserId());
+        var createdMovimento = await _createMovimentoCommand.ExecuteAsync(movimento.ToCreateMovimentoCommand(), GetCurrentUserId(), cancellationToken);
 
         return CreatedAtRoute("MovimentoById", new { id = createdMovimento.Id }, MovimentoDto.FromApplication(createdMovimento));
     }
@@ -116,9 +116,9 @@ public class MovimentosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<MovimentoDto>> UpdateMovimento(Guid id, [FromBody] MovimentoForUpdateDto movimento)
+    public async Task<ActionResult<MovimentoDto>> UpdateMovimento(Guid id, [FromBody] MovimentoForUpdateDto movimento, CancellationToken cancellationToken)
     {
-        _ = await _updateMovimentoCommand.ExecuteAsync(movimento.ToUpdateMovimentoCommand(), GetCurrentUserId(), id);
+        _ = await _updateMovimentoCommand.ExecuteAsync(movimento.ToUpdateMovimentoCommand(), GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }
@@ -130,10 +130,11 @@ public class MovimentosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateValorLiquidoMovimento(
         Guid id,
-        [FromBody] MovimentoForUpdateValorLiquidoDto movimento)
+        [FromBody] MovimentoForUpdateValorLiquidoDto movimento,
+        CancellationToken cancellationToken)
     {
         await _updateValorLiquidoMovimentoCommand.ExecuteAsync(
-            movimento.ToUpdateValorLiquidoCommand(), GetCurrentUserId(), id, HttpContext.RequestAborted);
+            movimento.ToUpdateValorLiquidoCommand(), GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }
@@ -142,9 +143,9 @@ public class MovimentosController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteMovimento(Guid id)
+    public async Task<IActionResult> DeleteMovimento(Guid id, CancellationToken cancellationToken)
     {
-        await _deleteMovimentoCommand.ExecuteAsync(GetCurrentUserId(), id);
+        await _deleteMovimentoCommand.ExecuteAsync(GetCurrentUserId(), id, cancellationToken);
 
         return NoContent();
     }

@@ -12,7 +12,7 @@ public class UpdateMovimentoCommand(
     private readonly IRepositoryManager _repositoryManager = repositoryManager;
     private readonly IMovimentoReferenciasValidator _referenciasValidator = referenciasValidator;
 
-    public async Task<MovimentoModel> ExecuteAsync(MovimentoModelForUpdate movimentoModel, Guid ownerId, Guid movimentoId)
+    public async Task<MovimentoModel> ExecuteAsync(MovimentoModelForUpdate movimentoModel, Guid ownerId, Guid movimentoId, CancellationToken cancellationToken)
     {
         CommandValidator.Validate(movimentoModel);
 
@@ -22,13 +22,14 @@ public class UpdateMovimentoCommand(
             movimentoModel.TipoRendaId,
             movimentoModel.CorretoraId,
             movimentoModel.ProdutoId,
-            movimentoModel.EmissorId);
+            movimentoModel.EmissorId,
+            cancellationToken);
 
-        var movimento = await _repositoryManager.Movimento.GetAsync(ownerId, movimentoId, trackChanges: true)
+        var movimento = await _repositoryManager.Movimento.GetAsync(ownerId, movimentoId, trackChanges: true, cancellationToken)
             ?? throw new EntityNotFoundException("Movimento not found");
 
         _repositoryManager.Movimento.Update(movimentoModel.UpdateDomain(movimento));
-        await _repositoryManager.SaveAsync();
+        await _repositoryManager.SaveAsync(cancellationToken);
 
         return MovimentoModel.FromDomain(movimento);
     }

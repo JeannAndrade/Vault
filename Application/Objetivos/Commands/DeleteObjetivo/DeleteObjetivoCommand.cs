@@ -7,15 +7,15 @@ public class DeleteObjetivoCommand(IRepositoryManager repositoryManager) : IDele
 {
     private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-    public async Task ExecuteAsync(Guid ownerId, Guid objetivoId)
+    public async Task ExecuteAsync(Guid ownerId, Guid objetivoId, CancellationToken cancellationToken)
     {
-        var objetivo = await _repositoryManager.Objetivo.GetAsync(ownerId, objetivoId, trackChanges: true)
+        var objetivo = await _repositoryManager.Objetivo.GetAsync(ownerId, objetivoId, trackChanges: true, cancellationToken)
             ?? throw new EntityNotFoundException("Objetivo não encontrado");
 
-        if (await _repositoryManager.Movimento.ExistemPorObjetivoAsync(objetivoId))
+        if (await _repositoryManager.Movimento.ExistemPorObjetivoAsync(objetivoId, cancellationToken))
             throw new EntityInUseException("Não é possível excluir o Objetivo pois existem Movimentos associados a ele.");
 
         _repositoryManager.Objetivo.Delete(objetivo);
-        await _repositoryManager.SaveAsync();
+        await _repositoryManager.SaveAsync(cancellationToken);
     }
 }

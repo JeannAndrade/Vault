@@ -8,5 +8,6 @@ public interface IMovimentoReferenciasValidator
         Guid tipoRendaId,
         Guid corretoraId,
         Guid produtoId,
-        Guid emissorId);
+        Guid emissorId,
+        CancellationToken cancellationToken);
 }

@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Lumia.Foundation.AspNetCore" Version="0.30.1" />
     <PackageReference Include="Lumia.Foundation.Logger" Version="0.5.0" />
-    <PackageReference Include="Lumia.Foundation.Http.Client" Version="0.5.0" />
+    <PackageReference Include="Lumia.Foundation.Http.Client" Version="0.5.1" />
   </ItemGroup>
 
 </Project>

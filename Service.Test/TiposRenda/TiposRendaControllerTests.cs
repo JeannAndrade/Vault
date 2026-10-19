@@ -40,9 +40,9 @@ public class TiposRendaControllerTests
     public async Task GetTiposRenda_ReturnsDtosWithoutLeakingUserId()
     {
         var tiposRenda = new List<TipoRendaModel> { new() { Id = Guid.NewGuid(), Nome = "CDB", UserId = _userId } };
-        _getTiposRendaListQuery.Setup(q => q.ExecuteAsync(_userId)).ReturnsAsync(tiposRenda);
+        _getTiposRendaListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(tiposRenda);
 
-        var result = await _controller.GetTiposRenda();
+        var result = await _controller.GetTiposRenda(CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dtos = Assert.IsType<List<TipoRendaDto>>(ok.Value);
@@ -55,9 +55,9 @@ public class TiposRendaControllerTests
     {
         var tipoRendaId = Guid.NewGuid();
         var tipoRenda = new TipoRendaModel { Id = tipoRendaId, Nome = "CDB", UserId = _userId };
-        _getTipoRendaQuery.Setup(q => q.ExecuteAsync(_userId, tipoRendaId)).ReturnsAsync(tipoRenda);
+        _getTipoRendaQuery.Setup(q => q.ExecuteAsync(_userId, tipoRendaId, It.IsAny<CancellationToken>())).ReturnsAsync(tipoRenda);
 
-        var result = await _controller.GetTipoRenda(tipoRendaId);
+        var result = await _controller.GetTipoRenda(tipoRendaId, CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         var dto = Assert.IsType<TipoRendaDto>(ok.Value);
@@ -69,10 +69,10 @@ public class TiposRendaControllerTests
     {
         var created = new TipoRendaModel { Id = Guid.NewGuid(), Nome = "CDB", UserId = _userId };
         _createTipoRendaCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<TipoRendaModelForCreation>()))
+            .Setup(c => c.ExecuteAsync(It.IsAny<TipoRendaModelForCreation>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
-        var result = await _controller.CreateTipoRenda(new TipoRendaForCreationDto("CDB"));
+        var result = await _controller.CreateTipoRenda(new TipoRendaForCreationDto("CDB"), CancellationToken.None);
 
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<TipoRendaDto>(createdResult.Value);
@@ -84,9 +84,9 @@ public class TiposRendaControllerTests
     {
         var tipoRendaId = Guid.NewGuid();
 
-        var result = await _controller.DeleteTipoRenda(tipoRendaId);
+        var result = await _controller.DeleteTipoRenda(tipoRendaId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteTipoRendaCommand.Verify(c => c.ExecuteAsync(_userId, tipoRendaId), Times.Once);
+        _deleteTipoRendaCommand.Verify(c => c.ExecuteAsync(_userId, tipoRendaId, CancellationToken.None), Times.Once);
     }
 }
