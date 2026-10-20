@@ -22,7 +22,7 @@ public class CorretoraApiTests
             .Setup(c => c.SendAsync<List<CorretoraDto>>(HttpMethod.Get, "api/corretoras", null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
-        var result = await _api.GetAllAsync();
+        var result = await _api.GetAllAsync(CancellationToken.None);
 
         Assert.Same(expected, result);
     }
@@ -34,7 +34,7 @@ public class CorretoraApiTests
             .Setup(c => c.SendAsync<List<CorretoraDto>>(HttpMethod.Get, "api/corretoras", null, It.IsAny<CancellationToken>()))
             .ReturnsAsync((List<CorretoraDto>?)null);
 
-        var result = await _api.GetAllAsync();
+        var result = await _api.GetAllAsync(CancellationToken.None);
 
         Assert.Empty(result);
     }
@@ -48,7 +48,7 @@ public class CorretoraApiTests
             .Setup(c => c.SendAsync<CorretoraDto>(HttpMethod.Get, $"api/corretoras/{id}", null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
-        var result = await _api.GetByIdAsync(id);
+        var result = await _api.GetByIdAsync(id, CancellationToken.None);
 
         Assert.Same(expected, result);
     }
@@ -62,7 +62,7 @@ public class CorretoraApiTests
             .Setup(c => c.SendAsync<CorretoraDto>(HttpMethod.Post, "api/corretoras", body, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
-        var result = await _api.CreateAsync(body);
+        var result = await _api.CreateAsync(body, CancellationToken.None);
 
         Assert.Same(expected, result);
     }
@@ -73,7 +73,7 @@ public class CorretoraApiTests
         var id = Guid.NewGuid();
         var body = new CorretoraForUpdateDto("XP Investimentos");
 
-        await _api.UpdateAsync(id, body);
+        await _api.UpdateAsync(id, body, CancellationToken.None);
 
         _connection.Verify(c => c.SendAsync(HttpMethod.Put, $"api/corretoras/{id}", body, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -83,7 +83,7 @@ public class CorretoraApiTests
     {
         var id = Guid.NewGuid();
 
-        await _api.DeleteAsync(id);
+        await _api.DeleteAsync(id, CancellationToken.None);
 
         _connection.Verify(c => c.SendAsync(HttpMethod.Delete, $"api/corretoras/{id}", null, It.IsAny<CancellationToken>()), Times.Once);
     }

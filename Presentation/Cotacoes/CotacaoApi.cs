@@ -11,7 +11,7 @@ public sealed class CotacaoApi(IApiConnection connection) : ICotacaoApi
         string? papel,
         int page,
         int pageSize,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var path = FormattableString.Invariant($"{BasePath}?page={page}&pageSize={pageSize}");
 
@@ -22,24 +22,24 @@ public sealed class CotacaoApi(IApiConnection connection) : ICotacaoApi
             ?? new PagedResponse<CotacaoDto>([], page, pageSize, 0, 0);
     }
 
-    public async Task<List<string>> GetPapeisAsync(CancellationToken cancellationToken = default) =>
+    public async Task<List<string>> GetPapeisAsync(CancellationToken cancellationToken) =>
         await connection.SendAsync<List<string>>(HttpMethod.Get, $"{BasePath}/papeis", ct: cancellationToken) ?? [];
 
     public async Task<List<CotacaoPontoDto>> GetSerieAsync(
         string papel,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var path = $"{BasePath}/serie?papel={Uri.EscapeDataString(papel)}";
         return await connection.SendAsync<List<CotacaoPontoDto>>(HttpMethod.Get, path, ct: cancellationToken) ?? [];
     }
 
-    public async Task<CotacaoDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public async Task<CotacaoDto> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         await connection.SendAsync<CotacaoDto>(HttpMethod.Get, $"{BasePath}/{id}", ct: cancellationToken)
         ?? throw new InvalidOperationException("A API respondeu sem corpo para uma cotação existente.");
 
     public async Task<CotacaoDto> CreateAsync(
         CotacaoForCreationDto cotacao,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return await connection.SendAsync<CotacaoDto>(HttpMethod.Post, BasePath, cotacao, cancellationToken)
             ?? throw new InvalidOperationException("A API respondeu sem corpo ao criar a cotação.");
@@ -48,11 +48,11 @@ public sealed class CotacaoApi(IApiConnection connection) : ICotacaoApi
     public Task UpdateAsync(
         Guid id,
         CotacaoForUpdateDto cotacao,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return connection.SendAsync(HttpMethod.Put, $"{BasePath}/{id}", cotacao, cancellationToken);
     }
 
-    public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public Task DeleteAsync(Guid id, CancellationToken cancellationToken) =>
         connection.SendAsync(HttpMethod.Delete, $"{BasePath}/{id}", ct: cancellationToken);
 }

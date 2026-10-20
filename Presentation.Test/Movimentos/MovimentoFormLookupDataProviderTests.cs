@@ -32,7 +32,7 @@ public class MovimentoFormLookupDataProviderTests
         var provider = new MovimentoFormLookupDataProvider(
             objetivoApi.Object, tipoRendaApi.Object, corretoraApi.Object, produtoApi.Object, emissorApi.Object);
 
-        var result = await provider.LoadAsync();
+        var result = await provider.LoadAsync(CancellationToken.None);
 
         Assert.Equal(2, result.Corretoras.Count);
         Assert.Equal("Alfa Corretora", result.Corretoras[0].Text);

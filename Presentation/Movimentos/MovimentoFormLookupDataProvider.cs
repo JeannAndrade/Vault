@@ -14,7 +14,7 @@ public sealed class MovimentoFormLookupDataProvider(
     IProdutoApi produtoApi,
     IEmissorApi emissorApi) : IMovimentoFormLookupData
 {
-    public async Task<MovimentoFormLookupData> LoadAsync(CancellationToken cancellationToken = default)
+    public async Task<MovimentoFormLookupData> LoadAsync(CancellationToken cancellationToken)
     {
         var objetivosTask = objetivoApi.GetAllAsync(cancellationToken);
         var tiposRendaTask = tipoRendaApi.GetAllAsync(cancellationToken);

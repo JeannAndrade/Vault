@@ -7,7 +7,7 @@ public sealed class AtualizacaoPorCotacaoApi(IApiConnection connection) : IAtual
 {
     private const string BasePath = "api/movimentos/atualizacao-por-cotacao";
 
-    public async Task<List<PapelParaCotacaoDto>> GetAsync(CancellationToken cancellationToken = default)
+    public async Task<List<PapelParaCotacaoDto>> GetAsync(CancellationToken cancellationToken)
     {
         return await connection.SendAsync<List<PapelParaCotacaoDto>>(HttpMethod.Get, BasePath, ct: cancellationToken)
             ?? [];
@@ -15,7 +15,7 @@ public sealed class AtualizacaoPorCotacaoApi(IApiConnection connection) : IAtual
 
     public async Task<AtualizacaoPorCotacaoResultadoDto> AtualizarAsync(
         AtualizacaoPorCotacaoSolicitacaoDto solicitacao,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return await connection.SendAsync<AtualizacaoPorCotacaoResultadoDto>(
             HttpMethod.Post,

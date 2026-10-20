@@ -22,7 +22,7 @@ public class ProdutoApiTests
         .Setup(c => c.SendAsync<List<ProdutoDto>>(HttpMethod.Get, "api/produtos", null, It.IsAny<CancellationToken>()))
         .ReturnsAsync(expected);
 
-    var result = await _api.GetAllAsync();
+    var result = await _api.GetAllAsync(CancellationToken.None);
 
     Assert.Same(expected, result);
   }
@@ -34,7 +34,7 @@ public class ProdutoApiTests
         .Setup(c => c.SendAsync<List<ProdutoDto>>(HttpMethod.Get, "api/produtos", null, It.IsAny<CancellationToken>()))
         .ReturnsAsync((List<ProdutoDto>?)null);
 
-    var result = await _api.GetAllAsync();
+    var result = await _api.GetAllAsync(CancellationToken.None);
 
     Assert.Empty(result);
   }
@@ -48,7 +48,7 @@ public class ProdutoApiTests
         .Setup(c => c.SendAsync<ProdutoDto>(HttpMethod.Get, $"api/produtos/{id}", null, It.IsAny<CancellationToken>()))
         .ReturnsAsync(expected);
 
-    var result = await _api.GetByIdAsync(id);
+    var result = await _api.GetByIdAsync(id, CancellationToken.None);
 
     Assert.Same(expected, result);
   }
@@ -62,7 +62,7 @@ public class ProdutoApiTests
         .Setup(c => c.SendAsync<ProdutoDto>(HttpMethod.Post, "api/produtos", body, It.IsAny<CancellationToken>()))
         .ReturnsAsync(expected);
 
-    var result = await _api.CreateAsync(body);
+    var result = await _api.CreateAsync(body, CancellationToken.None);
 
     Assert.Same(expected, result);
   }
@@ -73,7 +73,7 @@ public class ProdutoApiTests
     var id = Guid.NewGuid();
     var body = new ProdutoForUpdateDto("CDB pós-fixado");
 
-    await _api.UpdateAsync(id, body);
+    await _api.UpdateAsync(id, body, CancellationToken.None);
 
     _connection.Verify(c => c.SendAsync(HttpMethod.Put, $"api/produtos/{id}", body, It.IsAny<CancellationToken>()), Times.Once);
   }
@@ -83,7 +83,7 @@ public class ProdutoApiTests
   {
     var id = Guid.NewGuid();
 
-    await _api.DeleteAsync(id);
+    await _api.DeleteAsync(id, CancellationToken.None);
 
     _connection.Verify(c => c.SendAsync(HttpMethod.Delete, $"api/produtos/{id}", null, It.IsAny<CancellationToken>()), Times.Once);
   }

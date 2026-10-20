@@ -11,5 +11,5 @@ public sealed record MovimentoFormLookupData(
 
 public interface IMovimentoFormLookupData
 {
-    Task<MovimentoFormLookupData> LoadAsync(CancellationToken cancellationToken = default);
+    Task<MovimentoFormLookupData> LoadAsync(CancellationToken cancellationToken);
 }
