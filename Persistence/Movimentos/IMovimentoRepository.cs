@@ -11,6 +11,7 @@ public interface IMovimentoRepository
     Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken);
     Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, MovimentoFiltro filtro, int page, int pageSize, CancellationToken cancellationToken);
     Task<List<Movimento>> GetProximosVencimentosAsync(Guid ownerId, int quantidade, CancellationToken cancellationToken);
+    Task<List<Movimento>> GetAtivosParaRankingAsync(Guid ownerId, CancellationToken cancellationToken);
     Task<List<Movimento>> GetDesatualizadosAsync(Guid ownerId, DateTime dataLimite, int quantidade, CancellationToken cancellationToken);
     Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken);
     Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId, CancellationToken cancellationToken);

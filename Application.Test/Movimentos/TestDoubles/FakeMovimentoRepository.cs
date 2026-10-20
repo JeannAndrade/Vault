@@ -17,6 +17,7 @@ internal sealed class FakeMovimentoRepository : IMovimentoRepository
     public Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(Guid ownerId, MovimentoFiltro filtro, int page, int pageSize, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<List<Movimento>> GetProximosVencimentosAsync(Guid ownerId, int quantidade, CancellationToken cancellationToken) => throw new NotSupportedException();
+    public Task<List<Movimento>> GetAtivosParaRankingAsync(Guid ownerId, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<List<Movimento>> GetDesatualizadosAsync(Guid ownerId, DateTime dataLimite, int quantidade, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges) => Task.FromResult(MovimentoParaRetornar);
     public Task<Movimento?> GetAsync(Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken) => Task.FromResult(MovimentoParaRetornar);

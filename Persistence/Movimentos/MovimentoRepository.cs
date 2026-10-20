@@ -70,6 +70,14 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
             .Take(quantidade)
             .ToListAsync(cancellationToken);
 
+    // A ordem dos tipos define a ordem dos grupos na tela; ver ADR 0018 (E2).
+    public Task<List<Movimento>> GetAtivosParaRankingAsync(Guid ownerId, CancellationToken cancellationToken) =>
+        QueryWithRelatedEntities()
+            .Where(m => m.UserId == ownerId && m.EstaAtivo)
+            .OrderBy(m => m.TipoRenda.Nome)
+            .ThenBy(m => m.TipoRendaId)
+            .ToListAsync(cancellationToken);
+
     // A ordem agrupa por título para a manutenção do valor líquido: Corretora, Produto e Emissor (por nome,
     // ascendente), com DataAtualizacaoValorLiquido e Id como desempate determinístico. O índice
     // IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido atende apenas o filtro; a ordenação
