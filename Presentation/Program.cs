@@ -11,6 +11,7 @@ using Presentation.TiposRenda;
 using Presentation.Objetivos;
 using Presentation.Movimentos;
 using Presentation.Cotacoes;
+using Presentation.Dashboards;
 using LumiaFoundation.Core.TimeService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,6 +82,7 @@ builder.Services.AddScoped<IMovimentoFormLookupData, MovimentoFormLookupDataProv
 builder.Services.AddApiResourceClient<IDistribuicaoValorLiquidoApi, DistribuicaoValorLiquidoApi>();
 builder.Services.AddApiResourceClient<ICotacaoApi, CotacaoApi>();
 builder.Services.AddApiResourceClient<IAtualizacaoPorCotacaoApi, AtualizacaoPorCotacaoApi>();
+builder.Services.AddApiResourceClient<IRentabilidadeApi, RentabilidadeApi>();
 #endregion
 
 #region Tratamento de exceções

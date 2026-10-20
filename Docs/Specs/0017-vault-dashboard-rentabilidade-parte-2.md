@@ -1,7 +1,7 @@
 # Especificação técnica 0017: Dashboard de Rentabilidade (Vault), parte 2 de 4
 
 - Data: 2026-10-20
-- Status: **em elaboração (parte 2 de 4: Passos 2 e 3)**
+- Status: **implementada (fechamento em 2026-10-20)**
 - ADR relacionado: [0018](../adr/0018-dashboard-de-rentabilidade.md)
 - Esta parte continua a [parte 1](0017-vault-dashboard-rentabilidade-parte-1.md) (Passos 0 e 1: ADR e Domain). As decisões D1 a D17 e as "Atenções" da parte 1 continuam valendo.
 

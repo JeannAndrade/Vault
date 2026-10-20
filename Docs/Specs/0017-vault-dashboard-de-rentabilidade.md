@@ -1,7 +1,7 @@
 # Especificação técnica 0017: Dashboard de Rentabilidade (Vault)
 
 - Data: 2026-10-20
-- Status: em elaboração (Passos 0 e 1 detalhados; Passos 2 a 6 serão detalhados nas próximas iterações)
+- Status: implementada (fechamento em 2026-10-20)
 - ADR relacionado: [0018](../adr/0018-dashboard-de-rentabilidade.md)
 - Repositório afetado: **Vault** (Domain, Persistence, Application, Service, Presentation/Web). **Sem alteração no LumiaFoundation, no schema e sem migration.**
 

@@ -1,0 +1,95 @@
+@page
+@model Presentation.Pages.Dashboards.RentabilidadeModel
+@using System.Globalization
+@using Presentation.Dashboards
+@{
+    ViewData["Title"] = "Rentabilidade";
+}
+
+<h1 class="h3 mb-3">Rentabilidade</h1>
+
+<form method="get" class="row g-3 mb-2 align-items-end">
+    <div class="col-md-3">
+        <label for="ordem" class="form-label">Ordem</label>
+        <select id="ordem" name="ordem" class="form-select">
+            <option value="maiores" selected="@(Model.Ordem == OrdemRentabilidade.Maiores)">Maiores rentabilidades</option>
+            <option value="menores" selected="@(Model.Ordem == OrdemRentabilidade.Menores)">Menores rentabilidades</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="top" class="form-label">Quantidade por renda</label>
+        <input id="top" type="number" name="top" min="1" max="100" class="form-control" value="@Model.Top" />
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Aplicar</button>
+    </div>
+</form>
+
+<p class="text-muted small">Considera Movimentos ativos com @RentabilidadeModel.DiasMinimosParaRanking dias ou mais entre o investimento e a última atualização do valor líquido. Rentabilidades calculadas a partir do valor do aporte e do valor líquido atual.</p>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+@if (Model.Grupos.Count == 0 && Model.ErrorMessage is null)
+{
+    <p class="text-muted">Nenhum investimento elegível para o ranking.</p>
+}
+else
+{
+    foreach (var grupo in Model.Grupos)
+    {
+        <h2 class="h5">@Model.ObterTitulo(grupo)</h2>
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 2rem"></th>
+                    <th>Produto</th>
+                    <th>Emissor</th>
+                    <th class="text-end">Valor Líquido Atual</th>
+                    <th class="text-end">Rentabilidade acumulada</th>
+                    <th class="text-end">Rentabilidade diária</th>
+                    <th class="text-end">Rentabilidade anualizada</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in grupo.Itens)
+                {
+                    var detalheId = $"detalhe-{item.Id}";
+                    <tr>
+                        <td>
+                            <button type="button" class="btn btn-link p-0 text-body" data-bs-toggle="collapse" data-bs-target="#@detalheId" aria-controls="@detalheId" aria-expanded="false" aria-label="Exibir detalhes do movimento">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </td>
+                        <td>@(item.ProdutoNome ?? "—")</td>
+                        <td>@(item.EmissorNome ?? "—")</td>
+                        <td class="text-end">@item.ValorLiquidoAtual.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</td>
+                        <td class="text-end">@RentabilidadeFormatter.Percentual(item.Acumulada)</td>
+                        <td class="text-end">@RentabilidadeFormatter.Percentual(item.Diaria, 4)</td>
+                        <td class="text-end @RentabilidadeFormatter.ClasseDaRentabilidade(item.Anualizada)">@RentabilidadeFormatter.Percentual(item.Anualizada)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" class="p-0">
+                            <div class="collapse" id="@detalheId">
+                                <div class="p-3">
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-3">Objetivo</dt>
+                                        <dd class="col-sm-3">@(item.ObjetivoNome ?? "—")</dd>
+                                        <dt class="col-sm-3">Corretora</dt>
+                                        <dd class="col-sm-3">@(item.CorretoraNome ?? "—")</dd>
+                                        <dt class="col-sm-3">Valor do aporte</dt>
+                                        <dd class="col-sm-3">@item.ValorAporte.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</dd>
+                                        <dt class="col-sm-3">Dias investidos</dt>
+                                        <dd class="col-sm-3">@item.DiasInvestido</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

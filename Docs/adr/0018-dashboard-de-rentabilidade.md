@@ -1,6 +1,6 @@
 # ADR 0018: Dashboard de Rentabilidade (maiores e menores por Tipo de Renda)
 
-- Status: Proposta (2026-10-20)
+- Status: Aceita (2026-10-20)
 
 ## Contexto
 
@@ -82,3 +82,16 @@ Sem alteração de schema nem migration. O filtro `(UserId, EstaAtivo)` é atend
 - Serviço de domínio puro, testável sem mocks, com testes para cada caso inválido, para a equivalência com as fórmulas do VBA e para o desempate.
 - Mudança sem schema, sem migration e sem pacote novo; nenhum contrato da LumiaFoundation é alterado.
 - Complementa os ADRs 0010, 0011, 0013, 0016 e 0017.
+
+## Implementação e fechamento
+
+Implementada em 2026-10-20 nos projetos Domain, Persistence, Application, Service e Presentation.
+
+- Entradas inválidas de `top` e `ordem` são rejeitadas por `CommandValidationException` com resposta HTTP 422; erros de *model binding* também resultam em 422 pelo `[RequestValidation]`.
+- A query é registrada automaticamente por `AddServicesFromAssembly`; não foi necessário alterar o `Program.cs` da API.
+- O item do ranking inclui `DiasInvestido`, exibido no detalhe expansível da tela.
+- A ordem dos grupos é definida pelo repositório, conforme a collation do banco, e preservada pela query.
+- A implementação não alterou schema, migration, índice, pacote ou contrato da LumiaFoundation.
+- O gatilho de reavaliação permanece: medir `EXPLAIN` e o tempo de resposta em volume realista antes de propor mudanças de persistência.
+
+Fica registrado, fora da implementação, que a anualização de períodos curtos é instável. Se isso causar problema na prática, deve ser aberto novo ADR para uma janela mínima configurável ou para exibição de aviso.
