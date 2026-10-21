@@ -13,7 +13,6 @@ public record ObjetivoModelForCreation(
     string? Descricao,
 
     [property: Required(ErrorMessage = "Meta é obrigatória")]
-    [Range(1, double.MaxValue, ErrorMessage = "O valor deve ser positivo")]
     decimal Meta,
 
     [property: Required(ErrorMessage = "Fonte pagadora é obrigatória")]
@@ -31,8 +30,21 @@ public record ObjetivoModelForCreation(
     bool EstaAtivo,
 
     [NotEmptyGuid]
-    Guid UserId)
+    Guid UserId) : IValidatableObject
 {
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (Meta < 1m || Meta > 9999999999999999.99m)
+            yield return new ValidationResult(
+                "A meta deve ser maior ou igual a 1 e ter no máximo 16 dígitos inteiros",
+                new[] { nameof(Meta) });
+
+        if (decimal.Round(Meta, 2) != Meta)
+            yield return new ValidationResult(
+                "A meta deve ter no máximo 2 casas decimais",
+                new[] { nameof(Meta) });
+    }
+
     public Objetivo ToDomain() => new()
     {
         Nome = Nome,

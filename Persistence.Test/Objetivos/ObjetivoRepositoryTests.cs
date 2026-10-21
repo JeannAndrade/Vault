@@ -9,6 +9,18 @@ namespace Persistence.Test.Objetivos;
 public class ObjetivoRepositoryTests
 {
     [Fact]
+    public void ObjetivoMeta_UsesPrecision18AndScale2()
+    {
+        using var context = CreateContext();
+
+        var meta = context.Model.FindEntityType(typeof(Objetivo))!
+            .FindProperty(nameof(Objetivo.Meta))!;
+
+        Assert.Equal(18, meta.GetPrecision());
+        Assert.Equal(2, meta.GetScale());
+    }
+
+    [Fact]
     public async Task GetAllWithRelatedEntitiesAsync_FiltersByOwnerOrdersAndLoadsMovementsWithoutTracking()
     {
         var ownerId = Guid.NewGuid();

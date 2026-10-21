@@ -3,7 +3,7 @@ using Domain.Objetivos;
 
 namespace Application.Objetivos.Commands.UpdateObjetivo;
 
-public record ObjetivoModelForUpdate
+public record ObjetivoModelForUpdate : IValidatableObject
 {
   [Required(ErrorMessage = "Nome do Objetivo é obrigatório")]
   [MaxLength(100, ErrorMessage = "Nome do Objetivo não deve exceder 100 caracteres")]
@@ -13,7 +13,6 @@ public record ObjetivoModelForUpdate
   public string? Descricao { get; set; }
 
   [Required(ErrorMessage = "Meta é obrigatória")]
-  [Range(1, double.MaxValue, ErrorMessage = "O valor deve ser positivo")]
   public decimal Meta { get; set; }
 
   [Required(ErrorMessage = "Fonte pagadora é obrigatória")]
@@ -29,6 +28,19 @@ public record ObjetivoModelForUpdate
   public string OndeAplicar { get; set; } = string.Empty;
 
   public bool EstaAtivo { get; set; }
+
+  public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+  {
+    if (Meta < 1m || Meta > 9999999999999999.99m)
+      yield return new ValidationResult(
+          "A meta deve ser maior ou igual a 1 e ter no máximo 16 dígitos inteiros",
+          new[] { nameof(Meta) });
+
+    if (decimal.Round(Meta, 2) != Meta)
+      yield return new ValidationResult(
+          "A meta deve ter no máximo 2 casas decimais",
+          new[] { nameof(Meta) });
+  }
 
   public Objetivo UpdateDomain(Objetivo objetivo)
   {

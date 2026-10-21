@@ -58,7 +58,7 @@ public class EditModel(IObjetivoApi objetivoApi) : PageModel
     return RedirectToPage("Index");
   }
 
-  public class InputModel
+  public class InputModel : IValidatableObject
   {
     [Required(ErrorMessage = "Informe o nome.")]
     [StringLength(100, ErrorMessage = "O nome não deve exceder 100 caracteres.")]
@@ -67,7 +67,6 @@ public class EditModel(IObjetivoApi objetivoApi) : PageModel
     [StringLength(500, ErrorMessage = "A descrição não deve exceder 500 caracteres.")]
     public string? Descricao { get; set; }
 
-    [Range(typeof(decimal), "1", "79228162514264337593543950335", ErrorMessage = "A meta deve ser maior que zero.")]
     public decimal Meta { get; set; }
 
     [Required(ErrorMessage = "Informe a fonte pagadora.")]
@@ -82,5 +81,18 @@ public class EditModel(IObjetivoApi objetivoApi) : PageModel
     public string OndeAplicar { get; set; } = string.Empty;
 
     public bool EstaAtivo { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+      if (Meta < 1m || Meta > 9999999999999999.99m)
+        yield return new ValidationResult(
+            "A meta deve ser maior ou igual a 1 e ter no máximo 16 dígitos inteiros.",
+            new[] { nameof(Meta) });
+
+      if (decimal.Round(Meta, 2) != Meta)
+        yield return new ValidationResult(
+            "A meta deve ter no máximo 2 casas decimais.",
+            new[] { nameof(Meta) });
+    }
   }
 }
