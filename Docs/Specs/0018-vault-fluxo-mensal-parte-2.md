@@ -1,7 +1,7 @@
 # Especificação técnica 0018: Fluxo Mensal (Vault), parte 2 de 4
 
 - Data: 2026-10-24
-- Status: em andamento (passos 2 e 3)
+- Status: implementada (fechamento em 2026-10-24)
 - ADR relacionado: [0019](../adr/0019-fluxo-mensal.md)
 - Esta parte continua a [parte 1](0018-vault-fluxo-mensal.md) (Passos 0 e 1: ADR e Domain). As decisões D1 a D14 e as "Atenções" da parte 1 continuam valendo.
 

@@ -1,7 +1,7 @@
 # Especificação técnica 0018: Fluxo Mensal (Vault)
 
 - Data: 2026-10-24
-- Status: em andamento (parte 1 de 4: passos 0 e 1)
+- Status: implementada (fechamento em 2026-10-24)
 - ADR relacionado: [0019](../adr/0019-fluxo-mensal.md)
 - Repositório afetado: **Vault** (Domain, Persistence, Application, Service, Presentation/Web). **Sem alteração no LumiaFoundation, no schema e sem migration.**
 

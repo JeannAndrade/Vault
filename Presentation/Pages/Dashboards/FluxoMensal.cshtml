@@ -1,0 +1,131 @@
+@page
+@model Presentation.Pages.Dashboards.FluxoMensalModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Fluxo Mensal";
+    var cultura = CultureInfo.GetCultureInfo("pt-BR");
+}
+
+<h1 class="h3 mb-3">Fluxo Mensal</h1>
+
+<section class="mb-5">
+    <h2 class="h5">Retorno previsto</h2>
+    <p class="text-muted small">
+        Soma do Valor Líquido Atual dos Movimentos ativos que vencem em cada mês, nos próximos 12 meses.
+        O mês atual inclui vencidos que ainda estão ativos. Movimentos sem vencimento (como ações) não entram.
+        Não projeta rendimento até o vencimento.
+    </p>
+
+    @if (Model.RetornoErro is not null)
+    {
+        <div class="alert alert-danger" role="alert">@Model.RetornoErro</div>
+    }
+    else if (Model.Retornos.Count == 0)
+    {
+        <p class="text-muted">Nenhum dado disponível.</p>
+    }
+    else
+    {
+        <canvas id="grafico-retorno" role="img" aria-label="Gráfico de barras do retorno previsto por mês"
+                data-pontos="@Model.RetornoJson"></canvas>
+
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Mês</th>
+                    <th class="text-end">Movimentos</th>
+                    <th class="text-end">Retorno previsto</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.Retornos.Count; i++)
+                {
+                    var item = Model.Retornos[i];
+                    <tr>
+                        <td>
+                            @Model.RotuloMes(item.Mes)
+                            @if (Model.EhMesAtualDoRetorno(i))
+                            {
+                                <span class="badge text-bg-secondary">mês atual</span>
+                            }
+                        </td>
+                        <td class="text-end">@item.Quantidade</td>
+                        <td class="text-end">@item.Total.ToString("C", cultura)</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="fw-semibold">
+                    <td>Total</td>
+                    <td class="text-end">@Model.TotalQuantidadeRetorno</td>
+                    <td class="text-end">@Model.TotalRetorno.ToString("C", cultura)</td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+</section>
+
+<section>
+    <h2 class="h5">Investido</h2>
+    <p class="text-muted small">
+        Soma do valor aportado em cada mês, nos últimos 12 meses, separando investimento novo de reinvestimento.
+        Inclui Movimentos já encerrados: o histórico de aportes não some com o resgate.
+    </p>
+
+    @if (Model.InvestidoErro is not null)
+    {
+        <div class="alert alert-danger" role="alert">@Model.InvestidoErro</div>
+    }
+    else if (Model.Investidos.Count == 0)
+    {
+        <p class="text-muted">Nenhum dado disponível.</p>
+    }
+    else
+    {
+        <canvas id="grafico-investido" role="img"
+                aria-label="Gráfico de barras empilhadas do valor investido por mês, separando novo e reinvestimento"
+                data-pontos="@Model.InvestidoJson"></canvas>
+
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Mês</th>
+                    <th class="text-end">Novo</th>
+                    <th class="text-end">Reinvestimento</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.Investidos.Count; i++)
+                {
+                    var item = Model.Investidos[i];
+                    <tr>
+                        <td>
+                            @Model.RotuloMes(item.Mes)
+                            @if (Model.EhMesAtualDoInvestido(i))
+                            {
+                                <span class="badge text-bg-secondary">mês atual</span>
+                            }
+                        </td>
+                        <td class="text-end">@item.Novo.ToString("C", cultura)</td>
+                        <td class="text-end">@item.Reinvestimento.ToString("C", cultura)</td>
+                        <td class="text-end">@item.Total.ToString("C", cultura)</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="fw-semibold">
+                    <td>Total</td>
+                    <td class="text-end">@Model.TotalNovo.ToString("C", cultura)</td>
+                    <td class="text-end">@Model.TotalReinvestimento.ToString("C", cultura)</td>
+                    <td class="text-end">@Model.TotalInvestido.ToString("C", cultura)</td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+</section>
+
+@section Scripts {
+    <script src="~/lib/chart.js/chart.umd.min.js"></script>
+    <script src="~/js/fluxo-mensal-grafico.js"></script>
+}

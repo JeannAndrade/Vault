@@ -1,6 +1,6 @@
 # ADR 0019: Fluxo Mensal (retorno previsto e investido por mês)
 
-- Status: Proposta (2026-10-24)
+- Status: Aceita (2026-10-24)
 
 ## Contexto
 
@@ -84,3 +84,15 @@ Gatilho de reavaliação: se o `EXPLAIN` e o tempo de resposta em volume realist
 - Complementa os ADRs 0009, 0010, 0011, 0017 e 0018.
 
 Fora do escopo: média ou meta de aporte mensal, filtros por Objetivo ou Corretora e projeção de rendimento até o vencimento.
+
+## Implementação e fechamento
+
+A implementação foi concluída em 2026-10-24. Os nomes finais são `JanelaMensal` e `IntervaloMensal` no Domain, `RetornoPrevistoItem` e `AporteInvestidoItem` no Persistence, `GetRetornoMensalQuery` e `GetInvestidoMensalQuery` na Application, e os DTOs correspondentes no Service e no Web. Os endpoints finais são `api/dashboards/retorno-mensal` e `api/dashboards/investido-mensal`.
+
+As datas são materializadas pelo provedor como `Unspecified`, igual ao `Kind` gerado por `JanelaMensal`; nenhuma conversão de fuso foi necessária. A projeção por construtor foi traduzida pelo EF/Pomelo sem alteração de implementação. As queries são registradas por `AddServicesFromAssembly`, sem alteração no `Program.cs` da Api.
+
+O contrato usa mês em `AAAA-MM`, exibido pelo Web como `MM/AAAA`. O Chart.js já existente foi reutilizado, sem pacote novo. Não houve alteração de schema, migration, índice, pacote ou contrato da LumiaFoundation.
+
+O gatilho de reavaliação permanece válido: executar `EXPLAIN` e medir o tempo em volume realista para `IX_Movimentos_UserId_EstaAtivo_DataVencimento` e `IX_Movimentos_UserId_DataInvestimento`.
+
+Registros para evolução futura: o Retorno é conservador e não projeta rendimento; o mês atual mistura vencimentos do mês com vencidos ativos; a regra de não filtrar Objetivo inativo permanece deliberada; média/meta de aporte e filtros por Objetivo ou Corretora continuam fora do escopo.
