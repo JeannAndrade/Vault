@@ -216,7 +216,8 @@ namespace Persistence.Migrations.VaultDb
                         .HasColumnName("ObjetivoId");
 
                     b.Property<decimal>("AporteMensal")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Descricao")
                         .HasMaxLength(500)

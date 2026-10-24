@@ -9,15 +9,18 @@ namespace Persistence.Test.Objetivos;
 public class ObjetivoRepositoryTests
 {
     [Fact]
-    public void ObjetivoMeta_UsesPrecision18AndScale2()
+    public void ObjectiveMonetaryProperties_UsePrecision18AndScale2()
     {
         using var context = CreateContext();
 
-        var meta = context.Model.FindEntityType(typeof(Objetivo))!
-            .FindProperty(nameof(Objetivo.Meta))!;
+        var entityType = context.Model.FindEntityType(typeof(Objetivo))!;
 
-        Assert.Equal(18, meta.GetPrecision());
-        Assert.Equal(2, meta.GetScale());
+        foreach (var propertyName in new[] { nameof(Objetivo.Meta), nameof(Objetivo.AporteMensal) })
+        {
+            var property = entityType.FindProperty(propertyName)!;
+            Assert.Equal(18, property.GetPrecision());
+            Assert.Equal(2, property.GetScale());
+        }
     }
 
     [Fact]

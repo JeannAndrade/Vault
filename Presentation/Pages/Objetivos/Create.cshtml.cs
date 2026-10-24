@@ -78,6 +78,16 @@ public class CreateModel(IObjetivoApi objetivoApi) : PageModel
                 yield return new ValidationResult(
                     "A meta deve ter no máximo 2 casas decimais.",
                     new[] { nameof(Meta) });
+
+            if (AporteMensal > 9999999999999999.99m)
+                yield return new ValidationResult(
+                    "O aporte mensal deve ter no máximo 16 dígitos inteiros.",
+                    new[] { nameof(AporteMensal) });
+
+            if (decimal.Round(AporteMensal, 2) != AporteMensal)
+                yield return new ValidationResult(
+                    "O aporte mensal deve ter no máximo 2 casas decimais.",
+                    new[] { nameof(AporteMensal) });
         }
     }
 }

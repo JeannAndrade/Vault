@@ -55,6 +55,55 @@ public class ObjetivoMetaValidationTests
         Assert.Contains(Validate(model), error => error.MemberNames.Contains(nameof(model.Meta)));
     }
 
+    [Fact]
+    public void CreationModel_AcceptsAporteMensalWithMaximumPrecisionAndScale()
+    {
+        var model = new ObjetivoModelForCreation(
+            "Objetivo",
+            null,
+            100m,
+            "Salário",
+            9999999999999999.99m,
+            "Poupança",
+            true,
+            Guid.NewGuid());
+
+        Assert.Empty(Validate(model));
+    }
+
+    [Theory]
+    [InlineData("10000000000000000")]
+    [InlineData("100.001")]
+    public void CreationModel_RejectsAporteMensalOutsidePrecisionOrScale(string aporteMensal)
+    {
+        var model = new ObjetivoModelForCreation(
+            "Objetivo",
+            null,
+            100m,
+            "Salário",
+            decimal.Parse(aporteMensal, System.Globalization.CultureInfo.InvariantCulture),
+            "Poupança",
+            true,
+            Guid.NewGuid());
+
+        Assert.Contains(Validate(model), error => error.MemberNames.Contains(nameof(model.AporteMensal)));
+    }
+
+    [Fact]
+    public void UpdateModel_RejectsAporteMensalWithMoreThanTwoDecimalPlaces()
+    {
+        var model = new ObjetivoModelForUpdate
+        {
+            Nome = "Objetivo",
+            Meta = 100m,
+            FontePagadora = "Salário",
+            AporteMensal = 100.001m,
+            OndeAplicar = "Poupança"
+        };
+
+        Assert.Contains(Validate(model), error => error.MemberNames.Contains(nameof(model.AporteMensal)));
+    }
+
     private static IReadOnlyList<ValidationResult> Validate(object model)
     {
         var results = new List<ValidationResult>();
