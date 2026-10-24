@@ -78,6 +78,18 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
             .ThenBy(m => m.TipoRendaId)
             .ToListAsync(cancellationToken);
 
+    // O limite superior é exclusivo e não há limite inferior de propósito: vencidos ativos somam no mês atual (ADR 0019).
+    public Task<List<RetornoPrevistoItem>> GetRetornoPrevistoAsync(Guid ownerId, DateTime limiteSuperior, CancellationToken cancellationToken) =>
+        FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && m.DataVencimento != null && m.DataVencimento < limiteSuperior, false)
+            .Select(m => new RetornoPrevistoItem(m.DataVencimento!.Value, m.ValorLiquidoAtual))
+            .ToListAsync(cancellationToken);
+
+    // A ausência de EstaAtivo é intencional: o histórico de aportes não some com o resgate (ADR 0019).
+    public Task<List<AporteInvestidoItem>> GetInvestidoAsync(Guid ownerId, DateTime inicio, DateTime fim, CancellationToken cancellationToken) =>
+        FindByCondition(m => m.UserId == ownerId && m.DataInvestimento >= inicio && m.DataInvestimento < fim, false)
+            .Select(m => new AporteInvestidoItem(m.DataInvestimento, m.ValorAporte, m.EhReinvestimento))
+            .ToListAsync(cancellationToken);
+
     // A ordem agrupa por título para a manutenção do valor líquido: Corretora, Produto e Emissor (por nome,
     // ascendente), com DataAtualizacaoValorLiquido e Id como desempate determinístico. O índice
     // IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido atende apenas o filtro; a ordenação
