@@ -1,4 +1,6 @@
 using Application.Dashboards.Queries.GetRentabilidadesPorTipoRenda;
+using Application.Dashboards.Queries.GetRetornoMensal;
+using Application.Dashboards.Queries.GetInvestidoMensal;
 using Application.Dashboards.Rentabilidade;
 using LumiaFoundation.AspNetCore.ActionFilters;
 using Microsoft.AspNetCore.Http;
@@ -12,12 +14,14 @@ namespace Service.Test.Dashboards;
 public class DashboardsControllerTests
 {
     private readonly Mock<IGetRentabilidadesPorTipoRendaQuery> _query = new();
+    private readonly Mock<IGetRetornoMensalQuery> _retornoQuery = new();
+    private readonly Mock<IGetInvestidoMensalQuery> _investidoQuery = new();
     private readonly DashboardsController _controller;
     private readonly Guid _userId = Guid.NewGuid();
 
     public DashboardsControllerTests()
     {
-        _controller = new DashboardsController(_query.Object)
+        _controller = new DashboardsController(_query.Object, _retornoQuery.Object, _investidoQuery.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

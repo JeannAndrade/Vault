@@ -1,4 +1,6 @@
 using Application.Dashboards.Queries.GetRentabilidadesPorTipoRenda;
+using Application.Dashboards.Queries.GetRetornoMensal;
+using Application.Dashboards.Queries.GetInvestidoMensal;
 using LumiaFoundation.Abstractions.ErrorModel;
 using LumiaFoundation.AspNetCore.ActionFilters;
 using LumiaFoundation.AspNetCore.Commons.BaseControllers;
@@ -15,7 +17,9 @@ namespace Service.Dashboards;
 [RequestValidation]
 [Route("api/dashboards")]
 public class DashboardsController(
-    IGetRentabilidadesPorTipoRendaQuery getRentabilidadesPorTipoRendaQuery) : BaseApiController
+    IGetRentabilidadesPorTipoRendaQuery getRentabilidadesPorTipoRendaQuery,
+    IGetRetornoMensalQuery getRetornoMensalQuery,
+    IGetInvestidoMensalQuery getInvestidoMensalQuery) : BaseApiController
 {
     [HttpGet("rentabilidade")]
     [ProducesResponseType(typeof(List<RentabilidadeGrupoDto>), StatusCodes.Status200OK)]
@@ -31,5 +35,23 @@ public class DashboardsController(
             GetCurrentUserId(), filtro.ToParameters(), cancellationToken);
 
         return Ok(RentabilidadeGrupoDto.FromApplication(grupos));
+    }
+
+    [HttpGet("retorno-mensal")]
+    [ProducesResponseType(typeof(List<RetornoMensalDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<RetornoMensalDto>>> GetRetornoMensal(CancellationToken cancellationToken)
+    {
+        var modelos = await getRetornoMensalQuery.ExecuteAsync(GetCurrentUserId(), cancellationToken);
+        return Ok(RetornoMensalDto.FromApplication(modelos));
+    }
+
+    [HttpGet("investido-mensal")]
+    [ProducesResponseType(typeof(List<InvestidoMensalDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<InvestidoMensalDto>>> GetInvestidoMensal(CancellationToken cancellationToken)
+    {
+        var modelos = await getInvestidoMensalQuery.ExecuteAsync(GetCurrentUserId(), cancellationToken);
+        return Ok(InvestidoMensalDto.FromApplication(modelos));
     }
 }
