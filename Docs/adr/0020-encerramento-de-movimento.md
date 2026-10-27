@@ -1,10 +1,10 @@
-# ADR 0019: Encerramento de Movimento (motivo e data)
+# ADR 0020: Encerramento de Movimento (motivo e data)
 
-- Status: Proposta (2026-10-26)
+- Status: Aceita (2026-10-27)
 
 ## Contexto
 
-Hoje um Movimento deixa de valer desmarcando `EstaAtivo`. Esse único booleano mistura três situações diferentes: o dinheiro voltou e foi **gasto**, voltou e foi **reinvestido** em outro Movimento (com `EhReinvestimento = true`), ou voltou e **ainda não teve destino**. O Vault não consegue distinguir os casos, e isso prejudica a leitura do patrimônio de cada Objetivo e o cálculo do ritmo real de aporte (ADR 0020).
+Hoje um Movimento deixa de valer desmarcando `EstaAtivo`. Esse único booleano mistura três situações diferentes: o dinheiro voltou e foi **gasto**, voltou e foi **reinvestido** em outro Movimento (com `EhReinvestimento = true`), ou voltou e **ainda não teve destino**. O Vault não consegue distinguir os casos, e isso prejudica a leitura do patrimônio de cada Objetivo e o cálculo do ritmo real de aporte (ADR 0021).
 
 Além disso, a data em que o Movimento foi encerrado é registrada hoje em `DataVencimento`, o que mistura dois conceitos: o vencimento contratado do título e o dia em que o usuário de fato o encerrou, que pode ser anterior ao vencimento.
 
@@ -22,7 +22,7 @@ Vários Movimentos encerrados costumam ser reunidos em um único Movimento novo,
   - `Reinvestido`: o dinheiro foi para outro(s) Movimento(s). O saldo já está neles.
   - `Pendente`: o dinheiro voltou e continua disponível, ainda sem destino definido. É também o estado de partida para os Movimentos já inativos.
 - `EstaAtivo` **permanece** como coluna e passa a ser mantido pelo domínio, com a invariante: `EstaAtivo = true` se e somente se `MotivoEncerramento` é nulo. Remover a coluna obrigaria a reescrever índices e consultas (ADRs 0009, 0010, 0011, 0016 e 0018) sem ganho.
-- A invariante é garantida por dois métodos na entidade `Movimento`, `Encerrar(motivo, data)` e `Reativar()`. Nenhum outro código altera `EstaAtivo` diretamente.
+- A invariante é garantida por dois métodos na entidade `Movimento`, `Encerrar(motivo, data, hoje)` e `Reativar()`, e protegida no banco pela constraint `CK_Movimentos_Encerramento`. O `set` de `EstaAtivo` permanece público por compatibilidade, mas o código de produção não o altera diretamente.
 
 ### Regras
 
@@ -48,7 +48,9 @@ Vários Movimentos encerrados costumam ser reunidos em um único Movimento novo,
 ### Persistência
 
 - Migration gerada pelo mantenedor: `AddColumn` das duas colunas e, no mesmo arquivo, `UPDATE` dos Movimentos inativos existentes para `MotivoEncerramento = 'Pendente'` e `DataEncerramento = COALESCE(DataVencimento, DataAtualizacaoValorLiquido)`. O motivo é o mais conservador: o dinheiro não some do saldo até o usuário reclassificar. A data aproveita o hábito atual de registrar o encerramento em `DataVencimento`.
-- Sem índice novo. Os índices `(UserId, EstaAtivo, ...)` seguem atendendo as consultas. Gatilho de reavaliação: se a projeção do ADR 0020 mostrar necessidade de filtrar por motivo em volume realista, medir com `EXPLAIN` antes de propor índice.
+- Na conversão, a data de encerramento é limitada ao intervalo entre a `DataInvestimento` e hoje (UTC), para que nenhum Movimento migrado fique com encerramento futuro ou anterior ao investimento.
+- A constraint `CK_Movimentos_Encerramento` exige motivo e data para Movimentos inativos e ausência de ambos para Movimentos ativos.
+- Sem índice novo. Os índices `(UserId, EstaAtivo, ...)` seguem atendendo as consultas. Gatilho de reavaliação: se a projeção do ADR 0021 mostrar necessidade de filtrar por motivo em volume realista, medir com `EXPLAIN` antes de propor índice.
 
 ## Alternativas consideradas
 
@@ -64,8 +66,11 @@ Vários Movimentos encerrados costumam ser reunidos em um único Movimento novo,
 
 - Muda o contrato do `PUT api/movimentos/{id}` (deixa de aceitar `EstaAtivo`). O único consumidor é o Web, ajustado no mesmo esforço.
 - Muda o schema: duas colunas em `Movimentos`, com migration e `UPDATE` de dados.
+- A migração limita as datas dos registros inativos ao intervalo entre o investimento e a data UTC atual, e o `CHECK` `CK_Movimentos_Encerramento` protege a invariante no banco.
+- O formulário de criação oferece uma seção opcional de encerramento para cadastrar histórico já encerrado.
+- A edição rejeita `DataInvestimento` posterior à `DataEncerramento`, preservando a regra temporal do encerramento.
 - `DataVencimento` nos Movimentos já inativos continua guardando o que o usuário digitou, e pode refletir o encerramento e não o vencimento original. Não há correção automática; fica a critério do usuário.
 - Quem encerra deve atualizar antes o valor líquido, se quiser que o valor congelado represente o resgate.
 - A tela de edição perde o atalho de desmarcar "Ativo": encerrar passa a ser um passo explícito.
-- Viabiliza o ADR 0020 (projeção de Objetivo), que usa o motivo para decidir o que compõe o saldo e o ritmo de aporte.
+- Disponibiliza o motivo de encerramento para a futura projeção do Objetivo (ADR 0021), que decidirá o que compõe o saldo e o ritmo de aporte.
 - Os testes de domínio cobrem a invariante entre `EstaAtivo` e `MotivoEncerramento`, evitando que um caminho de código deixe os dois fora de sincronia.

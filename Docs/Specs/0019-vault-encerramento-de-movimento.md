@@ -1,7 +1,7 @@
 # Especificação técnica 0019: Encerramento de Movimento (Vault)
 
 - Data: 2026-10-27
-- Status: **em elaboração (parte 1 de 4: Passos 0 a 2), decisões D3 e D4 aprovadas em 2026-10-27**
+- Status: **implementada (2026-10-27; parte 1 de 4: Passos 0 a 2)**
 - ADR relacionado: [0020](../adr/0020-encerramento-de-movimento.md)
 - Repositório afetado: **Vault** (Domain, Persistence, Application, Service, Presentation/Web). **Com alteração de schema e migration.** Sem alteração no LumiaFoundation.
 
@@ -15,7 +15,7 @@
 
 O encerramento de um Movimento deixa de ser o desmarcar de `EstaAtivo` e passa a ter **motivo** (`Gasto`, `Reinvestido` ou `Pendente`) e **data própria** (`DataEncerramento`), separada do vencimento contratado (ADR 0020). `EstaAtivo` continua como coluna e passa a ser mantido pelo Domain, com a invariante `EstaAtivo = true` se e somente se `MotivoEncerramento` é nulo.
 
-Esta parte entrega a base: o ADR como "Proposta", o modelo de domínio com os métodos `Encerrar` e `Reativar`, o mapeamento e a migration (incluindo a conversão dos Movimentos inativos existentes).
+Esta parte entrega a base: o modelo de domínio com os métodos `Encerrar` e `Reativar`, o mapeamento e a migration (incluindo a conversão dos Movimentos inativos existentes). O ADR 0020 foi aceito no fechamento da feature.
 
 ## 2. Decisões aprovadas
 
@@ -64,7 +64,7 @@ Cada passo termina com `dotnet build` e `dotnet test` verdes antes do seguinte.
 
 ## Passo 0: ADR 0020 como "Proposta"
 
-- Criar `Docs/adr/0020-encerramento-de-movimento.md` com o texto entregue anteriormente, **Status: Proposta (2026-10-26)**. A numeração já está acertada: o 0019 é o Fluxo Mensal e a projeção do Objetivo passa a ser o **ADR 0021**.
+- Criado inicialmente como **Proposta (2026-10-26)** e atualizado para **Aceita (2026-10-27)** no fechamento da feature. A numeração já está acertada: o 0019 é o Fluxo Mensal e a projeção do Objetivo passa a ser o **ADR 0021**.
 - Acrescentar uma frase à seção **Persistência** do ADR: *"Na conversão, a data de encerramento é limitada ao intervalo entre a `DataInvestimento` e hoje (UTC), para que nenhum Movimento migrado fique com encerramento futuro ou anterior ao investimento."* (refinamento definido nesta spec, Passo 2.3.)
 - Acrescentar à seção **Modelo** uma frase sobre o `CHECK` (`CK_Movimentos_Encerramento`) que protege a invariante no banco (D4 aprovado).
 

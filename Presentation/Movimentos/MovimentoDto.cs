@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Presentation.Movimentos;
 
 public sealed record MovimentoDto
@@ -23,6 +25,9 @@ public sealed record MovimentoDto
     public decimal ValorAporte { get; set; }
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
+    [JsonConverter(typeof(JsonStringEnumConverter<MotivoEncerramento>))]
+    public MotivoEncerramento? MotivoEncerramento { get; set; }
+    public DateTime? DataEncerramento { get; set; }
     public decimal ValorLiquidoAtual { get; set; }
     public bool AtualizaPorCotacao { get; set; }
 }

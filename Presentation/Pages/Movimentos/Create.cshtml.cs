@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using LumiaFoundation.Core.ValidationAttributes;
+using LumiaFoundation.Core.TimeService;
 using LumiaFoundation.Http.Client.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,10 +8,16 @@ using Presentation.Movimentos;
 
 namespace Presentation.Pages.Movimentos;
 
-public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lookupData) : PageModel
+public class CreateModel(
+    IMovimentoApi movimentoApi,
+    IMovimentoFormLookupData lookupData,
+    IDateTimeProvider clock) : PageModel
 {
     [BindProperty]
     public InputModel Input { get; set; } = new();
+
+    [BindProperty]
+    public EncerramentoInput Encerramento { get; set; } = new();
 
     [BindProperty(SupportsGet = true, Name = "pagina")]
     public int Pagina { get; set; } = 1;
@@ -26,23 +33,32 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
     {
         Lookup = await lookupData.LoadAsync(cancellationToken);
         Input.DataInvestimento = DateTime.Today;
-        Input.EstaAtivo = true;
     }
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
         Lookup = await lookupData.LoadAsync(cancellationToken);
 
+        foreach (var erro in EncerramentoInputValidador.Validar(Encerramento, clock.GetDateTime().Date, obrigatorio: false))
+            ModelState.AddModelError($"Encerramento.{erro.Campo}", erro.Mensagem);
+
         if (!ModelState.IsValid)
             return Page();
 
         try
         {
-            await movimentoApi.CreateAsync(Input.ToCreationDto(), cancellationToken);
+            var dto = Input.ToCreationDto() with
+            {
+                MotivoEncerramento = Encerramento.Motivo,
+                DataEncerramento = Encerramento.Data
+            };
+            await movimentoApi.CreateAsync(dto, cancellationToken);
         }
-        catch (ApiException)
+        catch (ApiException exception)
         {
-            ErrorMessage = "Não foi possível salvar o movimento agora. Tente novamente em instantes.";
+            ErrorMessage = exception.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity
+                ? exception.Message
+                : "Não foi possível salvar o movimento agora. Tente novamente em instantes.";
             return Page();
         }
 
@@ -98,8 +114,6 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
 
         public bool EhReinvestimento { get; set; }
 
-        public bool EstaAtivo { get; set; }
-
         [Required(ErrorMessage = "Informe o valor líquido atual.")]
         [Range(0, double.MaxValue, ErrorMessage = "O valor líquido atual não pode ser negativo.")]
         public decimal ValorLiquidoAtual { get; set; }
@@ -128,7 +142,6 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
             DataVencimento = DataVencimento,
             ValorAporte = ValorAporte,
             EhReinvestimento = EhReinvestimento,
-            EstaAtivo = EstaAtivo,
             ValorLiquidoAtual = ValorLiquidoAtual,
             AtualizaPorCotacao = AtualizaPorCotacao
         };
@@ -149,7 +162,6 @@ public class CreateModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData lo
             DataVencimento = DataVencimento,
             ValorAporte = ValorAporte,
             EhReinvestimento = EhReinvestimento,
-            EstaAtivo = EstaAtivo,
             ValorLiquidoAtual = ValorLiquidoAtual,
             AtualizaPorCotacao = AtualizaPorCotacao
         };

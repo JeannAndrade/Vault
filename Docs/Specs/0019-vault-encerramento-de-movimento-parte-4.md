@@ -1,7 +1,7 @@
 # Especificação técnica 0019: Encerramento de Movimento (Vault), parte 4
 
 - Data: 2026-10-27
-- Status: **em elaboração (parte 4 de 4: Passos 5 e 6, Web e fechamento)**
+- Status: **implementada (2026-10-27; parte 4 de 4: Passos 5 e 6, Web e fechamento)**
 - ADR relacionado: [0020](../adr/0020-encerramento-de-movimento.md)
 - Partes anteriores: [parte 1](0019-vault-encerramento-de-movimento.md) (Passos 0 a 2), [parte 2](0019-vault-encerramento-de-movimento-parte-2.md) (Passo 3) e [parte 3](0019-vault-encerramento-de-movimento-parte-3.md) (Passo 4)
 - Repositório afetado nesta parte: **Presentation (Web)** e documentação. Sem schema, sem migration, sem dependência nova, sem alteração no LumiaFoundation.
@@ -19,7 +19,7 @@ O Web passa a falar o contrato novo da Api: o checkbox "Ativo" sai da edição e
 
 | Item | Decisão |
 | --- | --- |
-| D28 | **A confirmar:** o formulário de **criação** ganha uma seção opcional "Encerramento" (ver seção 3) |
+| D28 | **Aprovado:** o formulário de **criação** ganha uma seção opcional "Encerramento" (ver seção 3) |
 | D29 | O Web tem a **sua própria cópia** do enum (`Presentation.Movimentos.MotivoEncerramento`), com os mesmos nomes, porque o Web não referencia Domain nem Application (acoplamento só por contrato). O atributo `JsonStringEnumConverter<T>` entra nas propriedades de DTO, como na Api (D18) |
 | D30 | Página `/Movimentos/Encerrar/{id}`: uma só página para **encerrar**, **reclassificar** e **reativar** (como no ADR 0020); preserva página e filtro da listagem, como a edição |
 | D31 | Sem motivo pré-selecionado ao encerrar: o usuário escolhe de propósito; a data vem preenchida com **hoje (UTC)**, pelo `IDateTimeProvider`, como em `Cotacoes/Create` |
@@ -28,7 +28,7 @@ O Web passa a falar o contrato novo da Api: o checkbox "Ativo" sai da edição e
 | D34 | Descrição amigável dos motivos num formatador estático e testado (`MotivoEncerramentoFormatter`), no padrão do `FluxoMensalFormatter` |
 | D35 | `CancellationToken` **obrigatório** em todo método novo do cliente da Api e das páginas |
 
-## 3. Ponto a confirmar
+## 3. Decisão aprovada
 
 ### D28: criação com encerramento opcional
 
@@ -39,7 +39,7 @@ Hoje o formulário de criação tem o checkbox "Ativo" (padrão marcado), usado 
 | **Seção opcional "Encerramento" na criação** (recomendada) | mantém o lançamento de histórico em **um** passo; usa o `POST` que o ADR 0020 já prevê para isso | formulário um pouco maior; mais uma validação no Web (motivo e data juntos) |
 | Sem encerramento na criação | formulário mais simples | histórico passa a exigir **dois** passos (criar e depois encerrar), o que pesa quando o usuário cadastra vários antigos de uma vez |
 
-A spec descreve a opção recomendada. Se a outra for escolhida, ignorar os itens 5.5 (criação) e os testes de criação com encerramento; o `POST` da Api continua aceitando os campos.
+A opção de seção opcional foi aprovada e implementada conforme descrito em 5.5.
 
 ---
 
@@ -238,7 +238,7 @@ E, em ambiente descartável, a tentativa de violar o `CHECK` (parte 1, Passo 2.6
 
 ### 6.4 Documentação e fechamento
 
-- **ADR 0020:** status de **Proposta** para **Aceita**, com a data; acrescentar às Consequências: (a) o formulário de criação passa a ter a seção opcional de encerramento (D28, se aprovado); (b) a conversão dos inativos limitou a data de encerramento ao intervalo entre o investimento e hoje; (c) o `CHECK` `CK_Movimentos_Encerramento` protege a invariante; (d) a regra de não permitir `DataInvestimento` posterior à `DataEncerramento` na edição.
+- **ADR 0020:** status de **Proposta** para **Aceita**, com a data; acrescentar às Consequências: (a) o formulário de criação passa a ter a seção opcional de encerramento (D28); (b) a conversão dos inativos limitou a data de encerramento ao intervalo entre o investimento e hoje; (c) o `CHECK` `CK_Movimentos_Encerramento` protege a invariante; (d) a regra de não permitir `DataInvestimento` posterior à `DataEncerramento` na edição.
 - **Specs 0019 (as quatro partes):** `Status` para **implementada**, com a data de fechamento.
 - **READMEs e documentos de tela/Api**, se houver menção ao checkbox "Ativo", ao `PUT api/movimentos/{id}` com `EstaAtivo` ou à lista de endpoints: atualizar.
 - **ADR 0021** (projeção do Objetivo) **destrava**: registrar, nas Consequências do ADR 0020, que o motivo já está disponível para a próxima feature.
@@ -246,13 +246,19 @@ E, em ambiente descartável, a tentativa de violar o `CHECK` (parte 1, Passo 2.6
 
 ### 6.5 Checklist final
 
-- [ ] `dotnet build` e `dotnet test` da solution inteira verdes.
+- [x] `dotnet build` e `dotnet test` da solution inteira verdes.
 - [ ] Migration aplicada, revertida e reaplicada; consultas de conferência com 0 violações.
-- [ ] Nenhum código de produção (fora do Domain e do mapeamento) escreve `EstaAtivo` de Movimento.
-- [ ] Nenhum método novo sem `CancellationToken`.
+- [x] Nenhum código de produção (fora do Domain e do mapeamento) escreve `EstaAtivo` de Movimento.
+- [x] Nenhum método novo sem `CancellationToken`.
 - [ ] Enum como texto no JSON da Api, no OpenAPI e no Web.
 - [ ] Roteiro manual do 6.1 executado, inclusive o isolamento entre usuários.
-- [ ] ADR 0020 **Aceita** e specs **implementadas**.
+- [x] ADR 0020 **Aceita** e specs **implementadas**.
+
+### Execução registrada em 2026-10-27
+
+- `dotnet build Vault.slnx` e `dotnet test Vault.slnx` passaram após a conclusão das alterações de Presentation.
+- A aplicação, reversão e reaplicação da migration, o Compose e o roteiro autenticado ponta a ponta permanecem pendentes: o MariaDB local não estava acessível em `localhost:3307` durante a tentativa de atualização do banco. Esses passos operacionais não foram considerados validados.
+- Não há README de raiz no repositório. As referências de produto e implementação foram atualizadas neste ADR e nas quatro partes da spec.
 
 ---
 

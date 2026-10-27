@@ -64,6 +64,12 @@ public sealed class MovimentoApi(IApiConnection connection) : IMovimentoApi
     public Task UpdateAsync(Guid id, MovimentoForUpdateDto movimento, CancellationToken cancellationToken) =>
         connection.SendAsync(HttpMethod.Put, $"{BasePath}/{id}", movimento, cancellationToken);
 
+    public Task EncerrarAsync(Guid id, MovimentoForEncerramentoDto encerramento, CancellationToken cancellationToken) =>
+        connection.SendAsync(HttpMethod.Put, $"{BasePath}/{id}/encerramento", encerramento, cancellationToken);
+
+    public Task ReativarAsync(Guid id, CancellationToken cancellationToken) =>
+        connection.SendAsync(HttpMethod.Delete, $"{BasePath}/{id}/encerramento", ct: cancellationToken);
+
     public Task UpdateValorLiquidoAsync(Guid id, MovimentoForUpdateValorLiquidoDto movimento, CancellationToken cancellationToken) =>
         connection.SendAsync(HttpMethod.Patch, $"{BasePath}/{id}/valor-liquido", movimento, cancellationToken);
 

@@ -1,7 +1,7 @@
 # Especificação técnica 0019: Encerramento de Movimento (Vault), parte 3
 
 - Data: 2026-10-27
-- Status: **em elaboração (parte 3 de 4: Passo 4, Service/Api)**
+- Status: **implementada (2026-10-27; parte 3 de 4: Passo 4, Service/Api)**
 - ADR relacionado: [0020](../adr/0020-encerramento-de-movimento.md)
 - Partes anteriores: [parte 1](0019-vault-encerramento-de-movimento.md) (Passos 0 a 2) e [parte 2](0019-vault-encerramento-de-movimento-parte-2.md) (Passo 3)
 - Repositório afetado nesta parte: **Service (Api)**. Sem schema, sem migration, sem dependência nova, sem alteração no LumiaFoundation.

@@ -66,7 +66,6 @@ public class EditModel(IMovimentoApi movimentoApi, IMovimentoFormLookupData look
         DataVencimento = movimento.DataVencimento,
         ValorAporte = movimento.ValorAporte,
         EhReinvestimento = movimento.EhReinvestimento,
-        EstaAtivo = movimento.EstaAtivo,
         ValorLiquidoAtual = movimento.ValorLiquidoAtual,
         AtualizaPorCotacao = movimento.AtualizaPorCotacao
     };

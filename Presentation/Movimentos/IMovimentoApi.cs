@@ -11,6 +11,8 @@ public interface IMovimentoApi
     Task<MovimentoDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     Task<MovimentoDto> CreateAsync(MovimentoForCreationDto movimento, CancellationToken cancellationToken);
     Task UpdateAsync(Guid id, MovimentoForUpdateDto movimento, CancellationToken cancellationToken);
+    Task EncerrarAsync(Guid id, MovimentoForEncerramentoDto encerramento, CancellationToken cancellationToken);
+    Task ReativarAsync(Guid id, CancellationToken cancellationToken);
     Task UpdateValorLiquidoAsync(Guid id, MovimentoForUpdateValorLiquidoDto movimento, CancellationToken cancellationToken);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken);
 }

@@ -152,6 +152,41 @@ public class MovimentoApiTests
     }
 
     [Fact]
+    public async Task EncerrarAsync_SendsPutToEncerramentoPathWithBodyAndToken()
+    {
+        var id = Guid.NewGuid();
+        var body = new MovimentoForEncerramentoDto
+        {
+            Motivo = MotivoEncerramento.Gasto,
+            Data = new DateTime(2026, 10, 20)
+        };
+        using var cts = new CancellationTokenSource();
+
+        await _api.EncerrarAsync(id, body, cts.Token);
+
+        _connection.Verify(c => c.SendAsync(
+            HttpMethod.Put,
+            $"api/movimentos/{id}/encerramento",
+            body,
+            cts.Token), Times.Once);
+    }
+
+    [Fact]
+    public async Task ReativarAsync_SendsDeleteToEncerramentoPathWithoutBodyAndWithToken()
+    {
+        var id = Guid.NewGuid();
+        using var cts = new CancellationTokenSource();
+
+        await _api.ReativarAsync(id, cts.Token);
+
+        _connection.Verify(c => c.SendAsync(
+            HttpMethod.Delete,
+            $"api/movimentos/{id}/encerramento",
+            null,
+            cts.Token), Times.Once);
+    }
+
+    [Fact]
     public async Task UpdateValorLiquidoAsync_SendsPatchToValorLiquidoPathWithBody()
     {
         var id = Guid.NewGuid();

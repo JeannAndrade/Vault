@@ -1,5 +1,6 @@
 @page
 @model CreateModel
+@using Presentation.Movimentos
 @{
   ViewData["Title"] = "Novo movimento";
 }
@@ -111,13 +112,31 @@
     <span asp-validation-for="Input.Observacao" class="text-danger"></span>
   </div>
 
+  <fieldset class="border rounded p-3 mb-3">
+    <legend class="float-none w-auto px-2 fs-6">Encerramento (opcional)</legend>
+    <p class="form-text">Preencha só para lançar um investimento que já terminou. O valor líquido atual será mantido como o valor do resgate.</p>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label asp-for="Encerramento.Motivo" class="form-label">Motivo</label>
+        <select asp-for="Encerramento.Motivo" class="form-select">
+          <option value="">Em aberto (sem encerramento)</option>
+          <option value="@MotivoEncerramento.Gasto">@MotivoEncerramentoFormatter.Descricao(MotivoEncerramento.Gasto)</option>
+          <option value="@MotivoEncerramento.Reinvestido">@MotivoEncerramentoFormatter.Descricao(MotivoEncerramento.Reinvestido)</option>
+          <option value="@MotivoEncerramento.Pendente">@MotivoEncerramentoFormatter.Descricao(MotivoEncerramento.Pendente)</option>
+        </select>
+        <span asp-validation-for="Encerramento.Motivo" class="text-danger"></span>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label asp-for="Encerramento.Data" class="form-label">Data do encerramento</label>
+        <input asp-for="Encerramento.Data" class="form-control" type="date" />
+        <span asp-validation-for="Encerramento.Data" class="text-danger"></span>
+      </div>
+    </div>
+  </fieldset>
+
   <div class="form-check mb-2">
     <input asp-for="Input.EhReinvestimento" class="form-check-input" />
     <label asp-for="Input.EhReinvestimento" class="form-check-label">É reinvestimento</label>
-  </div>
-  <div class="form-check mb-3">
-    <input asp-for="Input.EstaAtivo" class="form-check-input" />
-    <label asp-for="Input.EstaAtivo" class="form-check-label">Ativo</label>
   </div>
 
   <button type="submit" class="btn btn-primary">Salvar</button>

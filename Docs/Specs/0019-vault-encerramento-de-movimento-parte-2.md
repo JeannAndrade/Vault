@@ -1,7 +1,7 @@
 # Especificação técnica 0019: Encerramento de Movimento (Vault), parte 2
 
 - Data: 2026-10-27
-- Status: **em elaboração (parte 2 de 4: Passo 3, Application)**
+- Status: **implementada (2026-10-27; parte 2 de 4: Passo 3, Application)**
 - ADR relacionado: [0020](../adr/0020-encerramento-de-movimento.md)
 - Parte anterior: [0019-vault-encerramento-de-movimento.md](0019-vault-encerramento-de-movimento.md) (Passos 0 a 2)
 - Repositório afetado nesta parte: **Application** (e um ajuste mínimo de compilação no Service). Sem schema, sem migration, sem dependência nova.
