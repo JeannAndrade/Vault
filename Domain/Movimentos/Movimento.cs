@@ -25,6 +25,8 @@ public class Movimento : Entity
     public decimal ValorAporte { get; set; } = 0M;
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
+    public MotivoEncerramento? MotivoEncerramento { get; private set; }
+    public DateTime? DataEncerramento { get; private set; }
     public decimal ValorLiquidoAtual { get; set; } = 0M;
     public DateTime DataAtualizacaoValorLiquido { get; set; }
     public bool AtualizaPorCotacao { get; set; }
@@ -41,5 +43,31 @@ public class Movimento : Entity
 
         ValorLiquidoAtual = decimal.Round(Quantidade.Value * cotacao, 2, MidpointRounding.AwayFromZero);
         DataAtualizacaoValorLiquido = hoje.Date;
+    }
+
+    public void Encerrar(MotivoEncerramento motivo, DateTime data, DateTime hoje)
+    {
+        if (!Enum.IsDefined(motivo))
+            throw new ArgumentOutOfRangeException(nameof(motivo));
+
+        if (data.Date > hoje.Date)
+            throw new InvalidOperationException("A data de encerramento não pode ser futura.");
+
+        if (data.Date < DataInvestimento.Date)
+            throw new InvalidOperationException("A data de encerramento não pode ser anterior à data do investimento.");
+
+        EstaAtivo = false;
+        MotivoEncerramento = motivo;
+        DataEncerramento = data.Date;
+    }
+
+    public void Reativar()
+    {
+        if (EstaAtivo)
+            return;
+
+        EstaAtivo = true;
+        MotivoEncerramento = null;
+        DataEncerramento = null;
     }
 }
