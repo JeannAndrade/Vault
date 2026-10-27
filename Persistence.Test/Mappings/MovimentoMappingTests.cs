@@ -61,4 +61,37 @@ public class MovimentoMappingTests
         Assert.NotNull(indice);
         Assert.Equal("IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido", indice!.GetDatabaseName());
     }
+
+    [Fact]
+    public void Movimento_PossuiMotivoEncerramentoAnulavelComConversorTextoEComprimento20()
+    {
+        var opcoes = new DbContextOptionsBuilder<VaultDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var contexto = new VaultDbContext(opcoes);
+
+        var entidade = contexto.Model.FindEntityType(typeof(Movimento))!;
+        var propriedade = entidade.FindProperty(nameof(Movimento.MotivoEncerramento));
+
+        Assert.NotNull(propriedade);
+        Assert.True(propriedade!.IsNullable);
+        Assert.Equal(20, propriedade.GetMaxLength());
+        Assert.Equal(typeof(string), propriedade.GetProviderClrType());
+    }
+
+    [Fact]
+    public void Movimento_PossuiDataEncerramentoAnulavelComoDateTimeNullable()
+    {
+        var opcoes = new DbContextOptionsBuilder<VaultDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var contexto = new VaultDbContext(opcoes);
+
+        var entidade = contexto.Model.FindEntityType(typeof(Movimento))!;
+        var propriedade = entidade.FindProperty(nameof(Movimento.DataEncerramento));
+
+        Assert.NotNull(propriedade);
+        Assert.True(propriedade!.IsNullable);
+        Assert.Equal(typeof(DateTime?), propriedade.ClrType);
+    }
 }

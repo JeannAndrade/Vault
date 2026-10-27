@@ -611,6 +611,75 @@ public class MovimentoRepositoryTests
         Assert.Equal([primeiro.Id], resultado.Select(m => m.Id));
     }
 
+    [Fact]
+    public async Task GetAsync_RetornaMovimentoEncerradoComMotivoEDataPersistidos()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+
+        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 15));
+        movimento.EstaAtivo = true;
+        movimento.Encerrar(MotivoEncerramento.Reinvestido, new DateTime(2026, 2, 1), new DateTime(2026, 2, 5));
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var carregado = await new MovimentoRepository(context)
+            .GetAsync(userId, movimento.Id, trackChanges: false, CancellationToken.None);
+
+        Assert.NotNull(carregado);
+        Assert.False(carregado!.EstaAtivo);
+        Assert.Equal(MotivoEncerramento.Reinvestido, carregado.MotivoEncerramento);
+        Assert.Equal(new DateTime(2026, 2, 1), carregado.DataEncerramento);
+    }
+
+    [Fact]
+    public async Task GetAsync_RetornaMovimentoAtivoComMotivoEDataNulos()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+
+        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 15));
+        movimento.EstaAtivo = true;
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var carregado = await new MovimentoRepository(context)
+            .GetAsync(userId, movimento.Id, trackChanges: false, CancellationToken.None);
+
+        Assert.NotNull(carregado);
+        Assert.True(carregado!.EstaAtivo);
+        Assert.Null(carregado.MotivoEncerramento);
+        Assert.Null(carregado.DataEncerramento);
+    }
+
+    [Fact]
+    public async Task Reativar_PersisteEstadoAtivoELimpaMotivoEData()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+
+        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 15));
+        movimento.EstaAtivo = true;
+        movimento.Encerrar(MotivoEncerramento.Pendente, new DateTime(2026, 2, 1), new DateTime(2026, 2, 5));
+        await context.SaveChangesAsync();
+
+        context.ChangeTracker.Clear();
+        var carregado = await new MovimentoRepository(context)
+            .GetAsync(userId, movimento.Id, trackChanges: true, CancellationToken.None);
+
+        carregado!.Reativar();
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var relembrado = await new MovimentoRepository(context)
+            .GetAsync(userId, movimento.Id, trackChanges: false, CancellationToken.None);
+
+        Assert.NotNull(relembrado);
+        Assert.True(relembrado!.EstaAtivo);
+        Assert.Null(relembrado.MotivoEncerramento);
+        Assert.Null(relembrado.DataEncerramento);
+    }
+
     private static Movimento AdicionarMovimentoDoTitulo(
         VaultDbContext context, Guid userId, string corretora, string produto, string emissor, DateTime dataAtualizacao)
     {

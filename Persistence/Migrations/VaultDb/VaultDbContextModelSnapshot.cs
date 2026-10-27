@@ -120,6 +120,9 @@ namespace Persistence.Migrations.VaultDb
                     b.Property<DateTime>("DataAtualizacaoValorLiquido")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime?>("DataEncerramento")
+                        .HasColumnType("date");
+
                     b.Property<DateTime>("DataInvestimento")
                         .HasColumnType("datetime(6)");
 
@@ -135,6 +138,10 @@ namespace Persistence.Migrations.VaultDb
 
                     b.Property<bool>("EstaAtivo")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("MotivoEncerramento")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<Guid>("ObjetivoId")
                         .HasColumnType("char(36)")
@@ -205,7 +212,10 @@ namespace Persistence.Migrations.VaultDb
 
                     b.HasIndex("UserId", "EstaAtivo", "DataVencimento");
 
-                    b.ToTable("Movimentos", (string)null);
+                    b.ToTable("Movimentos", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Movimentos_Encerramento", "((EstaAtivo = 1 AND MotivoEncerramento IS NULL AND DataEncerramento IS NULL) OR (EstaAtivo = 0 AND MotivoEncerramento IS NOT NULL AND DataEncerramento IS NOT NULL))");
+                        });
                 });
 
             modelBuilder.Entity("Domain.Objetivos.Objetivo", b =>

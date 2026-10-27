@@ -8,7 +8,10 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
 {
     public void Configure(EntityTypeBuilder<Movimento> builder)
     {
-        builder.ToTable("Movimentos");
+        builder.ToTable("Movimentos", table =>
+            table.HasCheckConstraint(
+                "CK_Movimentos_Encerramento",
+                "((EstaAtivo = 1 AND MotivoEncerramento IS NULL AND DataEncerramento IS NULL) OR (EstaAtivo = 0 AND MotivoEncerramento IS NOT NULL AND DataEncerramento IS NOT NULL))"));
         builder.HasKey(k => k.Id);
         builder.Property(e => e.Id).HasColumnName("MovimentoId");
         builder.Property(e => e.RentabilidadeContratada).HasMaxLength(60);
@@ -17,6 +20,14 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
         builder.Property(e => e.Protocolo).HasMaxLength(30);
         builder.Property(e => e.Quantidade).HasPrecision(18, 2);
         builder.Property(e => e.DataInvestimento).IsRequired();
+
+        // ADR 0020: motivo e data de encerramento são contrato de persistência em texto/DATE.
+        // O nome dos valores do enum não pode ser alterado sem migration de dados.
+        builder.Property(e => e.MotivoEncerramento)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+        builder.Property(e => e.DataEncerramento).HasColumnType("date");
+
         builder.Property(e => e.ValorAporte).IsRequired().HasPrecision(18, 2);
         builder.Property(e => e.EhReinvestimento).IsRequired();
         builder.Property(e => e.EstaAtivo).IsRequired();
