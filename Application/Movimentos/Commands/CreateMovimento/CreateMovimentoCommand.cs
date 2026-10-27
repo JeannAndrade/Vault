@@ -27,7 +27,15 @@ public class CreateMovimentoCommand(
             movimentoModel.EmissorId,
             cancellationToken);
 
-        var movimento = movimentoModel.ToDomain(userId, _dateTimeProvider.GetDateTime().Date);
+        var hoje = _dateTimeProvider.GetDateTime().Date;
+        var movimento = movimentoModel.ToDomain(userId, hoje);
+
+        if (movimentoModel.MotivoEncerramento.HasValue && movimentoModel.DataEncerramento.HasValue)
+        {
+            EncerramentoValidador.Validar(movimento.DataInvestimento, movimentoModel.DataEncerramento.Value, hoje);
+            movimento.Encerrar(movimentoModel.MotivoEncerramento.Value, movimentoModel.DataEncerramento.Value, hoje);
+        }
+
         _repositoryManager.Movimento.Create(movimento);
         await _repositoryManager.SaveAsync(cancellationToken);
 

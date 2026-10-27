@@ -46,7 +46,11 @@ public record MovimentoModelForCreation : IValidatableObject
 
     public bool EhReinvestimento { get; set; }
 
-    public bool EstaAtivo { get; set; }
+    [EnumDataType(typeof(MotivoEncerramento), ErrorMessage = "Motivo do encerramento inválido")]
+    public MotivoEncerramento? MotivoEncerramento { get; set; }
+
+    public DateTime? DataEncerramento { get; set; }
+
     public bool AtualizaPorCotacao { get; set; }
 
     [Required(ErrorMessage = "Valor líquido atual é obrigatório")]
@@ -70,7 +74,7 @@ public record MovimentoModelForCreation : IValidatableObject
         DataVencimento = DataVencimento,
         ValorAporte = ValorAporte,
         EhReinvestimento = EhReinvestimento,
-        EstaAtivo = EstaAtivo,
+        EstaAtivo = true,
         ValorLiquidoAtual = ValorLiquidoAtual,
         DataAtualizacaoValorLiquido = dataAtualizacaoValorLiquido.Date,
         AtualizaPorCotacao = AtualizaPorCotacao
@@ -82,5 +86,15 @@ public record MovimentoModelForCreation : IValidatableObject
             yield return new ValidationResult(
                 "Quantidade é obrigatória e deve ser maior que zero quando o valor varia por cotação",
                 new[] { nameof(Quantidade) });
+
+        var possuiMotivo = MotivoEncerramento.HasValue;
+        var possuiData = DataEncerramento.HasValue;
+        if (possuiMotivo != possuiData)
+        {
+            if (!possuiMotivo)
+                yield return new ValidationResult("Informe o motivo do encerramento", new[] { nameof(MotivoEncerramento) });
+            if (!possuiData)
+                yield return new ValidationResult("Informe a data do encerramento", new[] { nameof(DataEncerramento) });
+        }
     }
 }

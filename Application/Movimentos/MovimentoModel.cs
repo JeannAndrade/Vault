@@ -31,6 +31,8 @@ public record MovimentoModel
     public decimal ValorAporte { get; set; }
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
+    public MotivoEncerramento? MotivoEncerramento { get; set; }
+    public DateTime? DataEncerramento { get; set; }
     public bool AtualizaPorCotacao { get; set; }
     public decimal ValorLiquidoAtual { get; set; }
 
@@ -60,6 +62,8 @@ public record MovimentoModel
             ValorAporte = movimento.ValorAporte,
             EhReinvestimento = movimento.EhReinvestimento,
             EstaAtivo = movimento.EstaAtivo,
+            MotivoEncerramento = movimento.MotivoEncerramento,
+            DataEncerramento = movimento.DataEncerramento,
             ValorLiquidoAtual = movimento.ValorLiquidoAtual,
             AtualizaPorCotacao = movimento.AtualizaPorCotacao
         };

@@ -45,7 +45,6 @@ public record MovimentoModelForUpdate : IValidatableObject
 
     public bool EhReinvestimento { get; set; }
 
-    public bool EstaAtivo { get; set; }
     public bool AtualizaPorCotacao { get; set; }
 
     [Required(ErrorMessage = "Valor líquido atual é obrigatório")]
@@ -68,7 +67,6 @@ public record MovimentoModelForUpdate : IValidatableObject
         movimento.DataVencimento = DataVencimento;
         movimento.ValorAporte = ValorAporte;
         movimento.EhReinvestimento = EhReinvestimento;
-        movimento.EstaAtivo = EstaAtivo;
         movimento.ValorLiquidoAtual = ValorLiquidoAtual;
         movimento.AtualizaPorCotacao = AtualizaPorCotacao;
         return movimento;

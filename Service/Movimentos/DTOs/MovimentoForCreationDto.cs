@@ -38,7 +38,6 @@ public record MovimentoForCreationDto
         DataVencimento = DataVencimento,
         ValorAporte = ValorAporte,
         EhReinvestimento = EhReinvestimento,
-        EstaAtivo = EstaAtivo,
         ValorLiquidoAtual = ValorLiquidoAtual,
         AtualizaPorCotacao = AtualizaPorCotacao
     };
