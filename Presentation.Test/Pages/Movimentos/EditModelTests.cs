@@ -32,8 +32,7 @@ public class EditModelTests
             DataInvestimento = new DateTime(2025, 1, 10),
             DataVencimento = new DateTime(2030, 1, 10),
             ValorAporte = 500m,
-            ValorLiquidoAtual = 520m,
-            EstaAtivo = true
+            ValorLiquidoAtual = 520m
         };
         _movimentoApi.Setup(a => a.GetByIdAsync(_id, It.IsAny<CancellationToken>())).ReturnsAsync(movimento);
         var model = new EditModel(_movimentoApi.Object, _lookupData.Object) { Id = _id };

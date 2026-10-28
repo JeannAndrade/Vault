@@ -2,6 +2,8 @@ using Application.Corretoras.Queries.GetCorretora;
 using Application.Dashboards.Queries.GetRentabilidadesPorTipoRenda;
 using Application.Movimentos.Commands.CreateMovimento;
 using Application.Movimentos.Commands.DistribuirValorLiquido;
+using Application.Movimentos.Commands.EncerrarMovimento;
+using Application.Movimentos.Commands.ReativarMovimento;
 using Application.Movimentos.Commands.UpdateValorLiquidoMovimento;
 using Application.Movimentos.Queries.GetMovimentosDesatualizados;
 using Application.Movimentos.Queries.SimularDistribuicaoValorLiquido;
@@ -79,6 +81,8 @@ public class RegistroDeServicosTests
     [InlineData(typeof(IGetMovimentosDesatualizadosQuery))]
     [InlineData(typeof(IUpdateValorLiquidoMovimentoCommand))]
     [InlineData(typeof(ICreateMovimentoCommand))]
+    [InlineData(typeof(IEncerrarMovimentoCommand))]
+    [InlineData(typeof(IReativarMovimentoCommand))]
     [InlineData(typeof(IGetRentabilidadesPorTipoRendaQuery))]
     public void ResolveServicosEsperados(Type servico)
     {

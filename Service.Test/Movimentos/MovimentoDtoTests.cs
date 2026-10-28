@@ -1,5 +1,6 @@
 using Application.Movimentos;
 using Application.Movimentos.Queries.GetMovimentosDesatualizados;
+using Domain.Movimentos;
 using LumiaFoundation.Core.Pagination;
 using Service.Movimentos.DTOs;
 
@@ -27,6 +28,35 @@ public class MovimentoDtoTests
         var dto = MovimentoDto.FromApplication(model);
 
         Assert.Null(dto.DataVencimento);
+    }
+
+    [Fact]
+    public void FromApplication_MapsEncerramentoAndKeepsStatus()
+    {
+        var model = new MovimentoModel
+        {
+            EstaAtivo = false,
+            MotivoEncerramento = MotivoEncerramento.Gasto,
+            DataEncerramento = new DateTime(2026, 10, 20)
+        };
+
+        var dto = MovimentoDto.FromApplication(model);
+
+        Assert.False(dto.EstaAtivo);
+        Assert.Equal(MotivoEncerramento.Gasto, dto.MotivoEncerramento);
+        Assert.Equal(new DateTime(2026, 10, 20), dto.DataEncerramento);
+    }
+
+    [Fact]
+    public void FromApplication_AtivoMapsEncerramentoComoNulo()
+    {
+        var model = new MovimentoModel { EstaAtivo = true };
+
+        var dto = MovimentoDto.FromApplication(model);
+
+        Assert.True(dto.EstaAtivo);
+        Assert.Null(dto.MotivoEncerramento);
+        Assert.Null(dto.DataEncerramento);
     }
 
     [Fact]

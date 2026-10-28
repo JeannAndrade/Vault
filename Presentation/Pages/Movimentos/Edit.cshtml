@@ -115,10 +115,6 @@
     <input asp-for="Input.EhReinvestimento" class="form-check-input" />
     <label asp-for="Input.EhReinvestimento" class="form-check-label">É reinvestimento</label>
   </div>
-  <div class="form-check mb-3">
-    <input asp-for="Input.EstaAtivo" class="form-check-input" />
-    <label asp-for="Input.EstaAtivo" class="form-check-label">Ativo</label>
-  </div>
 
   <button type="submit" class="btn btn-primary">Salvar</button>
   <a class="btn btn-outline-secondary" asp-page="Index" asp-route-pagina="@Model.Pagina" asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId" asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId" asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId" asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId" asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId" asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Cancelar</a>

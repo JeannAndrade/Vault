@@ -1,0 +1,97 @@
+@page "{id:guid}"
+@model EncerrarModel
+@using Presentation.Movimentos
+@{
+    ViewData["Title"] = Model.EstaEncerrado ? "Alterar encerramento" : "Encerrar movimento";
+    var cultura = new System.Globalization.CultureInfo("pt-BR");
+}
+
+<h1 class="h3 mb-3">@ViewData["Title"]</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+<div class="alert alert-info" role="alert">
+    O valor líquido atual será mantido como o valor do resgate. Se ele estiver desatualizado, atualize-o antes de encerrar.
+    <a asp-page="Edit" asp-route-id="@Model.Id" asp-route-pagina="@Model.Pagina"
+       asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId"
+       asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId"
+       asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId"
+       asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId"
+       asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId"
+       asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Editar movimento</a>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Objetivo</dt>
+    <dd class="col-sm-9">@Model.Movimento.ObjetivoNome</dd>
+    <dt class="col-sm-3">Tipo de Renda</dt>
+    <dd class="col-sm-9">@Model.Movimento.TipoRendaNome</dd>
+    <dt class="col-sm-3">Corretora</dt>
+    <dd class="col-sm-9">@Model.Movimento.CorretoraNome</dd>
+    <dt class="col-sm-3">Produto</dt>
+    <dd class="col-sm-9">@Model.Movimento.ProdutoNome</dd>
+    <dt class="col-sm-3">Emissor</dt>
+    <dd class="col-sm-9">@Model.Movimento.EmissorNome</dd>
+    <dt class="col-sm-3">Data do investimento</dt>
+    <dd class="col-sm-9">@Model.Movimento.DataInvestimento.ToString("dd/MM/yyyy")</dd>
+    <dt class="col-sm-3">Valor do aporte</dt>
+    <dd class="col-sm-9">@Model.Movimento.ValorAporte.ToString("C", cultura)</dd>
+    <dt class="col-sm-3">Valor líquido atual</dt>
+    <dd class="col-sm-9">@Model.Movimento.ValorLiquidoAtual.ToString("C", cultura)</dd>
+</dl>
+
+<form method="post">
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="Pagina" type="hidden" />
+    <input asp-for="Filtro.ObjetivoId" type="hidden" />
+    <input asp-for="Filtro.TipoRendaId" type="hidden" />
+    <input asp-for="Filtro.CorretoraId" type="hidden" />
+    <input asp-for="Filtro.ProdutoId" type="hidden" />
+    <input asp-for="Filtro.EmissorId" type="hidden" />
+    <input asp-for="Filtro.EstaAtivo" type="hidden" />
+
+    <div class="mb-3">
+        <label asp-for="Input.Motivo" class="form-label">Motivo do encerramento</label>
+        <select asp-for="Input.Motivo" class="form-select">
+            <option value="">Selecione...</option>
+            <option value="@MotivoEncerramento.Gasto">@MotivoEncerramentoFormatter.Descricao(MotivoEncerramento.Gasto)</option>
+            <option value="@MotivoEncerramento.Reinvestido">@MotivoEncerramentoFormatter.Descricao(MotivoEncerramento.Reinvestido)</option>
+            <option value="@MotivoEncerramento.Pendente">@MotivoEncerramentoFormatter.Descricao(MotivoEncerramento.Pendente)</option>
+        </select>
+        <span asp-validation-for="Input.Motivo" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Data" class="form-label">Data do encerramento</label>
+        <input asp-for="Input.Data" class="form-control" type="date" />
+        <span asp-validation-for="Input.Data" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">@(Model.EstaEncerrado ? "Salvar encerramento" : "Encerrar")</button>
+    <a class="btn btn-outline-secondary" asp-page="Index" asp-route-pagina="@Model.Pagina"
+       asp-route-Filtro.ObjetivoId="@Model.Filtro.ObjetivoId"
+       asp-route-Filtro.TipoRendaId="@Model.Filtro.TipoRendaId"
+       asp-route-Filtro.CorretoraId="@Model.Filtro.CorretoraId"
+       asp-route-Filtro.ProdutoId="@Model.Filtro.ProdutoId"
+       asp-route-Filtro.EmissorId="@Model.Filtro.EmissorId"
+       asp-route-Filtro.EstaAtivo="@Model.Filtro.EstaAtivo">Cancelar</a>
+</form>
+
+@if (Model.EstaEncerrado)
+{
+    <hr />
+    <p>Reativar limpa o motivo e a data do encerramento.</p>
+    <form method="post" asp-page-handler="Reativar" onsubmit="return confirm('Reativar este movimento?');">
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="Pagina" type="hidden" />
+        <input asp-for="Filtro.ObjetivoId" type="hidden" />
+        <input asp-for="Filtro.TipoRendaId" type="hidden" />
+        <input asp-for="Filtro.CorretoraId" type="hidden" />
+        <input asp-for="Filtro.ProdutoId" type="hidden" />
+        <input asp-for="Filtro.EmissorId" type="hidden" />
+        <input asp-for="Filtro.EstaAtivo" type="hidden" />
+        <button type="submit" class="btn btn-outline-warning">Reativar</button>
+    </form>
+}

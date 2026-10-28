@@ -16,7 +16,6 @@ public sealed record MovimentoForUpdateDto
     public DateTime? DataVencimento { get; init; }
     public decimal ValorAporte { get; init; }
     public bool EhReinvestimento { get; init; }
-    public bool EstaAtivo { get; init; }
     public decimal ValorLiquidoAtual { get; init; }
     public bool AtualizaPorCotacao { get; init; }
 }
