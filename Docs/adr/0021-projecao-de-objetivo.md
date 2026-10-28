@@ -1,6 +1,6 @@
 # ADR 0021: Projeção do Objetivo (meses para atingir a Meta)
 
-- Status: Proposta (2026-10-27, revisada após as confirmações do mesmo dia). Complementa o ADR 0014 e resolve a ressalva do ADR 0020 sobre o `Pendente`.
+- Status: Aceita (2026-10-28). Complementa o ADR 0014 e resolve a ressalva do ADR 0020 sobre o `Pendente`.
 
 ## Contexto
 

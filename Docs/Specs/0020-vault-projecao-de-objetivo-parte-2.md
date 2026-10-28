@@ -1,7 +1,7 @@
 # Especificação técnica 0020: Projeção do Objetivo (Vault), parte 2
 
 - Data: 2026-10-27
-- Status: **em elaboração (parte 2 de 4: Passo 2, Application)**
+- Status: **implementada (2026-10-28)**
 - ADR relacionado: [0021](../adr/0021-projecao-de-objetivo.md)
 - Parte anterior: [0020-vault-projecao-de-objetivo.md](0020-vault-projecao-de-objetivo.md) (Passos 0 e 1: ADR e Domain)
 - Repositório afetado nesta parte: **Application** (e o ajuste de testes que usam o construtor da query). Sem schema, sem migration, sem dependência nova, sem consulta nova.

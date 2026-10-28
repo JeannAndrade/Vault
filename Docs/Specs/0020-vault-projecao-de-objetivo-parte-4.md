@@ -1,7 +1,7 @@
 # Especificação técnica 0020: Projeção do Objetivo (Vault), parte 4
 
 - Data: 2026-10-28
-- Status: **em elaboração (parte 4 de 4: Passo 4, Presentation/Web, e Passo 5, fechamento)**
+- Status: **implementada (2026-10-28)**
 - ADR relacionado: [0021](../adr/0021-projecao-de-objetivo.md)
 - Partes anteriores: [parte 1](0020-vault-projecao-de-objetivo.md) (Passos 0 e 1), [parte 2](0020-vault-projecao-de-objetivo-parte-2.md) (Passo 2), [parte 3](0020-vault-projecao-de-objetivo-parte-3.md) (Passo 3)
 - Pré-requisito: spec 0019 (Encerramento de Movimento) implementada, e as partes 1 a 3 desta spec.

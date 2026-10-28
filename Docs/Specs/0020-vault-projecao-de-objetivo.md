@@ -1,7 +1,7 @@
 # Especificação técnica 0020: Projeção do Objetivo (Vault)
 
 - Data: 2026-10-27
-- Status: **em elaboração (parte 1 de 4: Passos 0 e 1, ADR e Domain)**
+- Status: **implementada (2026-10-28)**
 - ADR relacionado: [0021](../adr/0021-projecao-de-objetivo.md)
 - Pré-requisito: **spec 0019 (encerramento de Movimento) implementada**, pelo menos o Passo 1 (Domain) e a migration, porque a projeção usa `MotivoEncerramento`.
 - Repositório afetado: **Vault** (Domain, Application, Service, Presentation/Web). **Sem schema, sem migration, sem dependência nova e sem alteração no LumiaFoundation.**

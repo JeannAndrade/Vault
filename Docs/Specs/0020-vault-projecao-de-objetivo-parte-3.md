@@ -1,7 +1,7 @@
 # Especificação técnica 0020: Projeção do Objetivo (Vault), parte 3
 
 - Data: 2026-10-27
-- Status: **em elaboração (parte 3 de 4: Passo 3, Service/Api)**
+- Status: **implementada (2026-10-28)**
 - ADR relacionado: [0021](../adr/0021-projecao-de-objetivo.md)
 - Partes anteriores: [parte 1](0020-vault-projecao-de-objetivo.md) (Passos 0 e 1), [parte 2](0020-vault-projecao-de-objetivo-parte-2.md) (Passo 2)
 - Repositório afetado nesta parte: **Service (Api)**. Sem schema, sem migration, sem dependência nova, **sem endpoint novo** e sem alteração no LumiaFoundation.
