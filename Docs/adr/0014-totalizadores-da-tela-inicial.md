@@ -1,6 +1,6 @@
 # ADR 0014: Totalizadores na tela inicial
 
-- Status: Aceita (2026-10-16)
+- Status: Aceita (2026-10-16). Complementada pelo ADR 0021 (2026-10-28).
 
 ## Contexto
 

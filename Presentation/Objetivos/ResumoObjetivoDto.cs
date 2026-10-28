@@ -7,4 +7,5 @@ public sealed record ResumoObjetivoDto(
     decimal PercentualMeta,
     int QtdeMovimentos,
     decimal TotalAportado,
-    decimal TotalLiquido);
+    decimal TotalLiquido,
+    ProjecaoObjetivoDto? Projecao = null);

@@ -1,5 +1,6 @@
 @page
 @model IndexModel
+@using Presentation.Objetivos
 @{
     ViewData["Title"] = "Objetivos";
     var culturaMoeda = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
@@ -23,38 +24,78 @@ else
     <table class="table table-striped">
         <thead>
             <tr>
+                <th class="text-center" style="width: 2.5rem"></th>
                 <th>Nome</th>
                 <th class="text-end">Meta</th>
                 <th class="text-end">Percentual Meta</th>
                 <th class="text-end">Qtde Movimentos</th>
                 <th class="text-end">Total Aportado</th>
                 <th class="text-end">Total Líquido</th>
+                <th>Previsão</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var objetivo in Model.Objetivos)
             {
                 <tr>
+                    <td class="text-center">
+                        @if (objetivo.Projecao is not null)
+                        {
+                            <button class="btn btn-sm btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#projecao-@objetivo.Id" aria-controls="projecao-@objetivo.Id" aria-expanded="false" title="Mostrar detalhes da previsão">
+                                <i class="bi bi-chevron-down" aria-hidden="true"></i><span class="visually-hidden">Mostrar previsão de @objetivo.Nome</span>
+                            </button>
+                        }
+                    </td>
                     <td>@objetivo.Nome</td>
                     <td class="text-end">@objetivo.Meta.ToString("C", culturaMoeda)</td>
                     <td class="text-end">@objetivo.PercentualMeta.ToString("F2") %</td>
                     <td class="text-end">@objetivo.QtdeMovimentos</td>
                     <td class="text-end">@objetivo.TotalAportado.ToString("C", culturaMoeda)</td>
                     <td class="text-end">@objetivo.TotalLiquido.ToString("C", culturaMoeda)</td>
+                    <td class="fw-semibold">
+                        @(objetivo.Projecao is null ? "—" : ProjecaoFormatter.FormatarCenario(objetivo.Projecao.Realista))
+                        @if (objetivo.Projecao?.BaixaConfianca == true)
+                        {
+                            <i class="bi bi-exclamation-triangle text-warning ms-1" title="@ProjecaoFormatter.TextoBaixaConfianca" aria-label="@ProjecaoFormatter.TextoBaixaConfianca"></i>
+                        }
+                    </td>
                 </tr>
+                @if (objetivo.Projecao is not null)
+                {
+                    <tr>
+                        <td colspan="8" class="p-0">
+                            <div class="collapse" id="projecao-@objetivo.Id">
+                                <div class="p-3 bg-body-secondary">
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-3">Conservador</dt><dd class="col-sm-9">@ProjecaoFormatter.FormatarCenario(objetivo.Projecao.Conservador) <span class="text-muted">(mantendo o aporte realizado, sem rendimento)</span></dd>
+                                        <dt class="col-sm-3">Realista</dt><dd class="col-sm-9">@ProjecaoFormatter.FormatarCenario(objetivo.Projecao.Realista) <span class="text-muted">(mantendo o aporte realizado, com o rendimento histórico)</span></dd>
+                                        <dt class="col-sm-3">Planejado</dt><dd class="col-sm-9">@ProjecaoFormatter.FormatarCenario(objetivo.Projecao.Planejado) <span class="text-muted">(com o aporte planejado, com o rendimento histórico)</span></dd>
+                                        <dt class="col-sm-3">Saldo considerado</dt><dd class="col-sm-9">@objetivo.TotalLiquido.ToString("C", culturaMoeda) @if (objetivo.Projecao.SaldoPendente > 0) { <span class="text-muted">(inclui @objetivo.Projecao.SaldoPendente.ToString("C", culturaMoeda) de movimentos encerrados como Pendente)</span> }</dd>
+                                        <dt class="col-sm-3">Aporte realizado</dt><dd class="col-sm-9">@ProjecaoFormatter.FormatarAporteRealizado(objetivo.Projecao.AporteRealizadoMensal, objetivo.Projecao.MesesObservados)</dd>
+                                        <dt class="col-sm-3">Aporte planejado</dt><dd class="col-sm-9">@objetivo.Projecao.AportePlanejadoMensal.ToString("C", culturaMoeda) por mês</dd>
+                                        <dt class="col-sm-3">Rentabilidade estimada</dt><dd class="col-sm-9">@ProjecaoFormatter.FormatarTaxa(objetivo.Projecao.TaxaAnualEstimada) ao ano / @ProjecaoFormatter.FormatarTaxa(objetivo.Projecao.TaxaMensalEstimada) ao mês</dd>
+                                    </dl>
+                                    @if (objetivo.Projecao.BaixaConfianca) { <div class="alert alert-warning py-2 mt-3 mb-0">@ProjecaoFormatter.TextoBaixaConfianca</div> }
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
         @* A ordem desta linha acompanha as colunas acima; revisar junto se a tabela mudar. *@
         <tfoot class="table-group-divider">
             <tr class="fw-semibold">
-                <th>Total</th>
+                <th colspan="2">Total</th>
                 <td colspan="2"></td>
                 <td class="text-end">@Model.Totais.QtdeMovimentos</td>
                 <td class="text-end">@Model.Totais.TotalAportado.ToString("C", culturaMoeda)</td>
                 <td class="text-end">@Model.Totais.TotalLiquido.ToString("C", culturaMoeda)</td>
+                <td></td>
             </tr>
         </tfoot>
     </table>
+    <p class="small text-muted">Total Líquido e Percentual Meta incluem movimentos encerrados como Pendente. Previsões são estimativas baseadas no seu histórico, não promessas de rentabilidade.</p>
 }
 
 <div class="mb-4">
