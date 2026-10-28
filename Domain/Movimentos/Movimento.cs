@@ -26,6 +26,7 @@ public class Movimento : Entity
     public bool EhReinvestimento { get; set; }
     public bool EstaAtivo { get; set; }
     public MotivoEncerramento? MotivoEncerramento { get; private set; }
+    public bool CompoeSaldoDoObjetivo => EstaAtivo || MotivoEncerramento == global::Domain.Movimentos.MotivoEncerramento.Pendente;
     public DateTime? DataEncerramento { get; private set; }
     public decimal ValorLiquidoAtual { get; set; } = 0M;
     public DateTime DataAtualizacaoValorLiquido { get; set; }
