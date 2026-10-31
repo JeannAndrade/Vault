@@ -1,0 +1,144 @@
+@page
+@model Presentation.Pages.Dashboards.ConsolidadoModel
+@using System.Globalization
+@using Presentation.Dashboards
+@{
+    ViewData["Title"] = "Consolidado";
+    var cultura = CultureInfo.GetCultureInfo("pt-BR");
+}
+
+<h1 class="h3 mb-3">Consolidado</h1>
+
+<form method="get" class="row g-3 mb-3 align-items-end">
+    <div class="col-md-3">
+        <label asp-for="Filtro.TipoRendaId" class="form-label">Tipo de Renda</label>
+        <select asp-for="Filtro.TipoRendaId" asp-items="Model.Lookup.TiposRenda" class="form-select">
+            <option value="">--</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Filtro.CorretoraId" class="form-label">Corretora</label>
+        <select asp-for="Filtro.CorretoraId" asp-items="Model.Lookup.Corretoras" class="form-select">
+            <option value="">--</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Filtro.ProdutoId" class="form-label">Produto</label>
+        <select asp-for="Filtro.ProdutoId" asp-items="Model.Lookup.Produtos" class="form-select">
+            <option value="">--</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Filtro.EmissorId" class="form-label">Emissor</label>
+        <select asp-for="Filtro.EmissorId" asp-items="Model.Lookup.Emissores" class="form-select">
+            <option value="">--</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="AgruparPor" class="form-label">Agrupar por</label>
+        <select asp-for="AgruparPor" class="form-select">
+            <option value="">Sem agrupamento</option>
+            <option value="TipoRenda">Tipo de Renda</option>
+            <option value="Corretora">Corretora</option>
+            <option value="Produto">Produto</option>
+            <option value="Emissor">Emissor</option>
+        </select>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a class="btn btn-link" asp-page="/Dashboards/Consolidado">Limpar filtro</a>
+    </div>
+</form>
+
+<p class="text-muted small">
+    Considera apenas Movimentos ativos. Movimentos encerrados como Pendente não entram:
+    o dinheiro pode já ter sido levado para outro lugar.
+</p>
+<p class="text-muted small">
+    Movimentos de Objetivos inativos entram. Por isso o total pode ser diferente do total
+    da tela inicial, que lista só Objetivos ativos e inclui Pendente.
+</p>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+else if (!Model.TemCriterio)
+{
+    <p class="text-muted">
+        Escolha ao menos um filtro ou um agrupamento e clique em Filtrar.
+    </p>
+}
+else if (Model.Resultado is { Total.Quantidade: 0 })
+{
+    <p class="text-muted">
+        Nenhum movimento ativo encontrado para os critérios selecionados.
+    </p>
+}
+else if (Model.Resultado is not null && Model.TemGrupos)
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>@ConsolidadoFormatter.RotuloDimensao(Model.AgruparPor)</th>
+                <th class="text-end">Qtde Movimentos</th>
+                <th class="text-end">Total Aportado</th>
+                <th class="text-end">Total Líquido</th>
+                <th class="text-end">Percentual do Total Líquido</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var grupo in Model.Resultado.Grupos)
+            {
+                <tr>
+                    <td>@ConsolidadoFormatter.NomeDoGrupo(grupo.Nome)</td>
+                    <td class="text-end">@grupo.Quantidade</td>
+                    <td class="text-end">@grupo.TotalAportado.ToString("C", cultura)</td>
+                    <td class="text-end">@grupo.TotalLiquido.ToString("C", cultura)</td>
+                    <td class="text-end">
+                        @ConsolidadoFormatter.Percentual(grupo.PercentualLiquido)
+                    </td>
+                </tr>
+            }
+        </tbody>
+        @* A ordem das células acompanha a ordem do cabeçalho. *@
+        <tfoot>
+            <tr>
+                <th>Total</th>
+                <th class="text-end">@Model.Resultado.Total.Quantidade</th>
+                <th class="text-end">
+                    @Model.Resultado.Total.TotalAportado.ToString("C", cultura)
+                </th>
+                <th class="text-end">
+                    @Model.Resultado.Total.TotalLiquido.ToString("C", cultura)
+                </th>
+                <th class="text-end">
+                    @ConsolidadoFormatter.Percentual(Model.Resultado.Total.PercentualLiquido)
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+}
+else if (Model.Resultado is not null)
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th class="text-end">Qtde Movimentos</th>
+                <th class="text-end">Total Aportado</th>
+                <th class="text-end">Total Líquido</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-end">@Model.Resultado.Total.Quantidade</td>
+                <td class="text-end">
+                    @Model.Resultado.Total.TotalAportado.ToString("C", cultura)
+                </td>
+                <td class="text-end">
+                    @Model.Resultado.Total.TotalLiquido.ToString("C", cultura)
+                </td>
+            </tr>
+        </tbody>
+    </table>
+}

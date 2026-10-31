@@ -1,7 +1,7 @@
 # Especificação técnica 0021: Consolidado de Movimentos (Vault), parte 3 de 3
 
 - Data: 2026-10-30
-- Status: **em elaboração (parte 3 de 3: Passos 4 e 5, Web e fechamento)**
+- Status: **implementada (fechamento em 2026-10-30)**
 - ADR relacionado: [0022](../adr/0022-consolidado-de-movimentos.md)
 - Partes anteriores: [parte 1](0021-vault-consolidado.md) (Passos 0 a 2) e [parte 2](0021-vault-consolidado-parte-2.md) (Passo 3)
 - Repositório afetado nesta parte: **Presentation (Web)** e documentação. Sem schema, sem migration, sem dependência nova, sem Domain e sem alteração no LumiaFoundation.

@@ -84,6 +84,7 @@ builder.Services.AddApiResourceClient<ICotacaoApi, CotacaoApi>();
 builder.Services.AddApiResourceClient<IAtualizacaoPorCotacaoApi, AtualizacaoPorCotacaoApi>();
 builder.Services.AddApiResourceClient<IRentabilidadeApi, RentabilidadeApi>();
 builder.Services.AddApiResourceClient<IFluxoMensalApi, FluxoMensalApi>();
+builder.Services.AddApiResourceClient<IConsolidadoApi, ConsolidadoApi>();
 #endregion
 
 #region Tratamento de exceções

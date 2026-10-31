@@ -1,6 +1,6 @@
 # ADR 0022: Consolidado de Movimentos por filtros e agrupamento
 
-- Status: Proposta (2026-10-30)
+- Status: Aceita (2026-10-30)
 
 ## Contexto
 
@@ -46,7 +46,7 @@ O dinheiro de um Movimento encerrado como `Pendente` pode já ter sido levado pa
 
 - **Domain:** sem alteração. Não há regra de negócio nova (só soma e razão).
 - **Persistence:** `ConsolidadoFiltro` (quatro `Guid?`), enum `DimensaoConsolidado`, projeções `ConsolidadoAgregado` e `ConsolidadoGrupoItem`, e dois métodos no `IMovimentoRepository` (total e agrupado), ambos com `CancellationToken` obrigatório (ADR 0017).
-- **Application:** `GetConsolidadoQuery`, sem relógio. Valida "ao menos um filtro" e a dimensão (`CommandValidationException`, 422) e calcula os percentuais.
+- **Application:** `GetConsolidadoQuery`, sem relógio. Valida "ao menos um filtro ou um agrupamento" e a dimensão (`CommandValidationException`, 422) e calcula os percentuais.
 - **Service:** `GET api/dashboards/consolidado` no `DashboardsController`, com `[RequestValidation]`; um tipo de filtro por camada, com `ToXxx()` entre elas.
 - **Web:** página `/Dashboards/Consolidado`, item **Consolidado** no menu **Dashboards**; formulário `GET` com quatro selects (`--` = todos) e "Agrupar por"; botão **Limpar filtro**; filtros só na URL. Reaproveita `IMovimentoFormLookupData`.
 - Sem schema, sem migration, sem índice novo e sem dependência nova.
@@ -72,3 +72,7 @@ O dinheiro de um Movimento encerrado como `Pendente` pode já ter sido levado pa
 - Complementa os ADRs 0012, 0014, 0018, 0019 e 0021.
 
 Fora de escopo: seleção múltipla, agrupamento por mais de uma dimensão, gráficos, exportação, inclusão de encerrados e persistência do último filtro.
+
+## Implementação e fechamento
+
+Fechada em 2026-10-30. A implementação confirmou os tipos e endpoints descritos, sem alteração de schema, migration, índice, pacote, Domain ou LumiaFoundation. O agrupamento com `GroupBy` e `Sum` foi mantido no repositório; a projeção foi ajustada para uma forma traduzível pelo EF/InMemory e compatível com o SQL do MariaDB. A regra final é “filtro ou agrupamento” na Application e no Web, a Api não devolve `agruparPor` e o Web reaproveita `RentabilidadeFormatter.Percentual`. A reavaliação de desempenho continua condicionada a `EXPLAIN` e tempo em volume realista.
