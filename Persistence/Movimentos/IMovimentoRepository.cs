@@ -19,6 +19,8 @@ public interface IMovimentoRepository
     Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId, CancellationToken cancellationToken);
     Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken);
     Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken);
+    Task<ConsolidadoAgregado> GetConsolidadoAsync(Guid ownerId, ConsolidadoFiltro filtro, CancellationToken cancellationToken);
+    Task<List<ConsolidadoGrupoItem>> GetConsolidadoAgrupadoAsync(Guid ownerId, ConsolidadoFiltro filtro, DimensaoConsolidado dimensao, CancellationToken cancellationToken);
     Task<bool> ExistemPorObjetivoAsync(Guid objetivoId, CancellationToken cancellationToken);
     Task<bool> ExistemPorTipoRendaAsync(Guid tipoRendaId, CancellationToken cancellationToken);
     Task<bool> ExistemPorCorretoraAsync(Guid corretoraId, CancellationToken cancellationToken);

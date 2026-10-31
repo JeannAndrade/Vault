@@ -121,6 +121,58 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     public Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) =>
         ConsultarAtivosDoTitulo(ownerId, titulo, true).ToListAsync(cancellationToken);
 
+    public async Task<ConsolidadoAgregado> GetConsolidadoAsync(
+        Guid ownerId, ConsolidadoFiltro filtro, CancellationToken cancellationToken)
+    {
+        var resultado = await AplicarFiltroConsolidado(ownerId, filtro)
+            .GroupBy(_ => 1)
+            .Select(g => new ConsolidadoAgregado(
+                g.Count(),
+                g.Sum(m => m.ValorAporte),
+                g.Sum(m => m.ValorLiquidoAtual)))
+            .SingleOrDefaultAsync(cancellationToken);
+
+        return resultado ?? new ConsolidadoAgregado(0, 0, 0);
+    }
+
+    public Task<List<ConsolidadoGrupoItem>> GetConsolidadoAgrupadoAsync(
+        Guid ownerId, ConsolidadoFiltro filtro, DimensaoConsolidado dimensao, CancellationToken cancellationToken)
+    {
+        // A ausência de filtro de saldo/Pendente é intencional (ADR 0022); a ordem define as linhas da tela.
+        var consulta = AplicarFiltroConsolidado(ownerId, filtro);
+
+        return dimensao switch
+        {
+            DimensaoConsolidado.TipoRenda => consulta
+                .GroupBy(m => new { m.TipoRendaId, Nome = m.TipoRenda.Nome })
+                .Select(g => new ConsolidadoGrupoItem(g.Key.TipoRendaId, g.Key.Nome, g.Count(), g.Sum(m => m.ValorAporte), g.Sum(m => m.ValorLiquidoAtual)))
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).ToListAsync(cancellationToken),
+            DimensaoConsolidado.Corretora => consulta
+                .GroupBy(m => new { m.CorretoraId, Nome = m.Corretora.Nome })
+                .Select(g => new ConsolidadoGrupoItem(g.Key.CorretoraId, g.Key.Nome, g.Count(), g.Sum(m => m.ValorAporte), g.Sum(m => m.ValorLiquidoAtual)))
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).ToListAsync(cancellationToken),
+            DimensaoConsolidado.Produto => consulta
+                .GroupBy(m => new { m.ProdutoId, Nome = m.Produto.Nome })
+                .Select(g => new ConsolidadoGrupoItem(g.Key.ProdutoId, g.Key.Nome, g.Count(), g.Sum(m => m.ValorAporte), g.Sum(m => m.ValorLiquidoAtual)))
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).ToListAsync(cancellationToken),
+            DimensaoConsolidado.Emissor => consulta
+                .GroupBy(m => new { m.EmissorId, Nome = m.Emissor.Nome })
+                .Select(g => new ConsolidadoGrupoItem(g.Key.EmissorId, g.Key.Nome, g.Count(), g.Sum(m => m.ValorAporte), g.Sum(m => m.ValorLiquidoAtual)))
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).ToListAsync(cancellationToken),
+            _ => throw new ArgumentOutOfRangeException(nameof(dimensao), dimensao, null)
+        };
+    }
+
+    private IQueryable<Movimento> AplicarFiltroConsolidado(Guid ownerId, ConsolidadoFiltro filtro)
+    {
+        var consulta = FindByCondition(m => m.UserId == ownerId && m.EstaAtivo, false);
+        if (filtro.TipoRendaId.HasValue) consulta = consulta.Where(m => m.TipoRendaId == filtro.TipoRendaId.Value);
+        if (filtro.CorretoraId.HasValue) consulta = consulta.Where(m => m.CorretoraId == filtro.CorretoraId.Value);
+        if (filtro.ProdutoId.HasValue) consulta = consulta.Where(m => m.ProdutoId == filtro.ProdutoId.Value);
+        if (filtro.EmissorId.HasValue) consulta = consulta.Where(m => m.EmissorId == filtro.EmissorId.Value);
+        return consulta;
+    }
+
     private IQueryable<Movimento> ConsultarAtivosDoTitulo(Guid ownerId, MovimentoTituloFiltro titulo, bool rastrear) =>
         FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && !m.AtualizaPorCotacao && m.TipoRendaId == titulo.TipoRendaId &&
             m.CorretoraId == titulo.CorretoraId && m.ProdutoId == titulo.ProdutoId && m.EmissorId == titulo.EmissorId, rastrear)
