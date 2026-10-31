@@ -1,7 +1,10 @@
 using Application.Dashboards.Queries.GetRentabilidadesPorTipoRenda;
 using Application.Dashboards.Queries.GetRetornoMensal;
 using Application.Dashboards.Queries.GetInvestidoMensal;
+using Application.Dashboards.Queries.GetConsolidado;
 using Application.Dashboards.Rentabilidade;
+using Application.Dashboards.Consolidado;
+using Persistence.Movimentos;
 using LumiaFoundation.AspNetCore.ActionFilters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,16 +19,62 @@ public class DashboardsControllerTests
     private readonly Mock<IGetRentabilidadesPorTipoRendaQuery> _query = new();
     private readonly Mock<IGetRetornoMensalQuery> _retornoQuery = new();
     private readonly Mock<IGetInvestidoMensalQuery> _investidoQuery = new();
+    private readonly Mock<IGetConsolidadoQuery> _consolidadoQuery = new();
     private readonly DashboardsController _controller;
     private readonly Guid _userId = Guid.NewGuid();
 
     public DashboardsControllerTests()
     {
-        _controller = new DashboardsController(_query.Object, _retornoQuery.Object, _investidoQuery.Object)
+        _controller = new DashboardsController(_query.Object, _retornoQuery.Object, _investidoQuery.Object, _consolidadoQuery.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
         _controller.HttpContext.Items["UserId"] = _userId.ToString();
+    }
+
+    [Fact]
+    public async Task GetConsolidado_RepassaUsuarioParametrosETokenEMapeia()
+    {
+        using var cts = new CancellationTokenSource();
+        var tipoRendaId = Guid.NewGuid();
+        var modelo = new ConsolidadoModel(
+            new ConsolidadoLinhaModel(null, null, 2, 90m, 100m, 1m),
+            [new ConsolidadoLinhaModel(Guid.NewGuid(), "XP", 2, 90m, 100m, 1m)]);
+        _consolidadoQuery.Setup(q => q.ExecuteAsync(_userId,
+            It.Is<ConsolidadoParameters>(p => p.TipoRendaId == tipoRendaId && p.AgruparPor == DimensaoConsolidado.Corretora), cts.Token))
+            .ReturnsAsync(modelo);
+
+        var result = await _controller.GetConsolidado(new ConsolidadoFiltroDto
+        { TipoRendaId = tipoRendaId, AgruparPor = DimensaoConsolidado.Corretora }, cts.Token);
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var resposta = Assert.IsType<ConsolidadoDto>(ok.Value);
+        Assert.Equal(1m, resposta.Total.PercentualLiquido);
+        Assert.Equal("XP", Assert.Single(resposta.Grupos).Nome);
+        _consolidadoQuery.VerifyAll();
+    }
+
+    [Fact]
+    public async Task GetConsolidado_SemFiltro_RepassaParametrosVazios()
+    {
+        _consolidadoQuery.Setup(q => q.ExecuteAsync(_userId,
+            It.Is<ConsolidadoParameters>(p => p.TipoRendaId == null && p.AgruparPor == null), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ConsolidadoModel(new ConsolidadoLinhaModel(null, null, 0, 0, 0, 0), []));
+
+        await _controller.GetConsolidado(null!, CancellationToken.None);
+        _consolidadoQuery.VerifyAll();
+    }
+
+    [Fact]
+    public async Task GetConsolidado_ExcecaoDaQueryNaoEhEngolida()
+    {
+        var erro = new LumiaFoundation.Core.Domain.Exceptions.CommandValidationException("inválido");
+        _consolidadoQuery.Setup(q => q.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<ConsolidadoParameters>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(erro);
+
+        var lancada = await Assert.ThrowsAsync<LumiaFoundation.Core.Domain.Exceptions.CommandValidationException>(() =>
+            _controller.GetConsolidado(new ConsolidadoFiltroDto(), CancellationToken.None));
+        Assert.Same(erro, lancada);
     }
 
     [Fact]

@@ -16,8 +16,8 @@ public class GetConsolidadoQuery(
     {
         CommandValidator.Validate(parametros);
         var filtro = parametros.ToFiltro();
-        if (!filtro.TemFiltro)
-            throw new CommandValidationException("Informe ao menos um filtro.");
+        if (!filtro.TemFiltro && parametros.AgruparPor is null)
+            throw new CommandValidationException("Informe ao menos um filtro ou um agrupamento.");
 
         try
         {

@@ -33,8 +33,8 @@ O dinheiro de um Movimento encerrado como `Pendente` pode já ter sido levado pa
 
 ### Quando há resultado
 
-- A tela abre **sem resultado**, com uma orientação. O resultado só é exibido quando há **ao menos um filtro**.
-- A Api devolve 422 quando não há nenhum filtro (pode ser relaxado por decisão do mantenedor para aceitar "agrupar por" sem filtro; ver spec 0021, item P2).
+- A tela abre **sem resultado**, com uma orientação. O resultado é exibido quando há **ao menos um filtro ou um agrupamento**.
+- A Api devolve 422 quando não há nenhum dos dois.
 
 ### Agregação no banco
 

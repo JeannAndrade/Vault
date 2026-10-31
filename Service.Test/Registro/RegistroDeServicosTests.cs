@@ -1,5 +1,6 @@
 using Application.Corretoras.Queries.GetCorretora;
 using Application.Dashboards.Queries.GetRentabilidadesPorTipoRenda;
+using Application.Dashboards.Queries.GetConsolidado;
 using Application.Movimentos.Commands.CreateMovimento;
 using Application.Movimentos.Commands.DistribuirValorLiquido;
 using Application.Movimentos.Commands.EncerrarMovimento;
@@ -84,6 +85,7 @@ public class RegistroDeServicosTests
     [InlineData(typeof(IEncerrarMovimentoCommand))]
     [InlineData(typeof(IReativarMovimentoCommand))]
     [InlineData(typeof(IGetRentabilidadesPorTipoRendaQuery))]
+    [InlineData(typeof(IGetConsolidadoQuery))]
     public void ResolveServicosEsperados(Type servico)
     {
         using var provider = Construir(CriarServicos());

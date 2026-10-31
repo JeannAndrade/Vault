@@ -149,7 +149,7 @@ Pastas `Application/Dashboards/Consolidado/` (tipos) e `Application/Dashboards/Q
 
 `IGetConsolidadoQuery` e `GetConsolidadoQuery(IRepositoryManager, ILoggerManager)` (sem relógio). `ExecuteAsync(Guid ownerId, ConsolidadoParameters parametros, CancellationToken cancellationToken)` retorna `ConsolidadoModel`.
 
-1. `CommandValidator.Validate(parametros)` **fora do `try`**; se não houver nenhum filtro (`ToFiltro().TemFiltro` falso), `CommandValidationException("Informe ao menos um filtro.")` (ver P2: se aprovado, a regra passa a ser "filtro ou agrupamento").
+1. `CommandValidator.Validate(parametros)` **fora do `try`**; se não houver nenhum filtro **e** nenhum `AgruparPor`, `CommandValidationException("Informe ao menos um filtro ou um agrupamento.")`.
 2. Sem agrupamento: `GetConsolidadoAsync`; o total tem `PercentualLiquido` igual a 1 quando o conjunto tem líquido diferente de zero, senão 0; `Grupos` vazia.
 3. Com agrupamento: `GetConsolidadoAgrupadoAsync`; o **total é a soma das linhas** (quantidade, aportado e líquido); cada grupo recebe `PercentualLiquido = TotalLiquido do grupo / TotalLiquido total`, ou 0 quando o total for zero. A ordem do repositório é preservada.
 4. `catch (Exception ex) when (ex is not OperationCanceledException)`: log e relança (padrão das queries).
@@ -179,7 +179,7 @@ Estilo dos testes de queries atuais (`Mock<IMovimentoRepository>`, `Mock<ILogger
 
 ## Partes 2 e 3 (a detalhar)
 
-- **Parte 2, Service:** `GET api/dashboards/consolidado?tipoRendaId=&corretoraId=&produtoId=&emissorId=&agruparPor=` no `DashboardsController` (já com `[RequestValidation]`), `ConsolidadoFiltroDto` com `ToParameters()`, DTOs de resposta (`total` e `grupos`, percentual como fração, `agruparPor` como texto), testes de controller, DTO, contrato JSON e registro; validação manual com `curl`, inclusive 422 (sem filtro, GUID malformado, `agruparPor` inválido) e isolamento entre usuários.
+- **Parte 2, Service:** `GET api/dashboards/consolidado?tipoRendaId=&corretoraId=&produtoId=&emissorId=&agruparPor=` no `DashboardsController` (já com `[RequestValidation]`), `ConsolidadoFiltroDto` com `ToParameters()`, DTOs de resposta (`total` e `grupos`, percentual como fração), testes de controller, DTO, contrato JSON e registro; validação manual com `curl`, inclusive 422 (sem filtro, GUID malformado, `agruparPor` inválido) e isolamento entre usuários.
 - **Parte 3, Web e fechamento:** cliente da Api, página `/Dashboards/Consolidado` (quatro selects com `--`, "Agrupar por", Limpar filtro, filtros na URL, tabela do total e das linhas com a coluna **Percentual**, notas sobre `Pendente` e Objetivo inativo), formatador de percentual reaproveitando o existente, item no menu, roteiro ponta a ponta, documentação e ADR 0022 como **Aceita**.
 
 ## Fora de escopo
