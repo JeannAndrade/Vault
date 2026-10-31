@@ -1,9 +1,83 @@
 @page
 @model Presentation.Pages.Cotacoes.IndexModel
 @using Presentation.Cotacoes
-@{ ViewData["Title"] = "Cotações"; }
-<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3">Cotações</h1><div><a class="btn btn-outline-secondary btn-sm" asp-page="Grafico">Gráfico</a> <a class="btn btn-primary btn-sm" asp-page="Create" asp-route-pagina="@Model.Pagina" asp-route-papel="@Model.Papel">Nova cotação</a></div></div>
-<form method="get" class="row g-2 mb-4"><div class="col-md-4"><label asp-for="Papel" class="form-label">Papel</label><select asp-for="Papel" class="form-select"><option value="">--</option>@foreach(var p in Model.Papeis){<option value="@p">@p</option>}</select></div><div class="col-auto align-self-end"><button class="btn btn-primary">Filtrar</button> <a class="btn btn-outline-secondary" asp-page="Index">Limpar filtro</a></div></form>
-@if(Model.ErrorMessage is not null){<div class="alert alert-danger">@Model.ErrorMessage</div>}
-@if(!Model.Resultado.Items.Any()){<p class="text-muted">@(string.IsNullOrWhiteSpace(Model.Papel) ? "Nenhuma cotação cadastrada." : "Nenhuma cotação encontrada para o papel selecionado.")</p>}
-else { <table class="table"><thead><tr><th>Papel</th><th>Data</th><th class="text-end">Valor</th><th></th></tr></thead><tbody>@foreach(var c in Model.Resultado.Items){<tr><td>@c.Papel</td><td>@c.Data.ToString("dd/MM/yyyy")</td><td class="text-end">@CotacaoFormatter.Formatar(c.Valor)</td><td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-page="Edit" asp-route-id="@c.Id" asp-route-pagina="@Model.Pagina" asp-route-papel="@Model.Papel">Editar</a> <form class="d-inline" method="post" asp-page-handler="Delete" asp-route-id="@c.Id" asp-route-pagina="@Model.Pagina" asp-route-papel="@Model.Papel"><button class="btn btn-sm btn-outline-danger">Excluir</button></form></td></tr>}</tbody></table> }
+@{
+    ViewData["Title"] = "Cotações";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Cotações</h1>
+    <div>
+        <a class="btn btn-outline-secondary btn-sm" asp-page="Grafico">Gráfico</a>
+        <a class="btn btn-primary btn-sm" asp-page="Create" asp-route-pagina="@Model.Pagina" asp-route-papel="@Model.Papel">Nova cotação</a>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-4">
+        <label asp-for="Papel" class="form-label">Papel</label>
+        <select asp-for="Papel" class="form-select">
+            <option value="">--</option>
+            @foreach (var papel in Model.Papeis)
+            {
+                <option value="@papel">@papel</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto align-self-end">
+        <button class="btn btn-primary">Filtrar</button>
+        <a class="btn btn-outline-secondary" asp-page="Index">Limpar filtro</a>
+    </div>
+</form>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (!Model.Resultado.Items.Any())
+{
+    <p class="text-muted">
+        @(string.IsNullOrWhiteSpace(Model.Papel)
+            ? "Nenhuma cotação cadastrada."
+            : "Nenhuma cotação encontrada para o papel selecionado.")
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Papel</th>
+                <th>Data</th>
+                <th class="text-end">Valor</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cotacao in Model.Resultado.Items)
+            {
+                <tr>
+                    <td>@cotacao.Papel</td>
+                    <td>@cotacao.Data.ToString("dd/MM/yyyy")</td>
+                    <td class="text-end">@CotacaoFormatter.Formatar(cotacao.Valor)</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary"
+                           asp-page="Edit"
+                           asp-route-id="@cotacao.Id"
+                           asp-route-pagina="@Model.Pagina"
+                           asp-route-papel="@Model.Papel">Editar</a>
+                        <form class="d-inline"
+                              method="post"
+                              asp-page-handler="Delete"
+                              asp-route-id="@cotacao.Id"
+                              asp-route-pagina="@Model.Pagina"
+                              asp-route-papel="@Model.Papel">
+                            <button class="btn btn-sm btn-outline-danger">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -9,6 +9,15 @@ namespace Persistence.Movimentos;
 
 public class MovimentoRepository(VaultDbContext repositoryContext) : BaseRepository<Movimento>(repositoryContext), IMovimentoRepository
 {
+    private sealed class ConsolidadoGrupoProjecao
+    {
+        public Guid Id { get; init; }
+        public string Nome { get; init; } = string.Empty;
+        public int Quantidade { get; init; }
+        public decimal TotalAportado { get; init; }
+        public decimal TotalLiquido { get; init; }
+    }
+
     public Task<List<string>> GetPapeisPorCotacaoAsync(Guid ownerId, CancellationToken cancellationToken) =>
         RepositoryContext.Set<Movimento>().AsNoTracking()
             .Where(m => m.UserId == ownerId && m.EstaAtivo && m.AtualizaPorCotacao && m.Quantidade != null)
@@ -120,6 +129,58 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
 
     public Task<List<Movimento>> GetAtivosDoTituloParaAtualizacaoAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) =>
         ConsultarAtivosDoTitulo(ownerId, titulo, true).ToListAsync(cancellationToken);
+
+    public async Task<ConsolidadoAgregado> GetConsolidadoAsync(
+        Guid ownerId, ConsolidadoFiltro filtro, CancellationToken cancellationToken)
+    {
+        var resultado = await AplicarFiltroConsolidado(ownerId, filtro)
+            .GroupBy(_ => 1)
+            .Select(g => new ConsolidadoAgregado(
+                g.Count(),
+                g.Sum(m => m.ValorAporte),
+                g.Sum(m => m.ValorLiquidoAtual)))
+            .SingleOrDefaultAsync(cancellationToken);
+
+        return resultado ?? new ConsolidadoAgregado(0, 0, 0);
+    }
+
+    public Task<List<ConsolidadoGrupoItem>> GetConsolidadoAgrupadoAsync(
+        Guid ownerId, ConsolidadoFiltro filtro, DimensaoConsolidado dimensao, CancellationToken cancellationToken)
+    {
+        // A ausência de filtro de saldo/Pendente é intencional (ADR 0022); a ordem define as linhas da tela.
+        var consulta = AplicarFiltroConsolidado(ownerId, filtro);
+
+        return dimensao switch
+        {
+            DimensaoConsolidado.TipoRenda => consulta
+                .GroupBy(m => new { m.TipoRendaId, Nome = m.TipoRenda.Nome })
+                .Select(g => new ConsolidadoGrupoProjecao { Id = g.Key.TipoRendaId, Nome = g.Key.Nome, Quantidade = g.Count(), TotalAportado = g.Sum(m => m.ValorAporte), TotalLiquido = g.Sum(m => m.ValorLiquidoAtual) })
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).Select(g => new ConsolidadoGrupoItem { Id = g.Id, Nome = g.Nome, Quantidade = g.Quantidade, TotalAportado = g.TotalAportado, TotalLiquido = g.TotalLiquido }).ToListAsync(cancellationToken),
+            DimensaoConsolidado.Corretora => consulta
+                .GroupBy(m => new { m.CorretoraId, Nome = m.Corretora.Nome })
+                .Select(g => new ConsolidadoGrupoProjecao { Id = g.Key.CorretoraId, Nome = g.Key.Nome, Quantidade = g.Count(), TotalAportado = g.Sum(m => m.ValorAporte), TotalLiquido = g.Sum(m => m.ValorLiquidoAtual) })
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).Select(g => new ConsolidadoGrupoItem { Id = g.Id, Nome = g.Nome, Quantidade = g.Quantidade, TotalAportado = g.TotalAportado, TotalLiquido = g.TotalLiquido }).ToListAsync(cancellationToken),
+            DimensaoConsolidado.Produto => consulta
+                .GroupBy(m => new { m.ProdutoId, Nome = m.Produto.Nome })
+                .Select(g => new ConsolidadoGrupoProjecao { Id = g.Key.ProdutoId, Nome = g.Key.Nome, Quantidade = g.Count(), TotalAportado = g.Sum(m => m.ValorAporte), TotalLiquido = g.Sum(m => m.ValorLiquidoAtual) })
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).Select(g => new ConsolidadoGrupoItem { Id = g.Id, Nome = g.Nome, Quantidade = g.Quantidade, TotalAportado = g.TotalAportado, TotalLiquido = g.TotalLiquido }).ToListAsync(cancellationToken),
+            DimensaoConsolidado.Emissor => consulta
+                .GroupBy(m => new { m.EmissorId, Nome = m.Emissor.Nome })
+                .Select(g => new ConsolidadoGrupoProjecao { Id = g.Key.EmissorId, Nome = g.Key.Nome, Quantidade = g.Count(), TotalAportado = g.Sum(m => m.ValorAporte), TotalLiquido = g.Sum(m => m.ValorLiquidoAtual) })
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).Select(g => new ConsolidadoGrupoItem { Id = g.Id, Nome = g.Nome, Quantidade = g.Quantidade, TotalAportado = g.TotalAportado, TotalLiquido = g.TotalLiquido }).ToListAsync(cancellationToken),
+            _ => throw new ArgumentOutOfRangeException(nameof(dimensao), dimensao, null)
+        };
+    }
+
+    private IQueryable<Movimento> AplicarFiltroConsolidado(Guid ownerId, ConsolidadoFiltro filtro)
+    {
+        var consulta = FindByCondition(m => m.UserId == ownerId && m.EstaAtivo, false);
+        if (filtro.TipoRendaId.HasValue) consulta = consulta.Where(m => m.TipoRendaId == filtro.TipoRendaId.Value);
+        if (filtro.CorretoraId.HasValue) consulta = consulta.Where(m => m.CorretoraId == filtro.CorretoraId.Value);
+        if (filtro.ProdutoId.HasValue) consulta = consulta.Where(m => m.ProdutoId == filtro.ProdutoId.Value);
+        if (filtro.EmissorId.HasValue) consulta = consulta.Where(m => m.EmissorId == filtro.EmissorId.Value);
+        return consulta;
+    }
 
     private IQueryable<Movimento> ConsultarAtivosDoTitulo(Guid ownerId, MovimentoTituloFiltro titulo, bool rastrear) =>
         FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && !m.AtualizaPorCotacao && m.TipoRendaId == titulo.TipoRendaId &&
