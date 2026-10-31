@@ -23,9 +23,11 @@ public sealed record ConsolidadoAgregado(
     decimal TotalAportado,
     decimal TotalLiquido);
 
-public sealed record ConsolidadoGrupoItem(
-    Guid Id,
-    string Nome,
-    int Quantidade,
-    decimal TotalAportado,
-    decimal TotalLiquido);
+public sealed class ConsolidadoGrupoItem
+{
+    public Guid Id { get; init; }
+    public string Nome { get; init; } = string.Empty;
+    public int Quantidade { get; init; }
+    public decimal TotalAportado { get; init; }
+    public decimal TotalLiquido { get; init; }
+}

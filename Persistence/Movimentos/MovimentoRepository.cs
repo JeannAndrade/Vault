@@ -9,6 +9,15 @@ namespace Persistence.Movimentos;
 
 public class MovimentoRepository(VaultDbContext repositoryContext) : BaseRepository<Movimento>(repositoryContext), IMovimentoRepository
 {
+    private sealed class ConsolidadoGrupoProjecao
+    {
+        public Guid Id { get; init; }
+        public string Nome { get; init; } = string.Empty;
+        public int Quantidade { get; init; }
+        public decimal TotalAportado { get; init; }
+        public decimal TotalLiquido { get; init; }
+    }
+
     public Task<List<string>> GetPapeisPorCotacaoAsync(Guid ownerId, CancellationToken cancellationToken) =>
         RepositoryContext.Set<Movimento>().AsNoTracking()
             .Where(m => m.UserId == ownerId && m.EstaAtivo && m.AtualizaPorCotacao && m.Quantidade != null)
@@ -145,20 +154,20 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
         {
             DimensaoConsolidado.TipoRenda => consulta
                 .GroupBy(m => new { m.TipoRendaId, Nome = m.TipoRenda.Nome })
-                .Select(g => new ConsolidadoGrupoItem(g.Key.TipoRendaId, g.Key.Nome, g.Count(), g.Sum(m => m.ValorAporte), g.Sum(m => m.ValorLiquidoAtual)))
-                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).ToListAsync(cancellationToken),
+                .Select(g => new ConsolidadoGrupoProjecao { Id = g.Key.TipoRendaId, Nome = g.Key.Nome, Quantidade = g.Count(), TotalAportado = g.Sum(m => m.ValorAporte), TotalLiquido = g.Sum(m => m.ValorLiquidoAtual) })
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).Select(g => new ConsolidadoGrupoItem { Id = g.Id, Nome = g.Nome, Quantidade = g.Quantidade, TotalAportado = g.TotalAportado, TotalLiquido = g.TotalLiquido }).ToListAsync(cancellationToken),
             DimensaoConsolidado.Corretora => consulta
                 .GroupBy(m => new { m.CorretoraId, Nome = m.Corretora.Nome })
-                .Select(g => new ConsolidadoGrupoItem(g.Key.CorretoraId, g.Key.Nome, g.Count(), g.Sum(m => m.ValorAporte), g.Sum(m => m.ValorLiquidoAtual)))
-                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).ToListAsync(cancellationToken),
+                .Select(g => new ConsolidadoGrupoProjecao { Id = g.Key.CorretoraId, Nome = g.Key.Nome, Quantidade = g.Count(), TotalAportado = g.Sum(m => m.ValorAporte), TotalLiquido = g.Sum(m => m.ValorLiquidoAtual) })
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).Select(g => new ConsolidadoGrupoItem { Id = g.Id, Nome = g.Nome, Quantidade = g.Quantidade, TotalAportado = g.TotalAportado, TotalLiquido = g.TotalLiquido }).ToListAsync(cancellationToken),
             DimensaoConsolidado.Produto => consulta
                 .GroupBy(m => new { m.ProdutoId, Nome = m.Produto.Nome })
-                .Select(g => new ConsolidadoGrupoItem(g.Key.ProdutoId, g.Key.Nome, g.Count(), g.Sum(m => m.ValorAporte), g.Sum(m => m.ValorLiquidoAtual)))
-                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).ToListAsync(cancellationToken),
+                .Select(g => new ConsolidadoGrupoProjecao { Id = g.Key.ProdutoId, Nome = g.Key.Nome, Quantidade = g.Count(), TotalAportado = g.Sum(m => m.ValorAporte), TotalLiquido = g.Sum(m => m.ValorLiquidoAtual) })
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).Select(g => new ConsolidadoGrupoItem { Id = g.Id, Nome = g.Nome, Quantidade = g.Quantidade, TotalAportado = g.TotalAportado, TotalLiquido = g.TotalLiquido }).ToListAsync(cancellationToken),
             DimensaoConsolidado.Emissor => consulta
                 .GroupBy(m => new { m.EmissorId, Nome = m.Emissor.Nome })
-                .Select(g => new ConsolidadoGrupoItem(g.Key.EmissorId, g.Key.Nome, g.Count(), g.Sum(m => m.ValorAporte), g.Sum(m => m.ValorLiquidoAtual)))
-                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).ToListAsync(cancellationToken),
+                .Select(g => new ConsolidadoGrupoProjecao { Id = g.Key.EmissorId, Nome = g.Key.Nome, Quantidade = g.Count(), TotalAportado = g.Sum(m => m.ValorAporte), TotalLiquido = g.Sum(m => m.ValorLiquidoAtual) })
+                .OrderByDescending(g => g.TotalLiquido).ThenBy(g => g.Nome).ThenBy(g => g.Id).Select(g => new ConsolidadoGrupoItem { Id = g.Id, Nome = g.Nome, Quantidade = g.Quantidade, TotalAportado = g.TotalAportado, TotalLiquido = g.TotalLiquido }).ToListAsync(cancellationToken),
             _ => throw new ArgumentOutOfRangeException(nameof(dimensao), dimensao, null)
         };
     }

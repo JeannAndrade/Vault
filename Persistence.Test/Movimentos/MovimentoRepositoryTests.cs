@@ -13,6 +13,92 @@ namespace Persistence.Test.Movimentos;
 public class MovimentoRepositoryTests
 {
     [Fact]
+    public async Task GetConsolidadoAsync_SomaSomenteAtivosDoUsuarioComPrecisao()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+        var dimensoes = CriarDimensoes(context, userId, "A");
+        AdicionarMovimentoConsolidado(context, userId, dimensoes, 10.25m, 11.30m, true);
+        AdicionarMovimentoConsolidado(context, userId, dimensoes, 20.75m, 21.40m, true);
+        AdicionarMovimentoConsolidado(context, userId, dimensoes, 999m, 999m, false);
+        AdicionarMovimentoConsolidado(context, Guid.NewGuid(), dimensoes, 999m, 999m, true);
+        await context.SaveChangesAsync();
+
+        var resultado = await new MovimentoRepository(context).GetConsolidadoAsync(userId, new ConsolidadoFiltro(), CancellationToken.None);
+
+        Assert.Equal(2, resultado.Quantidade);
+        Assert.Equal(31.00m, resultado.TotalAportado);
+        Assert.Equal(32.70m, resultado.TotalLiquido);
+    }
+
+    [Fact]
+    public async Task GetConsolidadoAsync_AplicaFiltrosCombinadosEIgnoraObjetivoInativo()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+        var a = CriarDimensoes(context, userId, "A");
+        var b = CriarDimensoes(context, userId, "B");
+        var objetivo = new Objetivo { Nome = "Inativo", FontePagadora = "Salário", OndeAplicar = "XP", UserId = userId, EstaAtivo = false };
+        context.Add(objetivo);
+        AdicionarMovimentoConsolidado(context, userId, a, 100m, 110m, true, objetivo.Id);
+        AdicionarMovimentoConsolidado(context, userId, b, 200m, 220m, true);
+        await context.SaveChangesAsync();
+
+        var filtro = new ConsolidadoFiltro { TipoRendaId = a.TipoRenda.Id, CorretoraId = a.Corretora.Id };
+        var resultado = await new MovimentoRepository(context).GetConsolidadoAsync(userId, filtro, CancellationToken.None);
+
+        Assert.Equal(new ConsolidadoAgregado(1, 100m, 110m), resultado);
+    }
+
+    [Fact]
+    public async Task GetConsolidadoAsync_SemCorrespondenciaRetornaZeros()
+    {
+        await using var context = CreateContext();
+        var resultado = await new MovimentoRepository(context).GetConsolidadoAsync(Guid.NewGuid(),
+            new ConsolidadoFiltro { EmissorId = Guid.Empty }, CancellationToken.None);
+        Assert.Equal(new ConsolidadoAgregado(0, 0m, 0m), resultado);
+    }
+
+    [Theory]
+    [InlineData(DimensaoConsolidado.TipoRenda)]
+    [InlineData(DimensaoConsolidado.Corretora)]
+    [InlineData(DimensaoConsolidado.Produto)]
+    [InlineData(DimensaoConsolidado.Emissor)]
+    public async Task GetConsolidadoAgrupadoAsync_AgrupaOrdenaEIsolaPorUsuario(DimensaoConsolidado dimensao)
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+        var menor = CriarDimensoes(context, userId, "Z");
+        var maior = CriarDimensoes(context, userId, "A");
+        AdicionarMovimentoConsolidado(context, userId, menor, 50m, 50m, true);
+        AdicionarMovimentoConsolidado(context, userId, maior, 100m, 200m, true);
+        AdicionarMovimentoConsolidado(context, Guid.NewGuid(), maior, 999m, 999m, true);
+        await context.SaveChangesAsync();
+
+        var resultado = await new MovimentoRepository(context).GetConsolidadoAgrupadoAsync(userId, new ConsolidadoFiltro(), dimensao, CancellationToken.None);
+
+        Assert.Equal(2, resultado.Count);
+        Assert.Equal(200m, resultado[0].TotalLiquido);
+        Assert.Equal(50m, resultado[1].TotalLiquido);
+        Assert.All(resultado, grupo => Assert.Equal(1, grupo.Quantidade));
+    }
+
+    [Fact]
+    public async Task GetConsolidadoAgrupadoAsync_RespeitaFiltroDaDimensaoEEstaVazioSemDados()
+    {
+        var userId = Guid.NewGuid();
+        await using var context = CreateContext();
+        var dimensoes = CriarDimensoes(context, userId, "A");
+        AdicionarMovimentoConsolidado(context, userId, dimensoes, 10m, 10m, true);
+        await context.SaveChangesAsync();
+
+        var resultado = await new MovimentoRepository(context).GetConsolidadoAgrupadoAsync(userId,
+            new ConsolidadoFiltro { ProdutoId = Guid.NewGuid() }, DimensaoConsolidado.Produto, CancellationToken.None);
+
+        Assert.Empty(resultado);
+    }
+
+    [Fact]
     public async Task GetWithRelatedEntitiesAsync_RetornaMovimentoComNomesDasEntidadesRelacionadas()
     {
         // Arrange
@@ -731,6 +817,41 @@ public class MovimentoRepositoryTests
 
         return movimento;
     }
+
+    private static DimensoesConsolidado CriarDimensoes(VaultDbContext context, Guid userId, string sufixo)
+    {
+        var dimensoes = new DimensoesConsolidado(
+            new TipoRenda { Nome = $"Renda {sufixo}", UserId = userId },
+            new Corretora { Nome = $"Corretora {sufixo}", UserId = userId },
+            new Produto { Nome = $"Produto {sufixo}", UserId = userId },
+            new Emissor { Nome = $"Emissor {sufixo}", UserId = userId });
+        context.AddRange(dimensoes.TipoRenda, dimensoes.Corretora, dimensoes.Produto, dimensoes.Emissor);
+        return dimensoes;
+    }
+
+    private static Movimento AdicionarMovimentoConsolidado(
+        VaultDbContext context, Guid userId, DimensoesConsolidado dimensoes,
+        decimal aporte, decimal liquido, bool ativo, Guid? objetivoId = null)
+    {
+        var movimento = new Movimento
+        {
+            UserId = userId,
+            ObjetivoId = objetivoId ?? Guid.NewGuid(),
+            TipoRendaId = dimensoes.TipoRenda.Id,
+            CorretoraId = dimensoes.Corretora.Id,
+            ProdutoId = dimensoes.Produto.Id,
+            EmissorId = dimensoes.Emissor.Id,
+            DataInvestimento = new DateTime(2026, 1, 1),
+            ValorAporte = aporte,
+            ValorLiquidoAtual = liquido,
+            EstaAtivo = ativo
+        };
+        context.Add(movimento);
+        return movimento;
+    }
+
+    private sealed record DimensoesConsolidado(
+        TipoRenda TipoRenda, Corretora Corretora, Produto Produto, Emissor Emissor);
 
     private static VaultDbContext CreateContext()
     {
