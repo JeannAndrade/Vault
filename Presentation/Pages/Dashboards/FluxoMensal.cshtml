@@ -26,42 +26,48 @@
     }
     else
     {
-        <canvas id="grafico-retorno" role="img" aria-label="Gráfico de barras do retorno previsto por mês"
-                data-pontos="@Model.RetornoJson"></canvas>
+        <div class="card">
+            <div class="card-body">
+                <div class="ratio ratio-21x9 mb-4">
+                    <canvas id="grafico-retorno" role="img" aria-label="Gráfico de barras do retorno previsto por mês"
+                            data-pontos="@Model.RetornoJson"></canvas>
+                </div>
 
-        <table class="table table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Mês</th>
-                    <th class="text-end">Movimentos</th>
-                    <th class="text-end">Retorno previsto</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (var i = 0; i < Model.Retornos.Count; i++)
-                {
-                    var item = Model.Retornos[i];
-                    <tr>
-                        <td>
-                            @Model.RotuloMes(item.Mes)
-                            @if (Model.EhMesAtualDoRetorno(i))
-                            {
-                                <span class="badge text-bg-secondary">mês atual</span>
-                            }
-                        </td>
-                        <td class="text-end">@item.Quantidade</td>
-                        <td class="text-end">@item.Total.ToString("C", cultura)</td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr class="fw-semibold">
-                    <td>Total</td>
-                    <td class="text-end">@Model.TotalQuantidadeRetorno</td>
-                    <td class="text-end">@Model.TotalRetorno.ToString("C", cultura)</td>
-                </tr>
-            </tfoot>
-        </table>
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Mês</th>
+                            <th class="text-end">Movimentos</th>
+                            <th class="text-end">Retorno previsto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.Retornos.Count; i++)
+                        {
+                            var item = Model.Retornos[i];
+                            <tr>
+                                <td>
+                                    @Model.RotuloMes(item.Mes)
+                                    @if (Model.EhMesAtualDoRetorno(i))
+                                    {
+                                        <span class="badge text-bg-secondary">mês atual</span>
+                                    }
+                                </td>
+                                <td class="text-end">@item.Quantidade</td>
+                                <td class="text-end">@item.Total.ToString("C", cultura)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-semibold">
+                            <td>Total</td>
+                            <td class="text-end">@Model.TotalQuantidadeRetorno</td>
+                            <td class="text-end">@Model.TotalRetorno.ToString("C", cultura)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
     }
 </section>
 
@@ -82,46 +88,52 @@
     }
     else
     {
-        <canvas id="grafico-investido" role="img"
-                aria-label="Gráfico de barras empilhadas do valor investido por mês, separando novo e reinvestimento"
-                data-pontos="@Model.InvestidoJson"></canvas>
+        <div class="card">
+            <div class="card-body">
+                <div class="ratio ratio-21x9 mb-4">
+                    <canvas id="grafico-investido" role="img"
+                            aria-label="Gráfico de barras empilhadas do valor investido por mês, separando novo e reinvestimento"
+                            data-pontos="@Model.InvestidoJson"></canvas>
+                </div>
 
-        <table class="table table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Mês</th>
-                    <th class="text-end">Novo</th>
-                    <th class="text-end">Reinvestimento</th>
-                    <th class="text-end">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (var i = 0; i < Model.Investidos.Count; i++)
-                {
-                    var item = Model.Investidos[i];
-                    <tr>
-                        <td>
-                            @Model.RotuloMes(item.Mes)
-                            @if (Model.EhMesAtualDoInvestido(i))
-                            {
-                                <span class="badge text-bg-secondary">mês atual</span>
-                            }
-                        </td>
-                        <td class="text-end">@item.Novo.ToString("C", cultura)</td>
-                        <td class="text-end">@item.Reinvestimento.ToString("C", cultura)</td>
-                        <td class="text-end">@item.Total.ToString("C", cultura)</td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr class="fw-semibold">
-                    <td>Total</td>
-                    <td class="text-end">@Model.TotalNovo.ToString("C", cultura)</td>
-                    <td class="text-end">@Model.TotalReinvestimento.ToString("C", cultura)</td>
-                    <td class="text-end">@Model.TotalInvestido.ToString("C", cultura)</td>
-                </tr>
-            </tfoot>
-        </table>
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Mês</th>
+                            <th class="text-end">Novo</th>
+                            <th class="text-end">Reinvestimento</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.Investidos.Count; i++)
+                        {
+                            var item = Model.Investidos[i];
+                            <tr>
+                                <td>
+                                    @Model.RotuloMes(item.Mes)
+                                    @if (Model.EhMesAtualDoInvestido(i))
+                                    {
+                                        <span class="badge text-bg-secondary">mês atual</span>
+                                    }
+                                </td>
+                                <td class="text-end">@item.Novo.ToString("C", cultura)</td>
+                                <td class="text-end">@item.Reinvestimento.ToString("C", cultura)</td>
+                                <td class="text-end">@item.Total.ToString("C", cultura)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-semibold">
+                            <td>Total</td>
+                            <td class="text-end">@Model.TotalNovo.ToString("C", cultura)</td>
+                            <td class="text-end">@Model.TotalReinvestimento.ToString("C", cultura)</td>
+                            <td class="text-end">@Model.TotalInvestido.ToString("C", cultura)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
     }
 </section>
 
