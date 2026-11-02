@@ -3,16 +3,7 @@ using LumiaFoundation.AspNetCore.Commons.Extensions;
 using LumiaFoundation.Http.Client.Extensions;
 using LumiaFoundation.Logger.Extensions;
 using LumiaFoundation.Logger.LoggerService;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Presentation.Corretoras;
-using Presentation.Emissores;
-using Presentation.Produtos;
-using Presentation.TiposRenda;
-using Presentation.Objetivos;
-using Presentation.Movimentos;
-using Presentation.Cotacoes;
-using Presentation.Dashboards;
-using LumiaFoundation.Core.TimeService;
+using Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,44 +16,9 @@ LoggerManager.LoadConfigurationFromFile(
 builder.Services.ConfigureLoggerService();
 #endregion
 
-#region Razor Pages (tudo exige login, exceto /Login e /Error)
-builder.Services.AddRazorPages(options =>
-{
-    options.Conventions.AuthorizeFolder("/");
-    options.Conventions.AllowAnonymousToPage("/Login");
-    options.Conventions.AllowAnonymousToPage("/Register");
-    options.Conventions.AllowAnonymousToPage("/Error");
-});
-#endregion
-
-#region Sessão (guarda o par de tokens da API por usuário)
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromHours(8);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-builder.Services.Configure<SessionTokenStoreOptions>(o => o.SessionKey = "Vault.ApiToken");
-#endregion
-
-#region Autenticação do site (cookie) + validação contra a sessão da API
-builder.Services.AddScoped<ApiSessionCookieEvents>();
-builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Login";
-        options.ExpireTimeSpan = TimeSpan.FromDays(7); // alinhado ao refresh token da API
-        options.SlidingExpiration = false;
-        options.EventsType = typeof(ApiSessionCookieEvents);
-        options.Cookie.Name = "Vault.Auth";
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-    });
-builder.Services.AddAuthorization();
-#endregion
+builder.Services.AddRazorPagesService();
+builder.Services.AddSessionTokenStore();
+builder.Services.AddApiSessionCookie();
 
 #region Cliente HTTP da Vault.Api
 
@@ -71,20 +27,9 @@ builder.Services.AddLumiaApiClient(
     configureAuthentication: options => options.RefreshPath = "/api/token/refresh");
 builder.Services.AddApiSignInService();
 builder.Services.AddApiRegistrationService();
-builder.Services.AddScoped<IDateTimeProvider, UtcDateTimeProvider>();
-builder.Services.AddApiResourceClient<ICorretoraApi, CorretoraApi>();
-builder.Services.AddApiResourceClient<IEmissorApi, EmissorApi>();
-builder.Services.AddApiResourceClient<IProdutoApi, ProdutoApi>();
-builder.Services.AddApiResourceClient<ITipoRendaApi, TipoRendaApi>();
-builder.Services.AddApiResourceClient<IObjetivoApi, ObjetivoApi>();
-builder.Services.AddApiResourceClient<IMovimentoApi, MovimentoApi>();
-builder.Services.AddScoped<IMovimentoFormLookupData, MovimentoFormLookupDataProvider>();
-builder.Services.AddApiResourceClient<IDistribuicaoValorLiquidoApi, DistribuicaoValorLiquidoApi>();
-builder.Services.AddApiResourceClient<ICotacaoApi, CotacaoApi>();
-builder.Services.AddApiResourceClient<IAtualizacaoPorCotacaoApi, AtualizacaoPorCotacaoApi>();
-builder.Services.AddApiResourceClient<IRentabilidadeApi, RentabilidadeApi>();
-builder.Services.AddApiResourceClient<IFluxoMensalApi, FluxoMensalApi>();
-builder.Services.AddApiResourceClient<IConsolidadoApi, ConsolidadoApi>();
+builder.Services.AddSupportScreenElements();
+builder.Services.AddApiResourceClientService();
+builder.Services.AddDataProviders();
 #endregion
 
 #region Tratamento de exceções
