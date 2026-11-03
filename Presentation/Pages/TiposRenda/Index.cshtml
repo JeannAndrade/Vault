@@ -1,46 +1,66 @@
 @page
 @model IndexModel
 @{
-  ViewData["Title"] = "Tipo de Renda";
+    ViewData["Title"] = "Tipo de Renda";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">Tipos de Renda</h1>
-  <a class="btn btn-primary btn-sm" asp-page="Create">Novo tipo de renda</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Tipos de Renda</h1>
+    <a class="btn btn-primary btn-sm" asp-page="Create">
+        <i class="bi bi-plus-lg me-1"></i>Novo tipo de renda
+    </a>
 </div>
 
 @if (Model.ErrorMessage is not null)
 {
-  <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+    <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
 }
 
-@if (Model.TiposRenda.Count == 0)
-{
-  <p class="text-muted">Nenhum tipo de renda cadastrado.</p>
-}
-else
-{
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th class="text-end">Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      @foreach (var tipoRenda in Model.TiposRenda)
-      {
-        <tr>
-          <td>@tipoRenda.Nome</td>
-          <td class="text-end">
-            <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@tipoRenda.Id">Editar</a>
-            <form method="post" asp-page-handler="Delete" asp-route-id="@tipoRenda.Id" class="d-inline"
-                  onsubmit="return confirm('Excluir este tipo de renda?');">
-              <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
-            </form>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-}
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+        <h2 class="h6 mb-0">
+            <i class="bi bi-table me-1"></i>Resultados
+            <span class="text-muted fw-normal ms-1">(@Model.TiposRenda.Count)</span>
+        </h2>
+    </div>
+
+    @if (Model.TiposRenda.Count == 0)
+    {
+        <div class="card-body text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size: 2.5rem;"></i>
+            <p class="text-muted mt-2 mb-0">Nenhum tipo de renda cadastrado.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tipoRenda in Model.TiposRenda)
+                    {
+                        <tr>
+                            <td class="fw-medium">@tipoRenda.Nome</td>
+                            <td class="text-end text-nowrap">
+                                <div class="d-inline-flex gap-1">
+                                    <a class="btn btn-outline-secondary btn-sm" asp-page="Edit"
+                                       asp-route-id="@tipoRenda.Id">Editar</a>
+                                    <form method="post" asp-page-handler="Delete" asp-route-id="@tipoRenda.Id"
+                                          class="mb-0"
+                                          onsubmit="return confirm('Excluir este tipo de renda?');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
