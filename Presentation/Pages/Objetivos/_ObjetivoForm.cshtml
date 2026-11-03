@@ -1,0 +1,63 @@
+@model CreateModel.InputModel
+
+<div class="row g-3">
+  <div class="col-12">
+    <label asp-for="Nome" class="form-label">Nome <span class="text-danger" aria-hidden="true">*</span></label>
+    <input asp-for="Nome" class="form-control" maxlength="100" required autofocus />
+    <span asp-validation-for="Nome" class="text-danger small"></span>
+  </div>
+
+  <div class="col-12">
+    <label asp-for="Descricao" class="form-label">Descrição</label>
+    <textarea asp-for="Descricao" class="form-control" rows="3" maxlength="500"></textarea>
+    <div class="form-text">Opcional. Até 500 caracteres.</div>
+    <span asp-validation-for="Descricao" class="text-danger small"></span>
+  </div>
+
+  <div class="col-md-6 col-lg-4">
+    <label asp-for="Meta" class="form-label">Meta <span class="text-danger" aria-hidden="true">*</span></label>
+    <div class="input-group">
+      <span class="input-group-text">R$</span>
+      <input asp-for="Meta" class="form-control text-end" type="number" min="1" max="9999999999999999.99" step="0.01"
+             required />
+    </div>
+    <div class="form-text">Valor total que você quer acumular.</div>
+    <span asp-validation-for="Meta" class="text-danger small d-block"></span>
+  </div>
+
+  <div class="col-md-6 col-lg-4">
+    <label asp-for="AporteMensal" class="form-label">Aporte mensal <span class="text-danger"
+                                                                           aria-hidden="true">*</span></label>
+      <div class="input-group">
+        <span class="input-group-text">R$</span>
+        <input asp-for="AporteMensal" class="form-control text-end" type="number" min="1" max="9999999999999999.99"
+               step="0.01" required />
+      </div>
+      <div class="form-text">Quanto você pretende investir por mês.</div>
+      <span asp-validation-for="AporteMensal" class="text-danger small d-block"></span>
+    </div>
+
+    <div class="col-md-6">
+      <label asp-for="FontePagadora" class="form-label">Fonte pagadora <span class="text-danger"
+                                                                               aria-hidden="true">*</span></label>
+        <input asp-for="FontePagadora" class="form-control" maxlength="100" required />
+        <div class="form-text">De onde vem o dinheiro. Ex.: Salário.</div>
+        <span asp-validation-for="FontePagadora" class="text-danger small"></span>
+      </div>
+
+      <div class="col-md-6">
+        <label asp-for="OndeAplicar" class="form-label">Onde aplicar <span class="text-danger"
+                                                                             aria-hidden="true">*</span></label>
+          <input asp-for="OndeAplicar" class="form-control" maxlength="100" required />
+          <div class="form-text">Destino planejado. Ex.: Tesouro Selic.</div>
+          <span asp-validation-for="OndeAplicar" class="text-danger small"></span>
+        </div>
+
+        <div class="col-12">
+          <div class="form-check form-switch">
+            <input asp-for="EstaAtivo" class="form-check-input" role="switch" />
+            <label asp-for="EstaAtivo" class="form-check-label">Ativo</label>
+          </div>
+          <div class="form-text">Objetivos inativos não aparecem na tela inicial.</div>
+        </div>
+      </div>

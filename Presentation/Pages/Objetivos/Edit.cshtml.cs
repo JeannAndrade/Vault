@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using LumiaFoundation.Http.Client.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,101 +7,53 @@ namespace Presentation.Pages.Objetivos;
 
 public class EditModel(IObjetivoApi objetivoApi) : PageModel
 {
-  [BindProperty(SupportsGet = true)]
-  public Guid Id { get; set; }
+    [BindProperty(SupportsGet = true)]
+    public Guid Id { get; set; }
 
-  [BindProperty]
-  public InputModel Input { get; set; } = new();
+    [BindProperty]
+    public CreateModel.InputModel Input { get; set; } = new();
 
-  public string? ErrorMessage { get; private set; }
+    public string? ErrorMessage { get; private set; }
 
-  public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
-  {
-    var objetivo = await objetivoApi.GetByIdAsync(Id, cancellationToken);
-    Input = new InputModel
+    public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
-      Nome = objetivo.Nome,
-      Descricao = objetivo.Descricao,
-      Meta = objetivo.Meta,
-      FontePagadora = objetivo.FontePagadora,
-      AporteMensal = objetivo.AporteMensal,
-      OndeAplicar = objetivo.OndeAplicar,
-      EstaAtivo = objetivo.EstaAtivo
-    };
+        var objetivo = await objetivoApi.GetByIdAsync(Id, cancellationToken);
+        Input = new CreateModel.InputModel
+        {
+            Nome = objetivo.Nome,
+            Descricao = objetivo.Descricao,
+            Meta = objetivo.Meta,
+            FontePagadora = objetivo.FontePagadora,
+            AporteMensal = objetivo.AporteMensal,
+            OndeAplicar = objetivo.OndeAplicar,
+            EstaAtivo = objetivo.EstaAtivo
+        };
 
-    return Page();
-  }
-
-  public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
-  {
-    if (!ModelState.IsValid)
-      return Page();
-
-    try
-    {
-      await objetivoApi.UpdateAsync(Id, new ObjetivoForUpdateDto(
-          Input.Nome.Trim(),
-          string.IsNullOrWhiteSpace(Input.Descricao) ? null : Input.Descricao.Trim(),
-          Input.Meta,
-          Input.FontePagadora.Trim(),
-          Input.AporteMensal,
-          Input.OndeAplicar.Trim(),
-          Input.EstaAtivo), cancellationToken);
-    }
-    catch (ApiException)
-    {
-      ErrorMessage = "Não foi possível salvar o objetivo agora. Tente novamente em instantes.";
-      return Page();
+        return Page();
     }
 
-    return RedirectToPage("Index");
-  }
-
-  public class InputModel : IValidatableObject
-  {
-    [Required(ErrorMessage = "Informe o nome.")]
-    [StringLength(100, ErrorMessage = "O nome não deve exceder 100 caracteres.")]
-    public string Nome { get; set; } = string.Empty;
-
-    [StringLength(500, ErrorMessage = "A descrição não deve exceder 500 caracteres.")]
-    public string? Descricao { get; set; }
-
-    public decimal Meta { get; set; }
-
-    [Required(ErrorMessage = "Informe a fonte pagadora.")]
-    [StringLength(100, ErrorMessage = "A fonte pagadora não deve exceder 100 caracteres.")]
-    public string FontePagadora { get; set; } = string.Empty;
-
-    [Range(typeof(decimal), "1", "79228162514264337593543950335", ErrorMessage = "O aporte mensal deve ser maior que zero.")]
-    public decimal AporteMensal { get; set; }
-
-    [Required(ErrorMessage = "Informe onde aplicar.")]
-    [StringLength(100, ErrorMessage = "Onde aplicar não deve exceder 100 caracteres.")]
-    public string OndeAplicar { get; set; } = string.Empty;
-
-    public bool EstaAtivo { get; set; }
-
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
-      if (Meta < 1m || Meta > 9999999999999999.99m)
-        yield return new ValidationResult(
-            "A meta deve ser maior ou igual a 1 e ter no máximo 16 dígitos inteiros.",
-            new[] { nameof(Meta) });
+        if (!ModelState.IsValid)
+            return Page();
 
-      if (decimal.Round(Meta, 2) != Meta)
-        yield return new ValidationResult(
-            "A meta deve ter no máximo 2 casas decimais.",
-            new[] { nameof(Meta) });
+        try
+        {
+            await objetivoApi.UpdateAsync(Id, new ObjetivoForUpdateDto(
+                Input.Nome.Trim(),
+                string.IsNullOrWhiteSpace(Input.Descricao) ? null : Input.Descricao.Trim(),
+                Input.Meta,
+                Input.FontePagadora.Trim(),
+                Input.AporteMensal,
+                Input.OndeAplicar.Trim(),
+                Input.EstaAtivo), cancellationToken);
+        }
+        catch (ApiException)
+        {
+            ErrorMessage = "Não foi possível salvar o objetivo agora. Tente novamente em instantes.";
+            return Page();
+        }
 
-      if (AporteMensal > 9999999999999999.99m)
-        yield return new ValidationResult(
-            "O aporte mensal deve ter no máximo 16 dígitos inteiros.",
-            new[] { nameof(AporteMensal) });
-
-      if (decimal.Round(AporteMensal, 2) != AporteMensal)
-        yield return new ValidationResult(
-            "O aporte mensal deve ter no máximo 2 casas decimais.",
-            new[] { nameof(AporteMensal) });
+        return RedirectToPage("Index");
     }
-  }
 }

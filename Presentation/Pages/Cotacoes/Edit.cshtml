@@ -5,37 +5,35 @@
     ViewData["Title"] = "Editar cotação";
 }
 
-<h1 class="h3">Editar cotação</h1>
+<div class="row justify-content-center"><div class="col-lg-9 col-xl-8"><h1 class="h3 mb-3">Editar cotação</h1>
 
 @if (Model.ErrorMessage is not null)
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 
-<form method="post">
+<form method="post"><div class="card shadow-sm"><div class="card-body p-4"><p class="text-muted small mb-3"><span class="text-danger">*</span> campo obrigatório</p>
     <input asp-for="Id" type="hidden" />
     <input asp-for="Pagina" type="hidden" />
     <input asp-for="PapelFiltro" type="hidden" />
 
     <div class="mb-3">
-        <label asp-for="Input.Papel" class="form-label">Papel</label>
-        <input asp-for="Input.Papel" class="form-control" />
+    <label asp-for="Input.Papel" class="form-label">Papel <span class="text-danger">*</span></label>
+        <input asp-for="Input.Papel" class="form-control" required autofocus />
         <span asp-validation-for="Input.Papel" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Input.Valor" class="form-label">Valor</label>
-        <input asp-for="Input.Valor" class="form-control" type="number" step="0.0001" min="0.0001" />
+    <label asp-for="Input.Valor" class="form-label">Valor <span class="text-danger">*</span></label>
+        <input asp-for="Input.Valor" class="form-control text-end" type="number" step="0.0001" min="0.0001" required />
         <span asp-validation-for="Input.Valor" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Input.Data" class="form-label">Data</label>
-        <input asp-for="Input.Data" class="form-control" type="date" />
+    <label asp-for="Input.Data" class="form-label">Data <span class="text-danger">*</span></label>
+        <input asp-for="Input.Data" class="form-control" type="date" required />
         <span asp-validation-for="Input.Data" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Salvar</button>
-    <a class="btn btn-outline-secondary" asp-page="Index" asp-route-pagina="@Model.Pagina" asp-route-papel="@Model.PapelFiltro">Cancelar</a>
-</form>
+    </div><div class="card-footer bg-body-tertiary d-flex justify-content-end gap-2 py-3"><a class="btn btn-outline-secondary" asp-page="Index" asp-route-pagina="@Model.Pagina" asp-route-papel="@Model.PapelFiltro">Cancelar</a><button type="submit" class="btn btn-primary">Salvar</button></div></div></form></div></div>
 
