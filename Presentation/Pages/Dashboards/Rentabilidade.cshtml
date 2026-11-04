@@ -12,7 +12,8 @@
     <div class="col-md-3">
         <label for="ordem" class="form-label">Ordem</label>
         <select id="ordem" name="ordem" class="form-select">
-            ...
+            <option value="maiores" selected="@(Model.Ordem == OrdemRentabilidade.Maiores)">Maiores rentabilidades</option>
+            <option value="menores" selected="@(Model.Ordem == OrdemRentabilidade.Menores)">Menores rentabilidades</option>
         </select>
     </div>
     <div class="col-md-3">
