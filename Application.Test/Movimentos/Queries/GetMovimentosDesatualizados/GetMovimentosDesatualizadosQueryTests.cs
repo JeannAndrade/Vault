@@ -28,7 +28,7 @@ public class GetMovimentosDesatualizadosQueryTests
     public async Task ExecuteAsync_CalculaLimiteERepassaArgumentosAoRepositorio()
     {
         using var cts = new CancellationTokenSource();
-        var movimento = new Movimento { UserId = _ownerId, ValorLiquidoAtual = 10m };
+        var movimento = new Movimento { OwnerId = _ownerId, ValorLiquidoAtual = 10m };
         _movimentos.Setup(r => r.GetDesatualizadosAsync(_ownerId, new DateTime(2026, 9, 10), 12, cts.Token))
             .ReturnsAsync([movimento]);
 

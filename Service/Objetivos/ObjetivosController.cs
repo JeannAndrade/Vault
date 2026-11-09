@@ -38,8 +38,8 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<ObjetivoDto>>> GetObjetivos(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var objetivos = await _getObjetivosListQuery.ExecuteAsync(userId, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var objetivos = await _getObjetivosListQuery.ExecuteAsync(ownerId, cancellationToken);
 
         return Ok(ObjetivoDto.FromApplication(objetivos));
     }
@@ -50,8 +50,8 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<ResumoObjetivoDto>>> GetObjetivosComValores(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var objetivos = await _getResumoObjetivosListQuery.ExecuteAsync(userId, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var objetivos = await _getResumoObjetivosListQuery.ExecuteAsync(ownerId, cancellationToken);
 
         return Ok(ResumoObjetivoDto.FromApplication(objetivos));
     }
@@ -62,8 +62,8 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ObjetivoDto>> GetObjetivo(Guid id, CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var objetivo = await _getObjetivoQuery.ExecuteAsync(userId, id, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var objetivo = await _getObjetivoQuery.ExecuteAsync(ownerId, id, cancellationToken);
 
         return Ok(ObjetivoDto.FromApplication(objetivo));
     }

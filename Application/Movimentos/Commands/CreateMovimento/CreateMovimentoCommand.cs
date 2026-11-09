@@ -14,12 +14,12 @@ public class CreateMovimentoCommand(
     private readonly IMovimentoReferenciasValidator _referenciasValidator = referenciasValidator;
     private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
 
-    public async Task<MovimentoModel> ExecuteAsync(MovimentoModelForCreation movimentoModel, Guid userId, CancellationToken cancellationToken)
+    public async Task<MovimentoModel> ExecuteAsync(MovimentoModelForCreation movimentoModel, Guid ownerId, CancellationToken cancellationToken)
     {
         CommandValidator.Validate(movimentoModel);
 
         await _referenciasValidator.ValidarAsync(
-            userId,
+            ownerId,
             movimentoModel.ObjetivoId,
             movimentoModel.TipoRendaId,
             movimentoModel.CorretoraId,
@@ -28,7 +28,7 @@ public class CreateMovimentoCommand(
             cancellationToken);
 
         var hoje = _dateTimeProvider.GetDateTime().Date;
-        var movimento = movimentoModel.ToDomain(userId, hoje);
+        var movimento = movimentoModel.ToDomain(ownerId, hoje);
 
         if (movimentoModel.MotivoEncerramento.HasValue && movimentoModel.DataEncerramento.HasValue)
         {

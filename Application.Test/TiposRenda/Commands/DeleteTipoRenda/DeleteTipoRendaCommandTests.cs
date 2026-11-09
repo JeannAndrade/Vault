@@ -15,7 +15,7 @@ public class DeleteTipoRendaCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var tipoRenda = new TipoRenda { UserId = ownerId };
+        var tipoRenda = new TipoRenda { OwnerId = ownerId };
 
         var tipoRendaRepository = new Mock<ITipoRendaRepository>();
         tipoRendaRepository.Setup(r => r.GetAsync(ownerId, tipoRenda.Id, true, CancellationToken.None)).ReturnsAsync(tipoRenda);
@@ -42,7 +42,7 @@ public class DeleteTipoRendaCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var tipoRenda = new TipoRenda { UserId = ownerId };
+        var tipoRenda = new TipoRenda { OwnerId = ownerId };
 
         var tipoRendaRepository = new Mock<ITipoRendaRepository>();
         tipoRendaRepository.Setup(r => r.GetAsync(ownerId, tipoRenda.Id, true, CancellationToken.None)).ReturnsAsync(tipoRenda);

@@ -15,7 +15,7 @@ public class DeleteEmissorCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var emissor = new Emissor { UserId = ownerId };
+        var emissor = new Emissor { OwnerId = ownerId };
 
         var emissorRepository = new Mock<IEmissorRepository>();
         emissorRepository.Setup(r => r.GetAsync(ownerId, emissor.Id, true, CancellationToken.None)).ReturnsAsync(emissor);
@@ -42,7 +42,7 @@ public class DeleteEmissorCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var emissor = new Emissor { UserId = ownerId };
+        var emissor = new Emissor { OwnerId = ownerId };
 
         var emissorRepository = new Mock<IEmissorRepository>();
         emissorRepository.Setup(r => r.GetAsync(ownerId, emissor.Id, true, CancellationToken.None)).ReturnsAsync(emissor);

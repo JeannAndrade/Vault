@@ -12,7 +12,7 @@ public class EmissorMapping : IEntityTypeConfiguration<Emissor>
         builder.HasKey(k => k.Id);
         builder.Property(e => e.Id).HasColumnName("EmissorId");
         builder.Property(e => e.Nome).HasMaxLength(60).IsRequired();
-        builder.Property(e => e.UserId).HasColumnName("UserId").IsRequired();
-        builder.HasIndex(e => e.UserId);
+        builder.Property(e => e.OwnerId).HasColumnName("UserId").IsRequired();
+        builder.HasIndex(e => e.OwnerId);
     }
 }

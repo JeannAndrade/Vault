@@ -26,7 +26,7 @@ public class MovimentosControllerTests
     private readonly Mock<IGetMovimentosDesatualizadosQuery> _getMovimentosDesatualizadosQuery = new();
     private readonly Mock<IUpdateValorLiquidoMovimentoCommand> _updateValorLiquidoMovimentoCommand = new();
     private readonly MovimentosController _controller;
-    private readonly Guid _userId = Guid.NewGuid();
+    private readonly Guid _ownerId = Guid.NewGuid();
 
     public MovimentosControllerTests()
     {
@@ -42,7 +42,7 @@ public class MovimentosControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
-        _controller.HttpContext.Items["UserId"] = _userId.ToString();
+        _controller.HttpContext.Items["UserId"] = _ownerId.ToString();
     }
 
     [Fact]
@@ -51,10 +51,10 @@ public class MovimentosControllerTests
         using var cts = new CancellationTokenSource();
         var objetivoId = Guid.NewGuid();
         var pagina = new PagedList<MovimentoModel>(
-            [new MovimentoModel { Id = Guid.NewGuid(), UserId = _userId }], page: 2, pageSize: 10, totalCount: 11);
+            [new MovimentoModel { Id = Guid.NewGuid(), OwnerId = _ownerId }], page: 2, pageSize: 10, totalCount: 11);
         _getMovimentosListQuery
             .Setup(q => q.ExecuteAsync(
-                _userId,
+                _ownerId,
                 It.Is<MovimentoFiltroParameters>(f =>
                     f.ObjetivoId == objetivoId &&
                     f.TipoRendaId == null &&
@@ -95,7 +95,7 @@ public class MovimentosControllerTests
             ValorLiquidoAtual = 1234.56m
         };
         _getProximosVencimentosQuery
-            .Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.ExecuteAsync(_ownerId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([movimento]);
 
         var result = await _controller.GetProximosVencimentos(CancellationToken.None);
@@ -127,7 +127,7 @@ public class MovimentosControllerTests
             ValorLiquidoAtual = 1234.56m
         };
         _getMovimentosDesatualizadosQuery
-            .Setup(q => q.ExecuteAsync(_userId, cts.Token))
+            .Setup(q => q.ExecuteAsync(_ownerId, cts.Token))
             .ReturnsAsync([movimento]);
 
         var result = await _controller.GetMovimentosDesatualizados(cts.Token);
@@ -138,7 +138,7 @@ public class MovimentosControllerTests
         Assert.Equal(movimento.Id, item.Id);
         Assert.Equal(movimento.ProdutoNome, item.ProdutoNome);
         Assert.Equal(movimento.ValorLiquidoAtual, item.ValorLiquidoAtual);
-        _getMovimentosDesatualizadosQuery.Verify(q => q.ExecuteAsync(_userId, cts.Token), Times.Once);
+        _getMovimentosDesatualizadosQuery.Verify(q => q.ExecuteAsync(_ownerId, cts.Token), Times.Once);
     }
 
     [Fact]
@@ -154,7 +154,7 @@ public class MovimentosControllerTests
         Assert.IsType<NoContentResult>(result);
         _updateValorLiquidoMovimentoCommand.Verify(c => c.ExecuteAsync(
             It.Is<MovimentoModelForUpdateValorLiquido>(m => m.ValorLiquidoAtual == dto.ValorLiquidoAtual),
-            _userId,
+            _ownerId,
             id,
             cts.Token), Times.Once);
     }

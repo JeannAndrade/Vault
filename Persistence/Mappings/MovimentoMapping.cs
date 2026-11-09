@@ -34,32 +34,32 @@ public class MovimentoMapping : IEntityTypeConfiguration<Movimento>
         builder.Property(e => e.ValorLiquidoAtual).IsRequired().HasPrecision(18, 2);
         builder.Property(e => e.DataAtualizacaoValorLiquido).IsRequired().HasColumnType("datetime(6)");
         builder.Property(e => e.AtualizaPorCotacao).IsRequired();
-        builder.Property(e => e.UserId).HasColumnName("UserId").IsRequired();
+        builder.Property(e => e.OwnerId).HasColumnName("UserId").IsRequired();
         builder.Property(e => e.ObjetivoId).HasColumnName("ObjetivoId").IsRequired();
         builder.Property(e => e.TipoRendaId).HasColumnName("TipoRendaId").IsRequired();
         builder.Property(e => e.CorretoraId).HasColumnName("CorretoraId").IsRequired();
         builder.Property(e => e.ProdutoId).HasColumnName("ProdutoId").IsRequired();
         builder.Property(e => e.EmissorId).HasColumnName("EmissorId").IsRequired();
 
-        // Índices compostos — sempre começando por UserId
-        builder.HasIndex(e => new { e.UserId, e.TipoRendaId });
-        builder.HasIndex(e => new { e.UserId, e.CorretoraId });
-        builder.HasIndex(e => new { e.UserId, e.ProdutoId });
-        builder.HasIndex(e => new { e.UserId, e.EmissorId });
-        builder.HasIndex(e => new { e.UserId, e.ObjetivoId });
+        // Índices compostos — sempre começando por OwnerId
+        builder.HasIndex(e => new { e.OwnerId, e.TipoRendaId });
+        builder.HasIndex(e => new { e.OwnerId, e.CorretoraId });
+        builder.HasIndex(e => new { e.OwnerId, e.ProdutoId });
+        builder.HasIndex(e => new { e.OwnerId, e.EmissorId });
+        builder.HasIndex(e => new { e.OwnerId, e.ObjetivoId });
 
-        // Sustenta a listagem paginada (UserId = ? ORDER BY DataInvestimento DESC, Id DESC).
+        // Sustenta a listagem paginada (OwnerId = ? ORDER BY DataInvestimento DESC, Id DESC).
         // Acoplado à ordenação de MovimentoRepository.GetPagedWithRelatedEntitiesAsync: ver ADR 0009.
-        builder.HasIndex(e => new { e.UserId, e.DataInvestimento });
+        builder.HasIndex(e => new { e.OwnerId, e.DataInvestimento });
 
-        // Sustenta os próximos vencimentos (UserId = ? AND EstaAtivo = ? AND DataVencimento IS NOT NULL ORDER BY DataVencimento, Id).
+        // Sustenta os próximos vencimentos (OwnerId = ? AND EstaAtivo = ? AND DataVencimento IS NOT NULL ORDER BY DataVencimento, Id).
         // Acoplado à ordenação de MovimentoRepository.GetProximosVencimentosAsync: ver ADR 0010.
-        builder.HasIndex(e => new { e.UserId, e.EstaAtivo, e.DataVencimento });
+        builder.HasIndex(e => new { e.OwnerId, e.EstaAtivo, e.DataVencimento });
 
-        // Sustenta o filtro dos valores líquidos desatualizados (UserId = ? AND EstaAtivo = ? AND
+        // Sustenta o filtro dos valores líquidos desatualizados (OwnerId = ? AND EstaAtivo = ? AND
         // DataAtualizacaoValorLiquido < ?).
         // A ordenação (Corretora, Produto, Emissor) não é coberta por este índice: ver ADR 0011 e ADR 0015.
-        builder.HasIndex(e => new { e.UserId, e.EstaAtivo, e.DataAtualizacaoValorLiquido })
+        builder.HasIndex(e => new { e.OwnerId, e.EstaAtivo, e.DataAtualizacaoValorLiquido })
             .HasDatabaseName("IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido");
 
         // ---------- Relacionamentos ----------

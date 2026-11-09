@@ -37,7 +37,7 @@ public class AtualizarPorCotacaoCommand(
         {
             cotacao = new Domain.Cotacoes.Cotacao
             {
-                UserId = ownerId,
+                OwnerId = ownerId,
                 Papel = papel,
                 Valor = parameters.Valor,
                 Data = parameters.Data.Date

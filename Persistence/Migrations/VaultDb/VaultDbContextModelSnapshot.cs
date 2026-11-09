@@ -34,13 +34,13 @@ namespace Persistence.Migrations.VaultDb
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("OwnerId")
                         .HasColumnType("char(36)")
                         .HasColumnName("UserId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Corretoras", (string)null);
                 });
@@ -55,13 +55,13 @@ namespace Persistence.Migrations.VaultDb
                     b.Property<DateTime>("Data")
                         .HasColumnType("date");
 
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("Papel")
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
 
                     b.Property<decimal>("Valor")
                         .HasPrecision(18, 4)
@@ -69,9 +69,9 @@ namespace Persistence.Migrations.VaultDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId", "Papel", "Data")
+                    b.HasIndex("OwnerId", "Papel", "Data")
                         .IsUnique()
-                        .HasDatabaseName("IX_Cotacoes_UserId_Papel_Data");
+                        .HasDatabaseName("IX_Cotacoes_OwnerId_Papel_Data");
 
                     b.ToTable("Cotacoes", (string)null);
                 });
@@ -88,13 +88,13 @@ namespace Persistence.Migrations.VaultDb
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("OwnerId")
                         .HasColumnType("char(36)")
                         .HasColumnName("UserId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Emissores", (string)null);
                 });
@@ -151,6 +151,10 @@ namespace Persistence.Migrations.VaultDb
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("UserId");
+
                     b.Property<Guid>("ProdutoId")
                         .HasColumnType("char(36)")
                         .HasColumnName("ProdutoId");
@@ -170,10 +174,6 @@ namespace Persistence.Migrations.VaultDb
                     b.Property<Guid>("TipoRendaId")
                         .HasColumnType("char(36)")
                         .HasColumnName("TipoRendaId");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("UserId");
 
                     b.Property<decimal>("ValorAporte")
                         .HasPrecision(18, 2)
@@ -195,22 +195,22 @@ namespace Persistence.Migrations.VaultDb
 
                     b.HasIndex("TipoRendaId");
 
-                    b.HasIndex("UserId", "CorretoraId");
+                    b.HasIndex("OwnerId", "CorretoraId");
 
-                    b.HasIndex("UserId", "DataInvestimento");
+                    b.HasIndex("OwnerId", "DataInvestimento");
 
-                    b.HasIndex("UserId", "EmissorId");
+                    b.HasIndex("OwnerId", "EmissorId");
 
-                    b.HasIndex("UserId", "ObjetivoId");
+                    b.HasIndex("OwnerId", "ObjetivoId");
 
-                    b.HasIndex("UserId", "ProdutoId");
+                    b.HasIndex("OwnerId", "ProdutoId");
 
-                    b.HasIndex("UserId", "TipoRendaId");
+                    b.HasIndex("OwnerId", "TipoRendaId");
 
-                    b.HasIndex("UserId", "EstaAtivo", "DataAtualizacaoValorLiquido")
+                    b.HasIndex("OwnerId", "EstaAtivo", "DataAtualizacaoValorLiquido")
                         .HasDatabaseName("IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido");
 
-                    b.HasIndex("UserId", "EstaAtivo", "DataVencimento");
+                    b.HasIndex("OwnerId", "EstaAtivo", "DataVencimento");
 
                     b.ToTable("Movimentos", null, t =>
                         {
@@ -257,13 +257,13 @@ namespace Persistence.Migrations.VaultDb
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("OwnerId")
                         .HasColumnType("char(36)")
                         .HasColumnName("UserId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Objetivos", (string)null);
                 });
@@ -280,13 +280,13 @@ namespace Persistence.Migrations.VaultDb
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("OwnerId")
                         .HasColumnType("char(36)")
                         .HasColumnName("UserId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Produtos", (string)null);
                 });
@@ -303,13 +303,13 @@ namespace Persistence.Migrations.VaultDb
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("OwnerId")
                         .HasColumnType("char(36)")
                         .HasColumnName("UserId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("TiposRenda", (string)null);
                 });

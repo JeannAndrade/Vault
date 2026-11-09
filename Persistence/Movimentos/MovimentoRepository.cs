@@ -20,18 +20,18 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
 
     public Task<List<string>> GetPapeisPorCotacaoAsync(Guid ownerId, CancellationToken cancellationToken) =>
         RepositoryContext.Set<Movimento>().AsNoTracking()
-            .Where(m => m.UserId == ownerId && m.EstaAtivo && m.AtualizaPorCotacao && m.Quantidade != null)
+            .Where(m => m.OwnerId == ownerId && m.EstaAtivo && m.AtualizaPorCotacao && m.Quantidade != null)
             .Select(m => m.Emissor.Nome).Distinct().OrderBy(nome => nome).ToListAsync(cancellationToken);
 
     public Task<List<Movimento>> GetAtivosPorCotacaoDoPapelAsync(Guid ownerId, string papel, CancellationToken cancellationToken) =>
-        FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && m.AtualizaPorCotacao &&
+        FindByCondition(m => m.OwnerId == ownerId && m.EstaAtivo && m.AtualizaPorCotacao &&
             m.Quantidade != null && m.Emissor.Nome == papel, true).ToListAsync(cancellationToken);
 
     public async Task<IEnumerable<Movimento>> GetAllAsync(Guid ownerId, bool trackChanges, CancellationToken cancellationToken) =>
-        await FindByCondition(c => c.UserId == ownerId, trackChanges).OrderBy(c => c.DataInvestimento).ToListAsync(cancellationToken);
+        await FindByCondition(c => c.OwnerId == ownerId, trackChanges).OrderBy(c => c.DataInvestimento).ToListAsync(cancellationToken);
 
     // A ordem é toda descendente (DataInvestimento e Id) para o banco percorrer o índice
-    // IX_Movimentos_UserId_DataInvestimento (UserId, DataInvestimento e, implicitamente, a PK)
+    // IX_Movimentos_OwnerId_DataInvestimento (OwnerId, DataInvestimento e, implicitamente, a PK)
     // de trás para a frente, sem ordenar em memória. Mudar a direção ou o critério desfaz
     // esse ganho: ver ADR 0009. O Id é só desempate; basta ser determinístico.
     public async Task<PagedList<Movimento>> GetPagedWithRelatedEntitiesAsync(
@@ -44,7 +44,7 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
         filtro ??= MovimentoFiltro.Vazio;
 
         var query = QueryWithRelatedEntities()
-            .Where(m => m.UserId == ownerId);
+            .Where(m => m.OwnerId == ownerId);
 
         if (filtro.ObjetivoId.HasValue)
             query = query.Where(m => m.ObjetivoId == filtro.ObjetivoId.Value);
@@ -73,7 +73,7 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     public async Task<List<Movimento>> GetProximosVencimentosAsync(
         Guid ownerId, int quantidade, CancellationToken cancellationToken) =>
         await QueryWithRelatedEntities()
-            .Where(m => m.UserId == ownerId && m.EstaAtivo && m.DataVencimento != null)
+            .Where(m => m.OwnerId == ownerId && m.EstaAtivo && m.DataVencimento != null)
             .OrderBy(m => m.DataVencimento)
             .ThenBy(m => m.Id)
             .Take(quantidade)
@@ -82,20 +82,20 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     // A ordem dos tipos define a ordem dos grupos na tela; ver ADR 0018 (E2).
     public Task<List<Movimento>> GetAtivosParaRankingAsync(Guid ownerId, CancellationToken cancellationToken) =>
         QueryWithRelatedEntities()
-            .Where(m => m.UserId == ownerId && m.EstaAtivo)
+            .Where(m => m.OwnerId == ownerId && m.EstaAtivo)
             .OrderBy(m => m.TipoRenda.Nome)
             .ThenBy(m => m.TipoRendaId)
             .ToListAsync(cancellationToken);
 
     // O limite superior é exclusivo e não há limite inferior de propósito: vencidos ativos somam no mês atual (ADR 0019).
     public Task<List<RetornoPrevistoItem>> GetRetornoPrevistoAsync(Guid ownerId, DateTime limiteSuperior, CancellationToken cancellationToken) =>
-        FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && m.DataVencimento != null && m.DataVencimento < limiteSuperior, false)
+        FindByCondition(m => m.OwnerId == ownerId && m.EstaAtivo && m.DataVencimento != null && m.DataVencimento < limiteSuperior, false)
             .Select(m => new RetornoPrevistoItem(m.DataVencimento!.Value, m.ValorLiquidoAtual))
             .ToListAsync(cancellationToken);
 
     // A ausência de EstaAtivo é intencional: o histórico de aportes não some com o resgate (ADR 0019).
     public Task<List<AporteInvestidoItem>> GetInvestidoAsync(Guid ownerId, DateTime inicio, DateTime fim, CancellationToken cancellationToken) =>
-        FindByCondition(m => m.UserId == ownerId && m.DataInvestimento >= inicio && m.DataInvestimento < fim, false)
+        FindByCondition(m => m.OwnerId == ownerId && m.DataInvestimento >= inicio && m.DataInvestimento < fim, false)
             .Select(m => new AporteInvestidoItem(m.DataInvestimento, m.ValorAporte, m.EhReinvestimento))
             .ToListAsync(cancellationToken);
 
@@ -106,7 +106,7 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     public async Task<List<Movimento>> GetDesatualizadosAsync(
         Guid ownerId, DateTime dataLimite, int quantidade, CancellationToken cancellationToken) =>
         await QueryWithRelatedEntities()
-            .Where(m => m.UserId == ownerId && m.EstaAtivo && !m.AtualizaPorCotacao && m.DataAtualizacaoValorLiquido < dataLimite)
+            .Where(m => m.OwnerId == ownerId && m.EstaAtivo && !m.AtualizaPorCotacao && m.DataAtualizacaoValorLiquido < dataLimite)
             .OrderBy(m => m.Corretora.Nome)
             .ThenBy(m => m.Produto.Nome)
             .ThenBy(m => m.Emissor.Nome)
@@ -117,12 +117,12 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
 
     public async Task<Movimento?> GetAsync(
         Guid ownerId, Guid movimentoId, bool trackChanges, CancellationToken cancellationToken) =>
-        await FindByCondition(c => c.UserId == ownerId && c.Id == movimentoId, trackChanges)
+        await FindByCondition(c => c.OwnerId == ownerId && c.Id == movimentoId, trackChanges)
             .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<Movimento?> GetWithRelatedEntitiesAsync(Guid ownerId, Guid movimentoId, CancellationToken cancellationToken) =>
         await QueryWithRelatedEntities()
-            .SingleOrDefaultAsync(m => m.UserId == ownerId && m.Id == movimentoId, cancellationToken);
+            .SingleOrDefaultAsync(m => m.OwnerId == ownerId && m.Id == movimentoId, cancellationToken);
 
     public Task<List<Movimento>> GetAtivosDoTituloAsync(Guid ownerId, MovimentoTituloFiltro titulo, CancellationToken cancellationToken) =>
         ConsultarAtivosDoTitulo(ownerId, titulo, false).Include(m => m.Objetivo).ToListAsync(cancellationToken);
@@ -174,7 +174,7 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
 
     private IQueryable<Movimento> AplicarFiltroConsolidado(Guid ownerId, ConsolidadoFiltro filtro)
     {
-        var consulta = FindByCondition(m => m.UserId == ownerId && m.EstaAtivo, false);
+        var consulta = FindByCondition(m => m.OwnerId == ownerId && m.EstaAtivo, false);
         if (filtro.TipoRendaId.HasValue) consulta = consulta.Where(m => m.TipoRendaId == filtro.TipoRendaId.Value);
         if (filtro.CorretoraId.HasValue) consulta = consulta.Where(m => m.CorretoraId == filtro.CorretoraId.Value);
         if (filtro.ProdutoId.HasValue) consulta = consulta.Where(m => m.ProdutoId == filtro.ProdutoId.Value);
@@ -183,7 +183,7 @@ public class MovimentoRepository(VaultDbContext repositoryContext) : BaseReposit
     }
 
     private IQueryable<Movimento> ConsultarAtivosDoTitulo(Guid ownerId, MovimentoTituloFiltro titulo, bool rastrear) =>
-        FindByCondition(m => m.UserId == ownerId && m.EstaAtivo && !m.AtualizaPorCotacao && m.TipoRendaId == titulo.TipoRendaId &&
+        FindByCondition(m => m.OwnerId == ownerId && m.EstaAtivo && !m.AtualizaPorCotacao && m.TipoRendaId == titulo.TipoRendaId &&
             m.CorretoraId == titulo.CorretoraId && m.ProdutoId == titulo.ProdutoId && m.EmissorId == titulo.EmissorId, rastrear)
             .OrderBy(m => m.DataInvestimento).ThenBy(m => m.Id);
 

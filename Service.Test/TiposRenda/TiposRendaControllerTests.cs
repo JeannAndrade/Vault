@@ -20,7 +20,7 @@ public class TiposRendaControllerTests
     private readonly Mock<IUpdateTipoRendaCommand> _updateTipoRendaCommand = new();
     private readonly Mock<IDeleteTipoRendaCommand> _deleteTipoRendaCommand = new();
     private readonly TiposRendaController _controller;
-    private readonly Guid _userId = Guid.NewGuid();
+    private readonly Guid _ownerId = Guid.NewGuid();
 
     public TiposRendaControllerTests()
     {
@@ -33,14 +33,14 @@ public class TiposRendaControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
-        _controller.HttpContext.Items["UserId"] = _userId.ToString();
+        _controller.HttpContext.Items["UserId"] = _ownerId.ToString();
     }
 
     [Fact]
-    public async Task GetTiposRenda_ReturnsDtosWithoutLeakingUserId()
+    public async Task GetTiposRenda_ReturnsDtosWithoutLeakingOwnerId()
     {
-        var tiposRenda = new List<TipoRendaModel> { new() { Id = Guid.NewGuid(), Nome = "CDB", UserId = _userId } };
-        _getTiposRendaListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(tiposRenda);
+        var tiposRenda = new List<TipoRendaModel> { new() { Id = Guid.NewGuid(), Nome = "CDB", OwnerId = _ownerId } };
+        _getTiposRendaListQuery.Setup(q => q.ExecuteAsync(_ownerId, It.IsAny<CancellationToken>())).ReturnsAsync(tiposRenda);
 
         var result = await _controller.GetTiposRenda(CancellationToken.None);
 
@@ -54,8 +54,8 @@ public class TiposRendaControllerTests
     public async Task GetTipoRenda_ReturnsDtoMappedFromApplicationModel()
     {
         var tipoRendaId = Guid.NewGuid();
-        var tipoRenda = new TipoRendaModel { Id = tipoRendaId, Nome = "CDB", UserId = _userId };
-        _getTipoRendaQuery.Setup(q => q.ExecuteAsync(_userId, tipoRendaId, It.IsAny<CancellationToken>())).ReturnsAsync(tipoRenda);
+        var tipoRenda = new TipoRendaModel { Id = tipoRendaId, Nome = "CDB", OwnerId = _ownerId };
+        _getTipoRendaQuery.Setup(q => q.ExecuteAsync(_ownerId, tipoRendaId, It.IsAny<CancellationToken>())).ReturnsAsync(tipoRenda);
 
         var result = await _controller.GetTipoRenda(tipoRendaId, CancellationToken.None);
 
@@ -67,7 +67,7 @@ public class TiposRendaControllerTests
     [Fact]
     public async Task CreateTipoRenda_ReturnsDtoMappedFromApplicationModel()
     {
-        var created = new TipoRendaModel { Id = Guid.NewGuid(), Nome = "CDB", UserId = _userId };
+        var created = new TipoRendaModel { Id = Guid.NewGuid(), Nome = "CDB", OwnerId = _ownerId };
         _createTipoRendaCommand
             .Setup(c => c.ExecuteAsync(It.IsAny<TipoRendaModelForCreation>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
@@ -87,6 +87,6 @@ public class TiposRendaControllerTests
         var result = await _controller.DeleteTipoRenda(tipoRendaId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteTipoRendaCommand.Verify(c => c.ExecuteAsync(_userId, tipoRendaId, CancellationToken.None), Times.Once);
+        _deleteTipoRendaCommand.Verify(c => c.ExecuteAsync(_ownerId, tipoRendaId, CancellationToken.None), Times.Once);
     }
 }

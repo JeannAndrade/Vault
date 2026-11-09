@@ -22,7 +22,7 @@ public class ObjetivosControllerTests
     private readonly Mock<IUpdateObjetivoCommand> _updateObjetivoCommand = new();
     private readonly Mock<IDeleteObjetivoCommand> _deleteObjetivoCommand = new();
     private readonly ObjetivosController _controller;
-    private readonly Guid _userId = Guid.NewGuid();
+    private readonly Guid _ownerId = Guid.NewGuid();
 
     public ObjetivosControllerTests()
     {
@@ -36,17 +36,17 @@ public class ObjetivosControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
-        _controller.HttpContext.Items["UserId"] = _userId.ToString();
+        _controller.HttpContext.Items["UserId"] = _ownerId.ToString();
     }
 
     [Fact]
-    public async Task GetObjetivos_ReturnsDtosWithoutLeakingUserId()
+    public async Task GetObjetivos_ReturnsDtosWithoutLeakingOwnerId()
     {
         var objetivos = new List<ObjetivoModel>
         {
-            new() { Id = Guid.NewGuid(), Nome = "Reserva de emergência", UserId = _userId }
+            new() { Id = Guid.NewGuid(), Nome = "Reserva de emergência", OwnerId = _ownerId }
         };
-        _getObjetivosListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(objetivos);
+        _getObjetivosListQuery.Setup(q => q.ExecuteAsync(_ownerId, It.IsAny<CancellationToken>())).ReturnsAsync(objetivos);
 
         var result = await _controller.GetObjetivos(CancellationToken.None);
 
@@ -74,7 +74,7 @@ public class ObjetivosControllerTests
             }
         };
         _getResumoObjetivosListQuery
-            .Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.ExecuteAsync(_ownerId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(objetivos);
 
         var result = await _controller.GetObjetivosComValores(CancellationToken.None);
@@ -89,15 +89,15 @@ public class ObjetivosControllerTests
         Assert.Equal(2, dto.QtdeMovimentos);
         Assert.Equal(1500m, dto.TotalAportado);
         Assert.Equal(1575m, dto.TotalLiquido);
-        _getResumoObjetivosListQuery.Verify(q => q.ExecuteAsync(_userId, CancellationToken.None), Times.Once);
+        _getResumoObjetivosListQuery.Verify(q => q.ExecuteAsync(_ownerId, CancellationToken.None), Times.Once);
     }
 
     [Fact]
     public async Task GetObjetivo_ReturnsDtoMappedFromApplicationModel()
     {
         var objetivoId = Guid.NewGuid();
-        var objetivo = new ObjetivoModel { Id = objetivoId, Nome = "Reserva de emergência", UserId = _userId };
-        _getObjetivoQuery.Setup(q => q.ExecuteAsync(_userId, objetivoId, It.IsAny<CancellationToken>())).ReturnsAsync(objetivo);
+        var objetivo = new ObjetivoModel { Id = objetivoId, Nome = "Reserva de emergência", OwnerId = _ownerId };
+        _getObjetivoQuery.Setup(q => q.ExecuteAsync(_ownerId, objetivoId, It.IsAny<CancellationToken>())).ReturnsAsync(objetivo);
 
         var result = await _controller.GetObjetivo(objetivoId, CancellationToken.None);
 
@@ -109,7 +109,7 @@ public class ObjetivosControllerTests
     [Fact]
     public async Task CreateObjetivo_ReturnsDtoMappedFromApplicationModel()
     {
-        var created = new ObjetivoModel { Id = Guid.NewGuid(), Nome = "Reserva de emergência", UserId = _userId };
+        var created = new ObjetivoModel { Id = Guid.NewGuid(), Nome = "Reserva de emergência", OwnerId = _ownerId };
         _createObjetivoCommand
             .Setup(c => c.ExecuteAsync(It.IsAny<ObjetivoModelForCreation>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
@@ -130,6 +130,6 @@ public class ObjetivosControllerTests
         var result = await _controller.DeleteObjetivo(objetivoId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteObjetivoCommand.Verify(c => c.ExecuteAsync(_userId, objetivoId, CancellationToken.None), Times.Once);
+        _deleteObjetivoCommand.Verify(c => c.ExecuteAsync(_ownerId, objetivoId, CancellationToken.None), Times.Once);
     }
 }

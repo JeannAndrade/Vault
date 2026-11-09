@@ -36,8 +36,8 @@ public class ProdutosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<ProdutoDto>>> GetProdutos(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var produtos = await _getProdutosListQuery.ExecuteAsync(userId, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var produtos = await _getProdutosListQuery.ExecuteAsync(ownerId, cancellationToken);
 
         return Ok(ProdutoDto.FromApplication(produtos));
     }
@@ -48,8 +48,8 @@ public class ProdutosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProdutoDto>> GetProduto(Guid id, CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var produto = await _getProdutoQuery.ExecuteAsync(userId, id, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var produto = await _getProdutoQuery.ExecuteAsync(ownerId, id, cancellationToken);
 
         return Ok(ProdutoDto.FromApplication(produto));
     }

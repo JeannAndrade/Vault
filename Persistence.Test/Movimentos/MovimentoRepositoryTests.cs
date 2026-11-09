@@ -15,16 +15,16 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetConsolidadoAsync_SomaSomenteAtivosDoUsuarioComPrecisao()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
-        var dimensoes = CriarDimensoes(context, userId, "A");
-        AdicionarMovimentoConsolidado(context, userId, dimensoes, 10.25m, 11.30m, true);
-        AdicionarMovimentoConsolidado(context, userId, dimensoes, 20.75m, 21.40m, true);
-        AdicionarMovimentoConsolidado(context, userId, dimensoes, 999m, 999m, false);
+        var dimensoes = CriarDimensoes(context, ownerId, "A");
+        AdicionarMovimentoConsolidado(context, ownerId, dimensoes, 10.25m, 11.30m, true);
+        AdicionarMovimentoConsolidado(context, ownerId, dimensoes, 20.75m, 21.40m, true);
+        AdicionarMovimentoConsolidado(context, ownerId, dimensoes, 999m, 999m, false);
         AdicionarMovimentoConsolidado(context, Guid.NewGuid(), dimensoes, 999m, 999m, true);
         await context.SaveChangesAsync();
 
-        var resultado = await new MovimentoRepository(context).GetConsolidadoAsync(userId, new ConsolidadoFiltro(), CancellationToken.None);
+        var resultado = await new MovimentoRepository(context).GetConsolidadoAsync(ownerId, new ConsolidadoFiltro(), CancellationToken.None);
 
         Assert.Equal(2, resultado.Quantidade);
         Assert.Equal(31.00m, resultado.TotalAportado);
@@ -34,18 +34,18 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetConsolidadoAsync_AplicaFiltrosCombinadosEIgnoraObjetivoInativo()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
-        var a = CriarDimensoes(context, userId, "A");
-        var b = CriarDimensoes(context, userId, "B");
-        var objetivo = new Objetivo { Nome = "Inativo", FontePagadora = "Salário", OndeAplicar = "XP", UserId = userId, EstaAtivo = false };
+        var a = CriarDimensoes(context, ownerId, "A");
+        var b = CriarDimensoes(context, ownerId, "B");
+        var objetivo = new Objetivo { Nome = "Inativo", FontePagadora = "Salário", OndeAplicar = "XP", OwnerId = ownerId, EstaAtivo = false };
         context.Add(objetivo);
-        AdicionarMovimentoConsolidado(context, userId, a, 100m, 110m, true, objetivo.Id);
-        AdicionarMovimentoConsolidado(context, userId, b, 200m, 220m, true);
+        AdicionarMovimentoConsolidado(context, ownerId, a, 100m, 110m, true, objetivo.Id);
+        AdicionarMovimentoConsolidado(context, ownerId, b, 200m, 220m, true);
         await context.SaveChangesAsync();
 
         var filtro = new ConsolidadoFiltro { TipoRendaId = a.TipoRenda.Id, CorretoraId = a.Corretora.Id };
-        var resultado = await new MovimentoRepository(context).GetConsolidadoAsync(userId, filtro, CancellationToken.None);
+        var resultado = await new MovimentoRepository(context).GetConsolidadoAsync(ownerId, filtro, CancellationToken.None);
 
         Assert.Equal(new ConsolidadoAgregado(1, 100m, 110m), resultado);
     }
@@ -66,16 +66,16 @@ public class MovimentoRepositoryTests
     [InlineData(DimensaoConsolidado.Emissor)]
     public async Task GetConsolidadoAgrupadoAsync_AgrupaOrdenaEIsolaPorUsuario(DimensaoConsolidado dimensao)
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
-        var menor = CriarDimensoes(context, userId, "Z");
-        var maior = CriarDimensoes(context, userId, "A");
-        AdicionarMovimentoConsolidado(context, userId, menor, 50m, 50m, true);
-        AdicionarMovimentoConsolidado(context, userId, maior, 100m, 200m, true);
+        var menor = CriarDimensoes(context, ownerId, "Z");
+        var maior = CriarDimensoes(context, ownerId, "A");
+        AdicionarMovimentoConsolidado(context, ownerId, menor, 50m, 50m, true);
+        AdicionarMovimentoConsolidado(context, ownerId, maior, 100m, 200m, true);
         AdicionarMovimentoConsolidado(context, Guid.NewGuid(), maior, 999m, 999m, true);
         await context.SaveChangesAsync();
 
-        var resultado = await new MovimentoRepository(context).GetConsolidadoAgrupadoAsync(userId, new ConsolidadoFiltro(), dimensao, CancellationToken.None);
+        var resultado = await new MovimentoRepository(context).GetConsolidadoAgrupadoAsync(ownerId, new ConsolidadoFiltro(), dimensao, CancellationToken.None);
 
         Assert.Equal(2, resultado.Count);
         Assert.Equal(200m, resultado[0].TotalLiquido);
@@ -86,13 +86,13 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetConsolidadoAgrupadoAsync_RespeitaFiltroDaDimensaoEEstaVazioSemDados()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
-        var dimensoes = CriarDimensoes(context, userId, "A");
-        AdicionarMovimentoConsolidado(context, userId, dimensoes, 10m, 10m, true);
+        var dimensoes = CriarDimensoes(context, ownerId, "A");
+        AdicionarMovimentoConsolidado(context, ownerId, dimensoes, 10m, 10m, true);
         await context.SaveChangesAsync();
 
-        var resultado = await new MovimentoRepository(context).GetConsolidadoAgrupadoAsync(userId,
+        var resultado = await new MovimentoRepository(context).GetConsolidadoAgrupadoAsync(ownerId,
             new ConsolidadoFiltro { ProdutoId = Guid.NewGuid() }, DimensaoConsolidado.Produto, CancellationToken.None);
 
         Assert.Empty(resultado);
@@ -102,15 +102,15 @@ public class MovimentoRepositoryTests
     public async Task GetWithRelatedEntitiesAsync_RetornaMovimentoComNomesDasEntidadesRelacionadas()
     {
         // Arrange
-        var userId = Guid.NewGuid();
-        var objetivo = new Objetivo { Nome = "Aposentadoria", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
-        var tipoRenda = new TipoRenda { Nome = "CDB", UserId = userId };
-        var corretora = new Corretora { Nome = "XP", UserId = userId };
-        var produto = new Produto { Nome = "CDB Banco Y", UserId = userId };
-        var emissor = new Emissor { Nome = "Banco Y", UserId = userId };
+        var ownerId = Guid.NewGuid();
+        var objetivo = new Objetivo { Nome = "Aposentadoria", FontePagadora = "Salário", OndeAplicar = "Corretora X", OwnerId = ownerId };
+        var tipoRenda = new TipoRenda { Nome = "CDB", OwnerId = ownerId };
+        var corretora = new Corretora { Nome = "XP", OwnerId = ownerId };
+        var produto = new Produto { Nome = "CDB Banco Y", OwnerId = ownerId };
+        var emissor = new Emissor { Nome = "Banco Y", OwnerId = ownerId };
         var movimento = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = objetivo.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretora.Id,
@@ -128,7 +128,7 @@ public class MovimentoRepositoryTests
         var repository = new MovimentoRepository(context);
 
         // Act
-        var resultado = await repository.GetWithRelatedEntitiesAsync(userId, movimento.Id, CancellationToken.None);
+        var resultado = await repository.GetWithRelatedEntitiesAsync(ownerId, movimento.Id, CancellationToken.None);
 
         // Assert
         Assert.NotNull(resultado);
@@ -144,14 +144,14 @@ public class MovimentoRepositoryTests
     {
         // Arrange
         var donoReal = Guid.NewGuid();
-        var objetivo = new Objetivo { Nome = "Reserva", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = donoReal };
-        var tipoRenda = new TipoRenda { Nome = "Tesouro", UserId = donoReal };
-        var corretora = new Corretora { Nome = "Rico", UserId = donoReal };
-        var produto = new Produto { Nome = "Tesouro Selic", UserId = donoReal };
-        var emissor = new Emissor { Nome = "Tesouro Nacional", UserId = donoReal };
+        var objetivo = new Objetivo { Nome = "Reserva", FontePagadora = "Salário", OndeAplicar = "Corretora X", OwnerId = donoReal };
+        var tipoRenda = new TipoRenda { Nome = "Tesouro", OwnerId = donoReal };
+        var corretora = new Corretora { Nome = "Rico", OwnerId = donoReal };
+        var produto = new Produto { Nome = "Tesouro Selic", OwnerId = donoReal };
+        var emissor = new Emissor { Nome = "Tesouro Nacional", OwnerId = donoReal };
         var movimento = new Movimento
         {
-            UserId = donoReal,
+            OwnerId = donoReal,
             ObjetivoId = objetivo.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretora.Id,
@@ -266,22 +266,22 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetProximosVencimentosAsync_RetornaSomenteAtivosOrdenadosPorDataVencimento()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
 
-        var movimentoVenceEm10Dias = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        var movimentoVenceEm10Dias = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 1));
         movimentoVenceEm10Dias.EstaAtivo = true;
         movimentoVenceEm10Dias.DataVencimento = new DateTime(2026, 1, 10);
 
-        var movimentoVenceEm5Dias = AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        var movimentoVenceEm5Dias = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 2));
         movimentoVenceEm5Dias.EstaAtivo = true;
         movimentoVenceEm5Dias.DataVencimento = new DateTime(2026, 1, 5);
 
-        var movimentoJaVenceu = AdicionarMovimento(context, userId, new DateTime(2026, 1, 3));
+        var movimentoJaVenceu = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 3));
         movimentoJaVenceu.EstaAtivo = true;
         movimentoJaVenceu.DataVencimento = new DateTime(2025, 12, 29);
 
-        var movimentoInativo = AdicionarMovimento(context, userId, new DateTime(2026, 1, 4));
+        var movimentoInativo = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 4));
         movimentoInativo.EstaAtivo = false;
         movimentoInativo.DataVencimento = new DateTime(2026, 1, 7);
 
@@ -289,14 +289,14 @@ public class MovimentoRepositoryTests
         movimentoDeOutroUsuario.EstaAtivo = true;
         movimentoDeOutroUsuario.DataVencimento = new DateTime(2026, 1, 12);
 
-        var movimentoSemDataVencimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 6));
+        var movimentoSemDataVencimento = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 6));
         movimentoSemDataVencimento.EstaAtivo = true;
         movimentoSemDataVencimento.DataVencimento = null;
 
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
-        var resultado = await repository.GetProximosVencimentosAsync(userId, quantidade: 15, CancellationToken.None);
+        var resultado = await repository.GetProximosVencimentosAsync(ownerId, quantidade: 15, CancellationToken.None);
 
         Assert.Equal(
             [movimentoJaVenceu.Id, movimentoVenceEm5Dias.Id, movimentoVenceEm10Dias.Id],
@@ -305,39 +305,39 @@ public class MovimentoRepositoryTests
         Assert.All(resultado, m => Assert.NotNull(m.DataVencimento));
         Assert.DoesNotContain(resultado, m => m.Id == movimentoInativo.Id);
         Assert.DoesNotContain(resultado, m => m.Id == movimentoSemDataVencimento.Id);
-        Assert.DoesNotContain(resultado, m => m.UserId == movimentoDeOutroUsuario.UserId);
+        Assert.DoesNotContain(resultado, m => m.OwnerId == movimentoDeOutroUsuario.OwnerId);
     }
 
     [Fact]
     public async Task GetPagedWithRelatedEntitiesAsync_RetornaSomenteMovimentosDoUsuario()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
-        AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
-        AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 1));
+        AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 2));
         AdicionarMovimento(context, Guid.NewGuid(), new DateTime(2026, 1, 3));
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
-        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 10, CancellationToken.None);
+        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(ownerId, page: 1, pageSize: 10, CancellationToken.None);
 
         Assert.Equal(2, resultado.TotalCount);
-        Assert.All(resultado.Items, m => Assert.Equal(userId, m.UserId));
+        Assert.All(resultado.Items, m => Assert.Equal(ownerId, m.OwnerId));
     }
 
     [Fact]
     public async Task GetPagedWithRelatedEntitiesAsync_OrdenaPorDataInvestimentoDecrescenteEPagina()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
-        AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
-        AdicionarMovimento(context, userId, new DateTime(2026, 1, 3));
-        AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 2));
+        AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 3));
+        AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 1));
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
-        var primeira = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 2, CancellationToken.None);
-        var segunda = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 2, pageSize: 2, CancellationToken.None);
+        var primeira = await repository.GetPagedWithRelatedEntitiesAsync(ownerId, page: 1, pageSize: 2, CancellationToken.None);
+        var segunda = await repository.GetPagedWithRelatedEntitiesAsync(ownerId, page: 2, pageSize: 2, CancellationToken.None);
 
         Assert.Equal([new DateTime(2026, 1, 3), new DateTime(2026, 1, 2)], primeira.Items.Select(m => m.DataInvestimento));
         Assert.Equal([new DateTime(2026, 1, 1)], segunda.Items.Select(m => m.DataInvestimento));
@@ -348,17 +348,17 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetPagedWithRelatedEntitiesAsync_ComDatasIguais_PaginaSemRepetirNemOmitir()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         var mesmaData = new DateTime(2026, 1, 1);
         await using var context = CreateContext();
-        var movimentos = Enumerable.Range(0, 5).Select(_ => AdicionarMovimento(context, userId, mesmaData)).ToList();
+        var movimentos = Enumerable.Range(0, 5).Select(_ => AdicionarMovimento(context, ownerId, mesmaData)).ToList();
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
         var coletados = new List<Guid>();
         for (var pagina = 1; pagina <= 3; pagina++)
         {
-            var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, pagina, pageSize: 2, CancellationToken.None);
+            var resultado = await repository.GetPagedWithRelatedEntitiesAsync(ownerId, pagina, pageSize: 2, CancellationToken.None);
             coletados.AddRange(resultado.Items.Select(m => m.Id));
         }
 
@@ -368,13 +368,13 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetPagedWithRelatedEntitiesAsync_CarregaNomesDasEntidadesRelacionadas()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
-        AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 1));
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
-        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(userId, page: 1, pageSize: 10, CancellationToken.None);
+        var resultado = await repository.GetPagedWithRelatedEntitiesAsync(ownerId, page: 1, pageSize: 10, CancellationToken.None);
 
         var movimento = Assert.Single(resultado.Items);
         Assert.Equal("Objetivo", movimento.Objetivo.Nome);
@@ -387,19 +387,19 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetPagedWithRelatedEntitiesAsync_ComFiltroObjetivoId_RetornaSomenteMovimentosDoObjetivo()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
 
-        var objetivoEmFiltro = new Objetivo { Nome = "Objetivo A", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
-        var objetivoForaFiltro = new Objetivo { Nome = "Objetivo B", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
-        var tipoRenda = new TipoRenda { Nome = "CDB", UserId = userId };
-        var corretora = new Corretora { Nome = "XP", UserId = userId };
-        var produto = new Produto { Nome = "CDB Banco Y", UserId = userId };
-        var emissor = new Emissor { Nome = "Banco Y", UserId = userId };
+        var objetivoEmFiltro = new Objetivo { Nome = "Objetivo A", FontePagadora = "Salário", OndeAplicar = "Corretora X", OwnerId = ownerId };
+        var objetivoForaFiltro = new Objetivo { Nome = "Objetivo B", FontePagadora = "Salário", OndeAplicar = "Corretora X", OwnerId = ownerId };
+        var tipoRenda = new TipoRenda { Nome = "CDB", OwnerId = ownerId };
+        var corretora = new Corretora { Nome = "XP", OwnerId = ownerId };
+        var produto = new Produto { Nome = "CDB Banco Y", OwnerId = ownerId };
+        var emissor = new Emissor { Nome = "Banco Y", OwnerId = ownerId };
 
         var movimentoA = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = objetivoEmFiltro.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretora.Id,
@@ -412,7 +412,7 @@ public class MovimentoRepositoryTests
         };
         var movimentoB = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = objetivoEmFiltro.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretora.Id,
@@ -425,7 +425,7 @@ public class MovimentoRepositoryTests
         };
         var movimentoFora = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = objetivoForaFiltro.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretora.Id,
@@ -441,7 +441,7 @@ public class MovimentoRepositoryTests
         await context.SaveChangesAsync();
 
         var resultado = await new MovimentoRepository(context)
-            .GetPagedWithRelatedEntitiesAsync(userId, new MovimentoFiltro { ObjetivoId = objetivoEmFiltro.Id }, 1, 10, CancellationToken.None);
+            .GetPagedWithRelatedEntitiesAsync(ownerId, new MovimentoFiltro { ObjetivoId = objetivoEmFiltro.Id }, 1, 10, CancellationToken.None);
 
         Assert.Equal([movimentoB.Id, movimentoA.Id], resultado.Items.Select(m => m.Id));
         Assert.Equal(2, resultado.TotalCount);
@@ -451,20 +451,20 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetPagedWithRelatedEntitiesAsync_ComFiltrosCombinados_UsaTodosOsCampos()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
 
-        var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
-        var outroObjetivo = new Objetivo { Nome = "Objetivo 2", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
-        var tipoRenda = new TipoRenda { Nome = "CDB", UserId = userId };
-        var outraTipoRenda = new TipoRenda { Nome = "Tesouro", UserId = userId };
-        var corretora = new Corretora { Nome = "XP", UserId = userId };
-        var produto = new Produto { Nome = "CDB Banco Y", UserId = userId };
-        var emissor = new Emissor { Nome = "Banco Y", UserId = userId };
+        var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", OwnerId = ownerId };
+        var outroObjetivo = new Objetivo { Nome = "Objetivo 2", FontePagadora = "Salário", OndeAplicar = "Corretora X", OwnerId = ownerId };
+        var tipoRenda = new TipoRenda { Nome = "CDB", OwnerId = ownerId };
+        var outraTipoRenda = new TipoRenda { Nome = "Tesouro", OwnerId = ownerId };
+        var corretora = new Corretora { Nome = "XP", OwnerId = ownerId };
+        var produto = new Produto { Nome = "CDB Banco Y", OwnerId = ownerId };
+        var emissor = new Emissor { Nome = "Banco Y", OwnerId = ownerId };
 
         var movimentoCorreto = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = objetivo.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretora.Id,
@@ -477,7 +477,7 @@ public class MovimentoRepositoryTests
         };
         var movimentoForaObjetivo = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = outroObjetivo.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretora.Id,
@@ -490,7 +490,7 @@ public class MovimentoRepositoryTests
         };
         var movimentoForaAtivo = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = objetivo.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretora.Id,
@@ -507,7 +507,7 @@ public class MovimentoRepositoryTests
 
         var resultado = await new MovimentoRepository(context)
             .GetPagedWithRelatedEntitiesAsync(
-                userId,
+                ownerId,
                 new MovimentoFiltro { ObjetivoId = objetivo.Id, TipoRendaId = tipoRenda.Id, CorretoraId = corretora.Id, ProdutoId = produto.Id, EmissorId = emissor.Id, EstaAtivo = true },
                 1,
                 10,
@@ -522,14 +522,14 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetPagedWithRelatedEntitiesAsync_QuandoFiltroVazioOuGuidEmpty_RetornaListaVaziaOuMesmoComportamento()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
-        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        var movimento = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 1));
         await context.SaveChangesAsync();
 
         var repository = new MovimentoRepository(context);
-        var semFiltro = await repository.GetPagedWithRelatedEntitiesAsync(userId, MovimentoFiltro.Vazio, 1, 10, CancellationToken.None);
-        var comGuidEmpty = await repository.GetPagedWithRelatedEntitiesAsync(userId, new MovimentoFiltro { ObjetivoId = Guid.Empty }, 1, 10, CancellationToken.None);
+        var semFiltro = await repository.GetPagedWithRelatedEntitiesAsync(ownerId, MovimentoFiltro.Vazio, 1, 10, CancellationToken.None);
+        var comGuidEmpty = await repository.GetPagedWithRelatedEntitiesAsync(ownerId, new MovimentoFiltro { ObjetivoId = Guid.Empty }, 1, 10, CancellationToken.None);
 
         Assert.Single(semFiltro.Items);
         Assert.Equal(1, semFiltro.TotalCount);
@@ -540,14 +540,14 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetPagedWithRelatedEntitiesAsync_QuandoFiltroAtivo_IsolaPorUsuarioERespeitaPagina2()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
 
-        var movimentoUsuario1 = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        var movimentoUsuario1 = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 1));
         movimentoUsuario1.EstaAtivo = true;
-        var movimentoUsuario2 = AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        var movimentoUsuario2 = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 2));
         movimentoUsuario2.EstaAtivo = true;
-        var movimentoUsuario3 = AdicionarMovimento(context, userId, new DateTime(2026, 1, 3));
+        var movimentoUsuario3 = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 3));
         movimentoUsuario3.EstaAtivo = false;
         var movimentoOutroUsuario = AdicionarMovimento(context, Guid.NewGuid(), new DateTime(2026, 1, 4));
         movimentoOutroUsuario.EstaAtivo = true;
@@ -555,36 +555,36 @@ public class MovimentoRepositoryTests
         await context.SaveChangesAsync();
 
         var resultado = await new MovimentoRepository(context)
-            .GetPagedWithRelatedEntitiesAsync(userId, new MovimentoFiltro { EstaAtivo = true }, 2, 1, CancellationToken.None);
+            .GetPagedWithRelatedEntitiesAsync(ownerId, new MovimentoFiltro { EstaAtivo = true }, 2, 1, CancellationToken.None);
 
         Assert.Equal([movimentoUsuario1.Id], resultado.Items.Select(m => m.Id));
         Assert.Equal(2, resultado.TotalCount);
         Assert.Equal(2, resultado.TotalPages);
         Assert.All(resultado.Items, m => Assert.True(m.EstaAtivo));
-        Assert.DoesNotContain(resultado.Items, m => m.UserId == movimentoOutroUsuario.UserId);
+        Assert.DoesNotContain(resultado.Items, m => m.OwnerId == movimentoOutroUsuario.OwnerId);
     }
 
     [Fact]
     public async Task GetDesatualizadosAsync_FiltraOrdenaECarregaEntidadesRelacionadas()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         var limite = new DateTime(2026, 2, 1);
         await using var context = CreateContext();
 
-        var maisAntigo = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        var maisAntigo = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 1));
         maisAntigo.EstaAtivo = true;
         maisAntigo.DataAtualizacaoValorLiquido = limite.AddDays(-2);
-        var desempateMaior = AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        var desempateMaior = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 2));
         desempateMaior.EstaAtivo = true;
         desempateMaior.DataAtualizacaoValorLiquido = limite.AddDays(-1);
-        var desempateMenor = AdicionarMovimento(context, userId, new DateTime(2026, 1, 3));
+        var desempateMenor = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 3));
         desempateMenor.EstaAtivo = true;
         desempateMenor.DataAtualizacaoValorLiquido = limite.AddDays(-1);
 
-        var naFronteira = AdicionarMovimento(context, userId, new DateTime(2026, 1, 4));
+        var naFronteira = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 4));
         naFronteira.EstaAtivo = true;
         naFronteira.DataAtualizacaoValorLiquido = limite;
-        var inativo = AdicionarMovimento(context, userId, new DateTime(2026, 1, 5));
+        var inativo = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 5));
         inativo.DataAtualizacaoValorLiquido = limite.AddDays(-1);
         var deOutroUsuario = AdicionarMovimento(context, Guid.NewGuid(), new DateTime(2026, 1, 6));
         deOutroUsuario.EstaAtivo = true;
@@ -593,7 +593,7 @@ public class MovimentoRepositoryTests
         await context.SaveChangesAsync();
         var repository = new MovimentoRepository(context);
 
-        var resultado = await repository.GetDesatualizadosAsync(userId, limite, quantidade: 10, CancellationToken.None);
+        var resultado = await repository.GetDesatualizadosAsync(ownerId, limite, quantidade: 10, CancellationToken.None);
 
         var desempatesOrdenados = new[] { desempateMaior.Id, desempateMenor.Id }.Order();
         Assert.Equal([maisAntigo.Id, .. desempatesOrdenados], resultado.Select(m => m.Id));
@@ -611,19 +611,19 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetDesatualizadosAsync_RespeitaQuantidade()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         var limite = new DateTime(2026, 2, 1);
         await using var context = CreateContext();
-        var primeiro = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        var primeiro = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 1));
         primeiro.EstaAtivo = true;
         primeiro.DataAtualizacaoValorLiquido = limite.AddDays(-2);
-        var segundo = AdicionarMovimento(context, userId, new DateTime(2026, 1, 2));
+        var segundo = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 2));
         segundo.EstaAtivo = true;
         segundo.DataAtualizacaoValorLiquido = limite.AddDays(-1);
         await context.SaveChangesAsync();
 
         var resultado = await new MovimentoRepository(context)
-            .GetDesatualizadosAsync(userId, limite, quantidade: 1, CancellationToken.None);
+            .GetDesatualizadosAsync(ownerId, limite, quantidade: 1, CancellationToken.None);
 
         Assert.Equal([primeiro.Id], resultado.Select(m => m.Id));
     }
@@ -631,17 +631,17 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetAsync_ComCancellationToken_IsolaPorUsuarioERespeitaTracking()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
-        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 1));
+        var movimento = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 1));
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
         var repository = new MovimentoRepository(context);
 
         var deOutroUsuario = await repository.GetAsync(Guid.NewGuid(), movimento.Id, trackChanges: false, CancellationToken.None);
-        var semTracking = await repository.GetAsync(userId, movimento.Id, trackChanges: false, CancellationToken.None);
+        var semTracking = await repository.GetAsync(ownerId, movimento.Id, trackChanges: false, CancellationToken.None);
         context.ChangeTracker.Clear();
-        var comTracking = await repository.GetAsync(userId, movimento.Id, trackChanges: true, CancellationToken.None);
+        var comTracking = await repository.GetAsync(ownerId, movimento.Id, trackChanges: true, CancellationToken.None);
 
         Assert.Null(deOutroUsuario);
         Assert.NotNull(semTracking);
@@ -653,27 +653,27 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetDesatualizadosAsync_OrdenaPorCorretoraProdutoEmissorEDepoisDataEId()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         var limite = new DateTime(2026, 2, 1);
         await using var context = CreateContext();
 
         // Inseridos fora de ordem de propósito.
-        var c = AdicionarMovimentoDoTitulo(context, userId, "Corretora B", "Produto A", "Emissor A", limite.AddDays(-1));
-        var b = AdicionarMovimentoDoTitulo(context, userId, "Corretora A", "Produto B", "Emissor A", limite.AddDays(-1));
-        var a2 = AdicionarMovimentoDoTitulo(context, userId, "Corretora A", "Produto A", "Emissor B", limite.AddDays(-1));
-        var a1 = AdicionarMovimentoDoTitulo(context, userId, "Corretora A", "Produto A", "Emissor A", limite.AddDays(-1));
+        var c = AdicionarMovimentoDoTitulo(context, ownerId, "Corretora B", "Produto A", "Emissor A", limite.AddDays(-1));
+        var b = AdicionarMovimentoDoTitulo(context, ownerId, "Corretora A", "Produto B", "Emissor A", limite.AddDays(-1));
+        var a2 = AdicionarMovimentoDoTitulo(context, ownerId, "Corretora A", "Produto A", "Emissor B", limite.AddDays(-1));
+        var a1 = AdicionarMovimentoDoTitulo(context, ownerId, "Corretora A", "Produto A", "Emissor A", limite.AddDays(-1));
 
         // Mesmo título e data: desempate por Id.
-        var d1 = AdicionarMovimentoDoTitulo(context, userId, "Corretora C", "Produto A", "Emissor A", limite.AddDays(-1));
-        var d2 = AdicionarMovimentoDoTitulo(context, userId, "Corretora C", "Produto A", "Emissor A", limite.AddDays(-1));
+        var d1 = AdicionarMovimentoDoTitulo(context, ownerId, "Corretora C", "Produto A", "Emissor A", limite.AddDays(-1));
+        var d2 = AdicionarMovimentoDoTitulo(context, ownerId, "Corretora C", "Produto A", "Emissor A", limite.AddDays(-1));
         // Desempate por data de atualização: mesma corretora/produto/emissor, data mais antiga primeiro.
-        var e1 = AdicionarMovimentoDoTitulo(context, userId, "Corretora D", "Produto A", "Emissor A", limite.AddDays(-1));
-        var e2 = AdicionarMovimentoDoTitulo(context, userId, "Corretora D", "Produto A", "Emissor A", limite.AddDays(-5));
+        var e1 = AdicionarMovimentoDoTitulo(context, ownerId, "Corretora D", "Produto A", "Emissor A", limite.AddDays(-1));
+        var e2 = AdicionarMovimentoDoTitulo(context, ownerId, "Corretora D", "Produto A", "Emissor A", limite.AddDays(-5));
 
         await context.SaveChangesAsync();
 
         var resultado = await new MovimentoRepository(context)
-            .GetDesatualizadosAsync(userId, limite, quantidade: 20, CancellationToken.None);
+            .GetDesatualizadosAsync(ownerId, limite, quantidade: 20, CancellationToken.None);
 
         Assert.Equal(
             [a1.Id, a2.Id, b.Id, c.Id, .. new[] { d1.Id, d2.Id }.Order(), e2.Id, e1.Id],
@@ -683,16 +683,16 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetDesatualizadosAsync_AplicaTakeDepoisDaOrdenacaoPorNome()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         var limite = new DateTime(2026, 2, 1);
         await using var context = CreateContext();
         // O mais antigo (por data) tem a corretora "Z": fica fora do Top 1.
-        AdicionarMovimentoDoTitulo(context, userId, "Z", "P", "E", limite.AddDays(-100));
-        var primeiro = AdicionarMovimentoDoTitulo(context, userId, "A", "P", "E", limite.AddDays(-1));
+        AdicionarMovimentoDoTitulo(context, ownerId, "Z", "P", "E", limite.AddDays(-100));
+        var primeiro = AdicionarMovimentoDoTitulo(context, ownerId, "A", "P", "E", limite.AddDays(-1));
         await context.SaveChangesAsync();
 
         var resultado = await new MovimentoRepository(context)
-            .GetDesatualizadosAsync(userId, limite, quantidade: 1, CancellationToken.None);
+            .GetDesatualizadosAsync(ownerId, limite, quantidade: 1, CancellationToken.None);
 
         Assert.Equal([primeiro.Id], resultado.Select(m => m.Id));
     }
@@ -700,17 +700,17 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetAsync_RetornaMovimentoEncerradoComMotivoEDataPersistidos()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
 
-        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 15));
+        var movimento = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 15));
         movimento.EstaAtivo = true;
         movimento.Encerrar(MotivoEncerramento.Reinvestido, new DateTime(2026, 2, 1), new DateTime(2026, 2, 5));
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
         var carregado = await new MovimentoRepository(context)
-            .GetAsync(userId, movimento.Id, trackChanges: false, CancellationToken.None);
+            .GetAsync(ownerId, movimento.Id, trackChanges: false, CancellationToken.None);
 
         Assert.NotNull(carregado);
         Assert.False(carregado!.EstaAtivo);
@@ -721,16 +721,16 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task GetAsync_RetornaMovimentoAtivoComMotivoEDataNulos()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
 
-        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 15));
+        var movimento = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 15));
         movimento.EstaAtivo = true;
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
         var carregado = await new MovimentoRepository(context)
-            .GetAsync(userId, movimento.Id, trackChanges: false, CancellationToken.None);
+            .GetAsync(ownerId, movimento.Id, trackChanges: false, CancellationToken.None);
 
         Assert.NotNull(carregado);
         Assert.True(carregado!.EstaAtivo);
@@ -741,24 +741,24 @@ public class MovimentoRepositoryTests
     [Fact]
     public async Task Reativar_PersisteEstadoAtivoELimpaMotivoEData()
     {
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
         await using var context = CreateContext();
 
-        var movimento = AdicionarMovimento(context, userId, new DateTime(2026, 1, 15));
+        var movimento = AdicionarMovimento(context, ownerId, new DateTime(2026, 1, 15));
         movimento.EstaAtivo = true;
         movimento.Encerrar(MotivoEncerramento.Pendente, new DateTime(2026, 2, 1), new DateTime(2026, 2, 5));
         await context.SaveChangesAsync();
 
         context.ChangeTracker.Clear();
         var carregado = await new MovimentoRepository(context)
-            .GetAsync(userId, movimento.Id, trackChanges: true, CancellationToken.None);
+            .GetAsync(ownerId, movimento.Id, trackChanges: true, CancellationToken.None);
 
         carregado!.Reativar();
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
         var relembrado = await new MovimentoRepository(context)
-            .GetAsync(userId, movimento.Id, trackChanges: false, CancellationToken.None);
+            .GetAsync(ownerId, movimento.Id, trackChanges: false, CancellationToken.None);
 
         Assert.NotNull(relembrado);
         Assert.True(relembrado!.EstaAtivo);
@@ -767,16 +767,16 @@ public class MovimentoRepositoryTests
     }
 
     private static Movimento AdicionarMovimentoDoTitulo(
-        VaultDbContext context, Guid userId, string corretora, string produto, string emissor, DateTime dataAtualizacao)
+        VaultDbContext context, Guid ownerId, string corretora, string produto, string emissor, DateTime dataAtualizacao)
     {
-        var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
-        var tipoRenda = new TipoRenda { Nome = "CDB", UserId = userId };
-        var corretoraEntidade = new Corretora { Nome = corretora, UserId = userId };
-        var produtoEntidade = new Produto { Nome = produto, UserId = userId };
-        var emissorEntidade = new Emissor { Nome = emissor, UserId = userId };
+        var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", OwnerId = ownerId };
+        var tipoRenda = new TipoRenda { Nome = "CDB", OwnerId = ownerId };
+        var corretoraEntidade = new Corretora { Nome = corretora, OwnerId = ownerId };
+        var produtoEntidade = new Produto { Nome = produto, OwnerId = ownerId };
+        var emissorEntidade = new Emissor { Nome = emissor, OwnerId = ownerId };
         var movimento = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = objetivo.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretoraEntidade.Id,
@@ -793,16 +793,16 @@ public class MovimentoRepositoryTests
         return movimento;
     }
 
-    private static Movimento AdicionarMovimento(VaultDbContext context, Guid userId, DateTime dataInvestimento)
+    private static Movimento AdicionarMovimento(VaultDbContext context, Guid ownerId, DateTime dataInvestimento)
     {
-        var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", UserId = userId };
-        var tipoRenda = new TipoRenda { Nome = "CDB", UserId = userId };
-        var corretora = new Corretora { Nome = "XP", UserId = userId };
-        var produto = new Produto { Nome = "CDB Banco Y", UserId = userId };
-        var emissor = new Emissor { Nome = "Banco Y", UserId = userId };
+        var objetivo = new Objetivo { Nome = "Objetivo", FontePagadora = "Salário", OndeAplicar = "Corretora X", OwnerId = ownerId };
+        var tipoRenda = new TipoRenda { Nome = "CDB", OwnerId = ownerId };
+        var corretora = new Corretora { Nome = "XP", OwnerId = ownerId };
+        var produto = new Produto { Nome = "CDB Banco Y", OwnerId = ownerId };
+        var emissor = new Emissor { Nome = "Banco Y", OwnerId = ownerId };
         var movimento = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = objetivo.Id,
             TipoRendaId = tipoRenda.Id,
             CorretoraId = corretora.Id,
@@ -818,24 +818,24 @@ public class MovimentoRepositoryTests
         return movimento;
     }
 
-    private static DimensoesConsolidado CriarDimensoes(VaultDbContext context, Guid userId, string sufixo)
+    private static DimensoesConsolidado CriarDimensoes(VaultDbContext context, Guid ownerId, string sufixo)
     {
         var dimensoes = new DimensoesConsolidado(
-            new TipoRenda { Nome = $"Renda {sufixo}", UserId = userId },
-            new Corretora { Nome = $"Corretora {sufixo}", UserId = userId },
-            new Produto { Nome = $"Produto {sufixo}", UserId = userId },
-            new Emissor { Nome = $"Emissor {sufixo}", UserId = userId });
+            new TipoRenda { Nome = $"Renda {sufixo}", OwnerId = ownerId },
+            new Corretora { Nome = $"Corretora {sufixo}", OwnerId = ownerId },
+            new Produto { Nome = $"Produto {sufixo}", OwnerId = ownerId },
+            new Emissor { Nome = $"Emissor {sufixo}", OwnerId = ownerId });
         context.AddRange(dimensoes.TipoRenda, dimensoes.Corretora, dimensoes.Produto, dimensoes.Emissor);
         return dimensoes;
     }
 
     private static Movimento AdicionarMovimentoConsolidado(
-        VaultDbContext context, Guid userId, DimensoesConsolidado dimensoes,
+        VaultDbContext context, Guid ownerId, DimensoesConsolidado dimensoes,
         decimal aporte, decimal liquido, bool ativo, Guid? objetivoId = null)
     {
         var movimento = new Movimento
         {
-            UserId = userId,
+            OwnerId = ownerId,
             ObjetivoId = objetivoId ?? Guid.NewGuid(),
             TipoRendaId = dimensoes.TipoRenda.Id,
             CorretoraId = dimensoes.Corretora.Id,

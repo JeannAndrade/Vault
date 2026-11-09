@@ -11,7 +11,7 @@ public record ObjetivoForCreationDto(
     string OndeAplicar,
     bool EstaAtivo)
 {
-  public ObjetivoModelForCreation ToCreateObjetivoCommand(Guid userId) => new(
+  public ObjetivoModelForCreation ToCreateObjetivoCommand(Guid ownerId) => new(
       Nome,
       Descricao,
       Meta,
@@ -19,5 +19,5 @@ public record ObjetivoForCreationDto(
       AporteMensal,
       OndeAplicar,
       EstaAtivo,
-      userId);
+      ownerId);
 }

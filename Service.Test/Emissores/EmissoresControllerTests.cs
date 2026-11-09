@@ -20,7 +20,7 @@ public class EmissoresControllerTests
     private readonly Mock<IUpdateEmissorCommand> _updateEmissorCommand = new();
     private readonly Mock<IDeleteEmissorCommand> _deleteEmissorCommand = new();
     private readonly EmissoresController _controller;
-    private readonly Guid _userId = Guid.NewGuid();
+    private readonly Guid _ownerId = Guid.NewGuid();
 
     public EmissoresControllerTests()
     {
@@ -33,14 +33,14 @@ public class EmissoresControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
-        _controller.HttpContext.Items["UserId"] = _userId.ToString();
+        _controller.HttpContext.Items["UserId"] = _ownerId.ToString();
     }
 
     [Fact]
-    public async Task GetEmissores_ReturnsDtosWithoutLeakingUserId()
+    public async Task GetEmissores_ReturnsDtosWithoutLeakingOwnerId()
     {
-        var emissores = new List<EmissorModel> { new() { Id = Guid.NewGuid(), Nome = "Tesouro Nacional", UserId = _userId } };
-        _getEmissoresListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(emissores);
+        var emissores = new List<EmissorModel> { new() { Id = Guid.NewGuid(), Nome = "Tesouro Nacional", OwnerId = _ownerId } };
+        _getEmissoresListQuery.Setup(q => q.ExecuteAsync(_ownerId, It.IsAny<CancellationToken>())).ReturnsAsync(emissores);
 
         var result = await _controller.GetEmissores(CancellationToken.None);
 
@@ -54,8 +54,8 @@ public class EmissoresControllerTests
     public async Task GetEmissor_ReturnsDtoMappedFromApplicationModel()
     {
         var emissorId = Guid.NewGuid();
-        var emissor = new EmissorModel { Id = emissorId, Nome = "Tesouro Nacional", UserId = _userId };
-        _getEmissorQuery.Setup(q => q.ExecuteAsync(_userId, emissorId, It.IsAny<CancellationToken>())).ReturnsAsync(emissor);
+        var emissor = new EmissorModel { Id = emissorId, Nome = "Tesouro Nacional", OwnerId = _ownerId };
+        _getEmissorQuery.Setup(q => q.ExecuteAsync(_ownerId, emissorId, It.IsAny<CancellationToken>())).ReturnsAsync(emissor);
 
         var result = await _controller.GetEmissor(emissorId, CancellationToken.None);
 
@@ -67,7 +67,7 @@ public class EmissoresControllerTests
     [Fact]
     public async Task CreateEmissor_ReturnsDtoMappedFromApplicationModel()
     {
-        var created = new EmissorModel { Id = Guid.NewGuid(), Nome = "Tesouro Nacional", UserId = _userId };
+        var created = new EmissorModel { Id = Guid.NewGuid(), Nome = "Tesouro Nacional", OwnerId = _ownerId };
         _createEmissorCommand
             .Setup(c => c.ExecuteAsync(It.IsAny<EmissorModelForCreation>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
@@ -87,6 +87,6 @@ public class EmissoresControllerTests
         var result = await _controller.DeleteEmissor(emissorId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteEmissorCommand.Verify(c => c.ExecuteAsync(_userId, emissorId, CancellationToken.None), Times.Once);
+        _deleteEmissorCommand.Verify(c => c.ExecuteAsync(_ownerId, emissorId, CancellationToken.None), Times.Once);
     }
 }

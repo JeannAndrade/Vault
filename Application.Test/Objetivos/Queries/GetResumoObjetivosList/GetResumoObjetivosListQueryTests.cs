@@ -17,7 +17,7 @@ public class GetResumoObjetivosListQueryTests
         var ownerId = Guid.NewGuid();
         var objetivo = new Objetivo
         {
-            UserId = ownerId,
+            OwnerId = ownerId,
             Nome = "Reserva",
             Descricao = "Emergências",
             Meta = 12000m,
@@ -58,7 +58,7 @@ public class GetResumoObjetivosListQueryTests
     public async Task ExecuteAsync_WhenObjectiveHasNoMovements_ReturnsZeroTotals()
     {
         var ownerId = Guid.NewGuid();
-        var objetivo = new Objetivo { UserId = ownerId, Nome = "Novo objetivo", Meta = 5000m };
+        var objetivo = new Objetivo { OwnerId = ownerId, Nome = "Novo objetivo", Meta = 5000m };
         var objetivoRepository = new Mock<IObjetivoRepository>();
         objetivoRepository
             .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId, CancellationToken.None))
@@ -80,8 +80,8 @@ public class GetResumoObjetivosListQueryTests
     public async Task ExecuteAsync_ReturnsOnlyActiveObjectives()
     {
         var ownerId = Guid.NewGuid();
-        var objetivoAtivo = new Objetivo { UserId = ownerId, Nome = "Ativo", Meta = 100m, EstaAtivo = true };
-        var objetivoInativo = new Objetivo { UserId = ownerId, Nome = "Inativo", Meta = 100m, EstaAtivo = false };
+        var objetivoAtivo = new Objetivo { OwnerId = ownerId, Nome = "Ativo", Meta = 100m, EstaAtivo = true };
+        var objetivoInativo = new Objetivo { OwnerId = ownerId, Nome = "Inativo", Meta = 100m, EstaAtivo = false };
         var objetivoRepository = new Mock<IObjetivoRepository>();
         objetivoRepository
             .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId, CancellationToken.None))

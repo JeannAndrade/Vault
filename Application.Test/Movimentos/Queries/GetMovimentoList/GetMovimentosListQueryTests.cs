@@ -28,7 +28,7 @@ public class GetMovimentosListQueryTests
     public async Task ExecuteAsync_DelegaAoRepositorioEMapeiaMantendoMetadados()
     {
         using var cts = new CancellationTokenSource();
-        var movimento = new Movimento { UserId = _ownerId, ValorAporte = 100m };
+        var movimento = new Movimento { OwnerId = _ownerId, ValorAporte = 100m };
         _movimentoRepository
             .Setup(r => r.GetPagedWithRelatedEntitiesAsync(_ownerId, It.Is<MovimentoFiltro>(f => f == MovimentoFiltro.Vazio), 2, 10, cts.Token))
             .ReturnsAsync(new PagedList<Movimento>([movimento], page: 2, pageSize: 10, totalCount: 11));
@@ -37,7 +37,7 @@ public class GetMovimentosListQueryTests
 
         var modelo = Assert.Single(resultado.Items);
         Assert.Equal(movimento.Id, modelo.Id);
-        Assert.Equal(_ownerId, modelo.UserId);
+        Assert.Equal(_ownerId, modelo.OwnerId);
         Assert.Equal(2, resultado.Page);
         Assert.Equal(10, resultado.PageSize);
         Assert.Equal(11, resultado.TotalCount);
@@ -82,7 +82,7 @@ public class GetMovimentosListQueryTests
         var produtoId = Guid.NewGuid();
         var emissorId = Guid.NewGuid();
 
-        var movimento = new Movimento { UserId = _ownerId, ValorAporte = 100m, EstaAtivo = true };
+        var movimento = new Movimento { OwnerId = _ownerId, ValorAporte = 100m, EstaAtivo = true };
         _movimentoRepository
             .Setup(r => r.GetPagedWithRelatedEntitiesAsync(
                 _ownerId,
@@ -114,7 +114,7 @@ public class GetMovimentosListQueryTests
 
         var modelo = Assert.Single(resultado.Items);
         Assert.Equal(movimento.Id, modelo.Id);
-        Assert.Equal(_ownerId, modelo.UserId);
+        Assert.Equal(_ownerId, modelo.OwnerId);
     }
 
     [Fact]

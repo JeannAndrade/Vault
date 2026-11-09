@@ -7,7 +7,7 @@ public class Produto : Entity
 {
     public string Nome { get; set; } = string.Empty;
 
-    public Guid UserId { get; set; }
+    public Guid OwnerId { get; set; }
 
     public ICollection<Movimento> Movimentos { get; set; } = [];
 }

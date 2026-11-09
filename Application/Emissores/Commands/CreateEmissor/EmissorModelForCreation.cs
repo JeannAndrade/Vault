@@ -9,11 +9,11 @@ public record EmissorModelForCreation(
     string Nome,
 
     [property: Required(ErrorMessage = "O usuário é obrigatório")]
-    Guid UserId)
+    Guid OwnerId)
 {
   public Emissor ToDomain() => new()
   {
     Nome = Nome,
-    UserId = UserId
+    OwnerId = OwnerId
   };
 }

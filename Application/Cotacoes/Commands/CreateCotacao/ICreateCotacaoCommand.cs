@@ -4,6 +4,6 @@ public interface ICreateCotacaoCommand
 {
     Task<CotacaoModel> ExecuteAsync(
         CotacaoModelForCreation model,
-        Guid userId,
+        Guid ownerId,
         CancellationToken cancellationToken);
 }

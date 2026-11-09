@@ -9,7 +9,7 @@ namespace Domain.Movimentos;
 
 public class Movimento : Entity
 {
-    public Guid UserId { get; set; }
+    public Guid OwnerId { get; set; }
     public Guid ObjetivoId { get; set; }
     public Guid TipoRendaId { get; set; }
     public Guid CorretoraId { get; set; }

@@ -21,7 +21,7 @@ public class DashboardsControllerTests
     private readonly Mock<IGetInvestidoMensalQuery> _investidoQuery = new();
     private readonly Mock<IGetConsolidadoQuery> _consolidadoQuery = new();
     private readonly DashboardsController _controller;
-    private readonly Guid _userId = Guid.NewGuid();
+    private readonly Guid _ownerId = Guid.NewGuid();
 
     public DashboardsControllerTests()
     {
@@ -29,7 +29,7 @@ public class DashboardsControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
-        _controller.HttpContext.Items["UserId"] = _userId.ToString();
+        _controller.HttpContext.Items["UserId"] = _ownerId.ToString();
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class DashboardsControllerTests
         var modelo = new ConsolidadoModel(
             new ConsolidadoLinhaModel(null, null, 2, 90m, 100m, 1m),
             [new ConsolidadoLinhaModel(Guid.NewGuid(), "XP", 2, 90m, 100m, 1m)]);
-        _consolidadoQuery.Setup(q => q.ExecuteAsync(_userId,
+        _consolidadoQuery.Setup(q => q.ExecuteAsync(_ownerId,
             It.Is<ConsolidadoParameters>(p => p.TipoRendaId == tipoRendaId && p.AgruparPor == DimensaoConsolidado.Corretora), cts.Token))
             .ReturnsAsync(modelo);
 
@@ -57,7 +57,7 @@ public class DashboardsControllerTests
     [Fact]
     public async Task GetConsolidado_SemFiltro_RepassaParametrosVazios()
     {
-        _consolidadoQuery.Setup(q => q.ExecuteAsync(_userId,
+        _consolidadoQuery.Setup(q => q.ExecuteAsync(_ownerId,
             It.Is<ConsolidadoParameters>(p => p.TipoRendaId == null && p.AgruparPor == null), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ConsolidadoModel(new ConsolidadoLinhaModel(null, null, 0, 0, 0, 0), []));
 
@@ -91,7 +91,7 @@ public class DashboardsControllerTests
                 Guid.NewGuid(), "Produto", "Emissor", "Objetivo", "Corretora",
                 1000, 1100, 365, 0.1, 0.000261, 0.1)]);
         _query.Setup(q => q.ExecuteAsync(
-                _userId,
+                _ownerId,
                 It.Is<RentabilidadeParameters>(p => p.Top == 10 && p.Ordem == OrdemRentabilidade.Menores),
                 cts.Token))
             .ReturnsAsync([grupo]);
@@ -111,7 +111,7 @@ public class DashboardsControllerTests
     public async Task GetRentabilidade_SemFiltro_UsaPadroes()
     {
         _query.Setup(q => q.ExecuteAsync(
-                _userId,
+                _ownerId,
                 It.Is<RentabilidadeParameters>(p => p.Top == 25 && p.Ordem == OrdemRentabilidade.Maiores),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
@@ -125,7 +125,7 @@ public class DashboardsControllerTests
     [Fact]
     public async Task GetRentabilidade_ListaVazia_RetornaOkComListaVazia()
     {
-        _query.Setup(q => q.ExecuteAsync(_userId, It.IsAny<RentabilidadeParameters>(), It.IsAny<CancellationToken>()))
+        _query.Setup(q => q.ExecuteAsync(_ownerId, It.IsAny<RentabilidadeParameters>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var result = await _controller.GetRentabilidade(new RentabilidadeFiltroDto(), CancellationToken.None);
@@ -137,11 +137,11 @@ public class DashboardsControllerTests
     [Fact]
     public async Task GetRentabilidade_UsaOUsuarioDoToken()
     {
-        _query.Setup(q => q.ExecuteAsync(_userId, It.IsAny<RentabilidadeParameters>(), It.IsAny<CancellationToken>()))
+        _query.Setup(q => q.ExecuteAsync(_ownerId, It.IsAny<RentabilidadeParameters>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         await _controller.GetRentabilidade(new RentabilidadeFiltroDto(), CancellationToken.None);
 
-        _query.Verify(q => q.ExecuteAsync(_userId, It.IsAny<RentabilidadeParameters>(), It.IsAny<CancellationToken>()), Times.Once);
+        _query.Verify(q => q.ExecuteAsync(_ownerId, It.IsAny<RentabilidadeParameters>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

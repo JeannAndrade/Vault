@@ -30,7 +30,7 @@ public record ObjetivoModelForCreation(
     bool EstaAtivo,
 
     [NotEmptyGuid]
-    Guid UserId) : IValidatableObject
+    Guid OwnerId) : IValidatableObject
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -64,6 +64,6 @@ public record ObjetivoModelForCreation(
         AporteMensal = AporteMensal,
         OndeAplicar = OndeAplicar,
         EstaAtivo = EstaAtivo,
-        UserId = UserId
+        OwnerId = OwnerId
     };
 }

@@ -5,7 +5,7 @@ namespace Application.Movimentos;
 public record MovimentoModel
 {
     public Guid Id { get; set; }
-    public Guid UserId { get; set; }
+    public Guid OwnerId { get; set; }
     public Guid ObjetivoId { get; set; }
     public Guid TipoRendaId { get; set; }
     public Guid CorretoraId { get; set; }
@@ -41,7 +41,7 @@ public record MovimentoModel
         return new MovimentoModel
         {
             Id = movimento.Id,
-            UserId = movimento.UserId,
+            OwnerId = movimento.OwnerId,
             ObjetivoId = movimento.ObjetivoId,
             TipoRendaId = movimento.TipoRendaId,
             CorretoraId = movimento.CorretoraId,

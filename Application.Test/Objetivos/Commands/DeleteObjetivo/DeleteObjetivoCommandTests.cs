@@ -15,7 +15,7 @@ public class DeleteObjetivoCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var objetivo = new Objetivo { UserId = ownerId };
+        var objetivo = new Objetivo { OwnerId = ownerId };
 
         var objetivoRepository = new Mock<IObjetivoRepository>();
         objetivoRepository.Setup(r => r.GetAsync(ownerId, objetivo.Id, true, CancellationToken.None)).ReturnsAsync(objetivo);
@@ -42,7 +42,7 @@ public class DeleteObjetivoCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var objetivo = new Objetivo { UserId = ownerId };
+        var objetivo = new Objetivo { OwnerId = ownerId };
 
         var objetivoRepository = new Mock<IObjetivoRepository>();
         objetivoRepository.Setup(r => r.GetAsync(ownerId, objetivo.Id, true, CancellationToken.None)).ReturnsAsync(objetivo);

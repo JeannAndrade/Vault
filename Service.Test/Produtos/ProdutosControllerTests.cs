@@ -20,7 +20,7 @@ public class ProdutosControllerTests
     private readonly Mock<IUpdateProdutoCommand> _updateProdutoCommand = new();
     private readonly Mock<IDeleteProdutoCommand> _deleteProdutoCommand = new();
     private readonly ProdutosController _controller;
-    private readonly Guid _userId = Guid.NewGuid();
+    private readonly Guid _ownerId = Guid.NewGuid();
 
     public ProdutosControllerTests()
     {
@@ -33,14 +33,14 @@ public class ProdutosControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
-        _controller.HttpContext.Items["UserId"] = _userId.ToString();
+        _controller.HttpContext.Items["UserId"] = _ownerId.ToString();
     }
 
     [Fact]
-    public async Task GetProdutos_ReturnsDtosWithoutLeakingUserId()
+    public async Task GetProdutos_ReturnsDtosWithoutLeakingOwnerId()
     {
-        var produtos = new List<ProdutoModel> { new() { Id = Guid.NewGuid(), Nome = "Tesouro Selic", UserId = _userId } };
-        _getProdutosListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(produtos);
+        var produtos = new List<ProdutoModel> { new() { Id = Guid.NewGuid(), Nome = "Tesouro Selic", OwnerId = _ownerId } };
+        _getProdutosListQuery.Setup(q => q.ExecuteAsync(_ownerId, It.IsAny<CancellationToken>())).ReturnsAsync(produtos);
 
         var result = await _controller.GetProdutos(CancellationToken.None);
 
@@ -54,8 +54,8 @@ public class ProdutosControllerTests
     public async Task GetProduto_ReturnsDtoMappedFromApplicationModel()
     {
         var produtoId = Guid.NewGuid();
-        var produto = new ProdutoModel { Id = produtoId, Nome = "Tesouro Selic", UserId = _userId };
-        _getProdutoQuery.Setup(q => q.ExecuteAsync(_userId, produtoId, It.IsAny<CancellationToken>())).ReturnsAsync(produto);
+        var produto = new ProdutoModel { Id = produtoId, Nome = "Tesouro Selic", OwnerId = _ownerId };
+        _getProdutoQuery.Setup(q => q.ExecuteAsync(_ownerId, produtoId, It.IsAny<CancellationToken>())).ReturnsAsync(produto);
 
         var result = await _controller.GetProduto(produtoId, CancellationToken.None);
 
@@ -67,7 +67,7 @@ public class ProdutosControllerTests
     [Fact]
     public async Task CreateProduto_ReturnsDtoMappedFromApplicationModel()
     {
-        var created = new ProdutoModel { Id = Guid.NewGuid(), Nome = "Tesouro Selic", UserId = _userId };
+        var created = new ProdutoModel { Id = Guid.NewGuid(), Nome = "Tesouro Selic", OwnerId = _ownerId };
         _createProdutoCommand
             .Setup(c => c.ExecuteAsync(It.IsAny<ProdutoModelForCreation>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
@@ -87,6 +87,6 @@ public class ProdutosControllerTests
         var result = await _controller.DeleteProduto(produtoId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteProdutoCommand.Verify(c => c.ExecuteAsync(_userId, produtoId, CancellationToken.None), Times.Once);
+        _deleteProdutoCommand.Verify(c => c.ExecuteAsync(_ownerId, produtoId, CancellationToken.None), Times.Once);
     }
 }

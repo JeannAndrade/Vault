@@ -84,7 +84,7 @@ public class MovimentoReferenciasValidatorTests
             chamadas.Add("Objetivo");
             return deveFalhar
                 ? throw new EntityNotFoundException("Objetivo not found")
-                : Task.FromResult(new ObjetivoModel { Id = objetivoId, UserId = ownerId });
+                : Task.FromResult(new ObjetivoModel { Id = objetivoId, OwnerId = ownerId });
         }
     }
 
@@ -95,7 +95,7 @@ public class MovimentoReferenciasValidatorTests
             chamadas.Add("TipoRenda");
             return deveFalhar
                 ? throw new EntityNotFoundException("Tipo de renda not found")
-                : Task.FromResult(new TipoRendaModel { Id = tipoRendaId, UserId = ownerId });
+                : Task.FromResult(new TipoRendaModel { Id = tipoRendaId, OwnerId = ownerId });
         }
     }
 
@@ -106,7 +106,7 @@ public class MovimentoReferenciasValidatorTests
             chamadas.Add("Corretora");
             return deveFalhar
                 ? throw new EntityNotFoundException("Corretora not found")
-                : Task.FromResult(new CorretoraModel { Id = corretoraId, UserId = ownerId });
+                : Task.FromResult(new CorretoraModel { Id = corretoraId, OwnerId = ownerId });
         }
     }
 
@@ -117,7 +117,7 @@ public class MovimentoReferenciasValidatorTests
             chamadas.Add("Produto");
             return deveFalhar
                 ? throw new EntityNotFoundException("Produto not found")
-                : Task.FromResult(new ProdutoModel { Id = produtoId, UserId = ownerId });
+                : Task.FromResult(new ProdutoModel { Id = produtoId, OwnerId = ownerId });
         }
     }
 
@@ -128,7 +128,7 @@ public class MovimentoReferenciasValidatorTests
             chamadas.Add("Emissor");
             return deveFalhar
                 ? throw new EntityNotFoundException("Emissor not found")
-                : Task.FromResult(new EmissorModel { Id = emissorId, UserId = ownerId });
+                : Task.FromResult(new EmissorModel { Id = emissorId, OwnerId = ownerId });
         }
     }
 }

@@ -36,8 +36,8 @@ public class EmissoresController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<EmissorDto>>> GetEmissores(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var emissores = await _getEmissoresListQuery.ExecuteAsync(userId, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var emissores = await _getEmissoresListQuery.ExecuteAsync(ownerId, cancellationToken);
 
         return Ok(EmissorDto.FromApplication(emissores));
     }
@@ -48,8 +48,8 @@ public class EmissoresController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<EmissorDto>> GetEmissor(Guid id, CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var emissor = await _getEmissorQuery.ExecuteAsync(userId, id, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var emissor = await _getEmissorQuery.ExecuteAsync(ownerId, id, cancellationToken);
 
         return Ok(EmissorDto.FromApplication(emissor));
     }

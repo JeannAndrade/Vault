@@ -15,7 +15,7 @@ public class DeleteCorretoraCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var corretora = new Corretora { UserId = ownerId };
+        var corretora = new Corretora { OwnerId = ownerId };
 
         var corretoraRepository = new Mock<ICorretoraRepository>();
         corretoraRepository.Setup(r => r.GetAsync(ownerId, corretora.Id, true, CancellationToken.None)).ReturnsAsync(corretora);
@@ -42,7 +42,7 @@ public class DeleteCorretoraCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var corretora = new Corretora { UserId = ownerId };
+        var corretora = new Corretora { OwnerId = ownerId };
 
         var corretoraRepository = new Mock<ICorretoraRepository>();
         corretoraRepository.Setup(r => r.GetAsync(ownerId, corretora.Id, true, CancellationToken.None)).ReturnsAsync(corretora);

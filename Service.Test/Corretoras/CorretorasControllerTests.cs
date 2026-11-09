@@ -20,7 +20,7 @@ public class CorretorasControllerTests
     private readonly Mock<IUpdateCorretoraCommand> _updateCorretoraCommand = new();
     private readonly Mock<IDeleteCorretoraCommand> _deleteCorretoraCommand = new();
     private readonly CorretorasController _controller;
-    private readonly Guid _userId = Guid.NewGuid();
+    private readonly Guid _ownerId = Guid.NewGuid();
 
     public CorretorasControllerTests()
     {
@@ -33,15 +33,15 @@ public class CorretorasControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
-        _controller.HttpContext.Items["UserId"] = _userId.ToString();
+        _controller.HttpContext.Items["UserId"] = _ownerId.ToString();
     }
 
     [Fact]
-    public async Task GetCorretoras_ReturnsDtosWithoutLeakingUserId()
+    public async Task GetCorretoras_ReturnsDtosWithoutLeakingOwnerId()
     {
-        // Arrange: CorretoraModel tem UserId; CorretoraDto não — o teste prova a conversão.
-        var corretoras = new List<CorretoraModel> { new() { Id = Guid.NewGuid(), Nome = "XP", UserId = _userId } };
-        _getCorretorasListQuery.Setup(q => q.ExecuteAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(corretoras);
+        // Arrange: CorretoraModel tem OwnerId; CorretoraDto não — o teste prova a conversão.
+        var corretoras = new List<CorretoraModel> { new() { Id = Guid.NewGuid(), Nome = "XP", OwnerId = _ownerId } };
+        _getCorretorasListQuery.Setup(q => q.ExecuteAsync(_ownerId, It.IsAny<CancellationToken>())).ReturnsAsync(corretoras);
 
         var result = await _controller.GetCorretoras(CancellationToken.None);
 
@@ -55,8 +55,8 @@ public class CorretorasControllerTests
     public async Task GetCorretora_ReturnsDtoMappedFromApplicationModel()
     {
         var corretoraId = Guid.NewGuid();
-        var corretora = new CorretoraModel { Id = corretoraId, Nome = "XP", UserId = _userId };
-        _getCorretoraQuery.Setup(q => q.ExecuteAsync(_userId, corretoraId, It.IsAny<CancellationToken>())).ReturnsAsync(corretora);
+        var corretora = new CorretoraModel { Id = corretoraId, Nome = "XP", OwnerId = _ownerId };
+        _getCorretoraQuery.Setup(q => q.ExecuteAsync(_ownerId, corretoraId, It.IsAny<CancellationToken>())).ReturnsAsync(corretora);
 
         var result = await _controller.GetCorretora(corretoraId, CancellationToken.None);
 
@@ -68,9 +68,9 @@ public class CorretorasControllerTests
     [Fact]
     public async Task CreateCorretora_ReturnsDtoMappedFromApplicationModel()
     {
-        var created = new CorretoraModel { Id = Guid.NewGuid(), Nome = "XP", UserId = _userId };
+        var created = new CorretoraModel { Id = Guid.NewGuid(), Nome = "XP", OwnerId = _ownerId };
         _createCorretoraCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<CorretoraModelForCreation>(), _userId, It.IsAny<CancellationToken>()))
+            .Setup(c => c.ExecuteAsync(It.IsAny<CorretoraModelForCreation>(), _ownerId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
         var result = await _controller.CreateCorretora(new CorretoraForCreationDto("XP"), CancellationToken.None);
@@ -88,6 +88,6 @@ public class CorretorasControllerTests
         var result = await _controller.DeleteCorretora(corretoraId, CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
-        _deleteCorretoraCommand.Verify(c => c.ExecuteAsync(_userId, corretoraId, CancellationToken.None), Times.Once);
+        _deleteCorretoraCommand.Verify(c => c.ExecuteAsync(_ownerId, corretoraId, CancellationToken.None), Times.Once);
     }
 }

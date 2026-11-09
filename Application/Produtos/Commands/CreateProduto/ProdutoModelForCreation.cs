@@ -9,11 +9,11 @@ public record ProdutoModelForCreation(
     string Nome,
 
     [property: Required(ErrorMessage = "O usuário é obrigatório")]
-    Guid UserId)
+    Guid OwnerId)
 {
   public Produto ToDomain() => new()
   {
     Nome = Nome,
-    UserId = UserId
+    OwnerId = OwnerId
   };
 }

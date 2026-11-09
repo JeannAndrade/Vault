@@ -14,7 +14,7 @@ public class DeleteMovimentoCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var movimento = new Movimento { UserId = ownerId };
+        var movimento = new Movimento { OwnerId = ownerId };
 
         var movimentoRepository = new Mock<IMovimentoRepository>();
         movimentoRepository.Setup(r => r.GetAsync(ownerId, movimento.Id, true, CancellationToken.None)).ReturnsAsync(movimento);

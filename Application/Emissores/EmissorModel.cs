@@ -6,7 +6,7 @@ public record EmissorModel
 {
   public Guid Id { get; set; }
   public string Nome { get; set; } = string.Empty;
-  public Guid UserId { get; set; }
+  public Guid OwnerId { get; set; }
 
   public static EmissorModel FromDomain(Emissor emissor)
   {
@@ -14,7 +14,7 @@ public record EmissorModel
     {
       Id = emissor.Id,
       Nome = emissor.Nome,
-      UserId = emissor.UserId
+      OwnerId = emissor.OwnerId
     };
   }
 }

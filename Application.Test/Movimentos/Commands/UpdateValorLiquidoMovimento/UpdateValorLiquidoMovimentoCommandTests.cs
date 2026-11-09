@@ -27,7 +27,7 @@ public class UpdateValorLiquidoMovimentoCommandTests
     public async Task ExecuteAsync_AlteraSomenteValorEDataEPropagaToken()
     {
         using var cts = new CancellationTokenSource();
-        var movimento = new Movimento { UserId = _ownerId, Observacao = "inalterada", ValorAporte = 20m, ValorLiquidoAtual = 20m };
+        var movimento = new Movimento { OwnerId = _ownerId, Observacao = "inalterada", ValorAporte = 20m, ValorLiquidoAtual = 20m };
         _movimentos.Setup(r => r.GetAsync(_ownerId, movimento.Id, true, cts.Token)).ReturnsAsync(movimento);
 
         await _command.ExecuteAsync(new MovimentoModelForUpdateValorLiquido { ValorLiquidoAtual = 30m }, _ownerId, movimento.Id, cts.Token);

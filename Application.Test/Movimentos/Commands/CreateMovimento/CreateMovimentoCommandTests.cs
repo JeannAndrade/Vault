@@ -18,16 +18,16 @@ public class CreateMovimentoCommandTests
         var clock = new Mock<IDateTimeProvider>();
         clock.Setup(c => c.GetDateTime()).Returns(hoje);
         var command = new CreateMovimentoCommand(repositoryManager, validator, clock.Object);
-        var userId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
 
         // Act
-        var resultado = await command.ExecuteAsync(CriarModeloValido(), userId, CancellationToken.None);
+        var resultado = await command.ExecuteAsync(CriarModeloValido(), ownerId, CancellationToken.None);
 
         // Assert
         Assert.True(validator.Chamado);
         Assert.True(repositoryManager.MovimentoRepository.CreateChamado);
         Assert.True(repositoryManager.SaveAsyncChamado);
-        Assert.Equal(userId, resultado.UserId);
+        Assert.Equal(ownerId, resultado.OwnerId);
         Assert.Equal(hoje.Date, repositoryManager.MovimentoRepository.MovimentoCriado!.DataAtualizacaoValorLiquido);
         Assert.Null(resultado.ObjetivoNome); // decisão registrada: nomes só nas Queries de leitura
     }

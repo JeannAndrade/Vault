@@ -13,7 +13,7 @@ public class UpdateMovimentoCommandTests
         // Arrange
         var ownerId = Guid.NewGuid();
         var dataAtualizacao = new DateTime(2026, 9, 1);
-        var movimentoExistente = new Movimento { UserId = ownerId, DataAtualizacaoValorLiquido = dataAtualizacao };
+        var movimentoExistente = new Movimento { OwnerId = ownerId, DataAtualizacaoValorLiquido = dataAtualizacao };
         var repositoryManager = new FakeRepositoryManager();
         repositoryManager.MovimentoRepository.MovimentoParaRetornar = movimentoExistente;
         var validator = new FakeMovimentoReferenciasValidator();

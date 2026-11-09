@@ -36,8 +36,8 @@ public class CorretorasController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<CorretoraDto>>> GetCorretoras(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var corretoras = await _getCorretorasListQuery.ExecuteAsync(userId, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var corretoras = await _getCorretorasListQuery.ExecuteAsync(ownerId, cancellationToken);
 
         return Ok(CorretoraDto.FromApplication(corretoras));
     }
@@ -48,8 +48,8 @@ public class CorretorasController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CorretoraDto>> GetCorretora(Guid id, CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var corretora = await _getCorretoraQuery.ExecuteAsync(userId, id, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var corretora = await _getCorretoraQuery.ExecuteAsync(ownerId, id, cancellationToken);
 
         return Ok(CorretoraDto.FromApplication(corretora));
     }

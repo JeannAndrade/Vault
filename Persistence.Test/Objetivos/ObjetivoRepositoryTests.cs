@@ -33,14 +33,14 @@ public class ObjetivoRepositoryTests
         var objetivoDeOutroUsuario = CreateObjective(outroOwnerId, "Objetivo alheio");
         objetivoA.Movimentos.Add(new Movimento
         {
-            UserId = ownerId,
+            OwnerId = ownerId,
             ObjetivoId = objetivoA.Id,
             ValorAporte = 100m,
             ValorLiquidoAtual = 110m
         });
         objetivoB.Movimentos.Add(new Movimento
         {
-            UserId = ownerId,
+            OwnerId = ownerId,
             ObjetivoId = objetivoB.Id,
             ValorAporte = 200m,
             ValorLiquidoAtual = 220m
@@ -64,7 +64,7 @@ public class ObjetivoRepositoryTests
     }
 
     private static Objetivo CreateObjective(Guid ownerId, string name) =>
-        new() { UserId = ownerId, Nome = name };
+        new() { OwnerId = ownerId, Nome = name };
 
     private static VaultDbContext CreateContext()
     {

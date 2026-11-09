@@ -9,11 +9,11 @@ public record TipoRendaModelForCreation(
     string Nome,
 
     [property: Required(ErrorMessage = "O usuário é obrigatório")]
-    Guid UserId)
+    Guid OwnerId)
 {
   public TipoRenda ToDomain() => new()
   {
     Nome = Nome,
-    UserId = UserId
+    OwnerId = OwnerId
   };
 }

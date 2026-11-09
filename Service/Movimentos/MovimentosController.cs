@@ -55,9 +55,9 @@ public class MovimentosController(
     {
         filtro ??= new MovimentoFiltroDto();
 
-        var userId = GetCurrentUserId();
+        var ownerId = GetCurrentUserId();
         var movimentos = await _getMovimentosListQuery.ExecuteAsync(
-            userId,
+            ownerId,
             filtro.ToParameters(),
             new PaginationParameters { Page = page, PageSize = pageSize },
             cancellationToken);
@@ -70,8 +70,8 @@ public class MovimentosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<ProximoVencimentoDto>>> GetProximosVencimentos(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var proximosVencimentos = await _getProximosVencimentosQuery.ExecuteAsync(userId, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var proximosVencimentos = await _getProximosVencimentosQuery.ExecuteAsync(ownerId, cancellationToken);
 
         return Ok(ProximoVencimentoDto.FromApplication(proximosVencimentos));
     }
@@ -93,8 +93,8 @@ public class MovimentosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<MovimentoDto>> GetMovimento(Guid id, CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var movimento = await _getMovimentoQuery.ExecuteAsync(userId, id, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var movimento = await _getMovimentoQuery.ExecuteAsync(ownerId, id, cancellationToken);
 
         return Ok(MovimentoDto.FromApplication(movimento));
     }

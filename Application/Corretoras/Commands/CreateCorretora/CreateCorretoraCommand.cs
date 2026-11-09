@@ -7,11 +7,11 @@ public class CreateCorretoraCommand(IRepositoryManager repositoryManager) : ICre
 {
     private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-    public async Task<CorretoraModel> ExecuteAsync(CorretoraModelForCreation corretoraModel, Guid userId, CancellationToken cancellationToken)
+    public async Task<CorretoraModel> ExecuteAsync(CorretoraModelForCreation corretoraModel, Guid ownerId, CancellationToken cancellationToken)
     {
         CommandValidator.Validate(corretoraModel);
 
-        var corretora = corretoraModel.ToDomain(userId);
+        var corretora = corretoraModel.ToDomain(ownerId);
         _repositoryManager.Corretora.Create(corretora);
         await _repositoryManager.SaveAsync(cancellationToken);
 

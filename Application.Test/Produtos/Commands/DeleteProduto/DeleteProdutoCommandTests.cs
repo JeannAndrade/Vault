@@ -15,7 +15,7 @@ public class DeleteProdutoCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var produto = new Produto { UserId = ownerId };
+        var produto = new Produto { OwnerId = ownerId };
 
         var produtoRepository = new Mock<IProdutoRepository>();
         produtoRepository.Setup(r => r.GetAsync(ownerId, produto.Id, true, CancellationToken.None)).ReturnsAsync(produto);
@@ -42,7 +42,7 @@ public class DeleteProdutoCommandTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var produto = new Produto { UserId = ownerId };
+        var produto = new Produto { OwnerId = ownerId };
 
         var produtoRepository = new Mock<IProdutoRepository>();
         produtoRepository.Setup(r => r.GetAsync(ownerId, produto.Id, true, CancellationToken.None)).ReturnsAsync(produto);

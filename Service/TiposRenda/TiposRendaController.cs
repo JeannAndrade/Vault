@@ -35,8 +35,8 @@ public class TiposRendaController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<TipoRendaDto>>> GetTiposRenda(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var tiposRenda = await _getTiposRendaListQuery.ExecuteAsync(userId, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var tiposRenda = await _getTiposRendaListQuery.ExecuteAsync(ownerId, cancellationToken);
 
         return Ok(TipoRendaDto.FromApplication(tiposRenda));
     }
@@ -47,8 +47,8 @@ public class TiposRendaController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<TipoRendaDto>> GetTipoRenda(Guid id, CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
-        var tipoRenda = await _getTipoRendaQuery.ExecuteAsync(userId, id, cancellationToken);
+        var ownerId = GetCurrentUserId();
+        var tipoRenda = await _getTipoRendaQuery.ExecuteAsync(ownerId, id, cancellationToken);
 
         return Ok(TipoRendaDto.FromApplication(tipoRenda));
     }

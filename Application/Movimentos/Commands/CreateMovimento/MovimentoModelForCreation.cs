@@ -57,9 +57,9 @@ public record MovimentoModelForCreation : IValidatableObject
     [Range(0, double.MaxValue, ErrorMessage = "O valor líquido atual não pode ser negativo")]
     public decimal ValorLiquidoAtual { get; set; }
 
-    public Movimento ToDomain(Guid userId, DateTime dataAtualizacaoValorLiquido) => new()
+    public Movimento ToDomain(Guid ownerId, DateTime dataAtualizacaoValorLiquido) => new()
     {
-        UserId = userId,
+        OwnerId = ownerId,
         ObjetivoId = ObjetivoId,
         TipoRendaId = TipoRendaId,
         CorretoraId = CorretoraId,

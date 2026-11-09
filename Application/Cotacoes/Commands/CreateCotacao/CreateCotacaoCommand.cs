@@ -7,7 +7,7 @@ namespace Application.Cotacoes.Commands.CreateCotacao;
 
 public class CreateCotacaoCommand(IRepositoryManager r, IDateTimeProvider clock) : ICreateCotacaoCommand
 {
-    public async Task<CotacaoModel> ExecuteAsync(CotacaoModelForCreation m, Guid userId, CancellationToken ct)
+    public async Task<CotacaoModel> ExecuteAsync(CotacaoModelForCreation m, Guid ownerId, CancellationToken ct)
     {
         CommandValidator.Validate(m);
 
@@ -16,9 +16,9 @@ public class CreateCotacaoCommand(IRepositoryManager r, IDateTimeProvider clock)
         if (d > clock.GetDateTime().Date)
             throw new CommandValidationException("A data da cotação não pode ser futura.");
 
-        var c = m.ToDomain(userId);
+        var c = m.ToDomain(ownerId);
 
-        if (await r.Cotacao.GetPorPapelEDataAsync(userId, c.Papel, d, false, ct) != null)
+        if (await r.Cotacao.GetPorPapelEDataAsync(ownerId, c.Papel, d, false, ct) != null)
             throw new CommandValidationException("Já existe cotação para este papel nesta data. Edite o registro existente.");
 
         r.Cotacao.Create(c);

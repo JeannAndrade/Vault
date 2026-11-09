@@ -12,7 +12,7 @@ public record ObjetivoModel
   public decimal AporteMensal { get; set; }
   public string OndeAplicar { get; set; } = string.Empty;
   public bool EstaAtivo { get; set; }
-  public Guid UserId { get; set; }
+  public Guid OwnerId { get; set; }
 
   public static ObjetivoModel FromDomain(Objetivo objetivo)
   {
@@ -26,7 +26,7 @@ public record ObjetivoModel
       AporteMensal = objetivo.AporteMensal,
       OndeAplicar = objetivo.OndeAplicar,
       EstaAtivo = objetivo.EstaAtivo,
-      UserId = objetivo.UserId
+      OwnerId = objetivo.OwnerId
     };
   }
 }

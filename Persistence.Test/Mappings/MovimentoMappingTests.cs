@@ -7,7 +7,7 @@ namespace Persistence.Test.Mappings;
 public class MovimentoMappingTests
 {
     [Fact]
-    public void Movimento_PossuiIndiceCompostoUserIdDataInvestimento()
+    public void Movimento_PossuiIndiceCompostoOwnerIdDataInvestimento()
     {
         // Sustenta a listagem paginada (ADR 0009). Se este teste falhar, o índice foi removido
         // ou alterado: reavalie a ordenação de MovimentoRepository.GetPagedWithRelatedEntitiesAsync.
@@ -20,13 +20,13 @@ public class MovimentoMappingTests
 
         var indice = entidade.GetIndexes().SingleOrDefault(i =>
             i.Properties.Select(p => p.Name)
-                .SequenceEqual([nameof(Movimento.UserId), nameof(Movimento.DataInvestimento)]));
+                .SequenceEqual([nameof(Movimento.OwnerId), nameof(Movimento.DataInvestimento)]));
 
         Assert.NotNull(indice);
     }
 
     [Fact]
-    public void Movimento_PossuiIndiceCompostoUserIdEstaAtivoDataVencimento()
+    public void Movimento_PossuiIndiceCompostoOwnerIdEstaAtivoDataVencimento()
     {
         // Sustenta os próximos vencimentos (ADR 0010). Se este teste falhar, o índice foi removido
         // ou alterado: reavalie a ordenação de MovimentoRepository.GetProximosVencimentosAsync.
@@ -39,13 +39,13 @@ public class MovimentoMappingTests
 
         var indice = entidade.GetIndexes().SingleOrDefault(i =>
             i.Properties.Select(p => p.Name)
-                .SequenceEqual([nameof(Movimento.UserId), nameof(Movimento.EstaAtivo), nameof(Movimento.DataVencimento)]));
+                .SequenceEqual([nameof(Movimento.OwnerId), nameof(Movimento.EstaAtivo), nameof(Movimento.DataVencimento)]));
 
         Assert.NotNull(indice);
     }
 
     [Fact]
-    public void Movimento_PossuiIndiceCompostoUserIdEstaAtivoDataAtualizacaoValorLiquido()
+    public void Movimento_PossuiIndiceCompostoOwnerIdEstaAtivoDataAtualizacaoValorLiquido()
     {
         var opcoes = new DbContextOptionsBuilder<VaultDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -56,7 +56,7 @@ public class MovimentoMappingTests
 
         var indice = entidade.GetIndexes().SingleOrDefault(i =>
             i.Properties.Select(p => p.Name).SequenceEqual(
-                [nameof(Movimento.UserId), nameof(Movimento.EstaAtivo), nameof(Movimento.DataAtualizacaoValorLiquido)]));
+                [nameof(Movimento.OwnerId), nameof(Movimento.EstaAtivo), nameof(Movimento.DataAtualizacaoValorLiquido)]));
 
         Assert.NotNull(indice);
         Assert.Equal("IX_Movimentos_UserId_EstaAtivo_DataAtualizacaoValorLiquido", indice!.GetDatabaseName());

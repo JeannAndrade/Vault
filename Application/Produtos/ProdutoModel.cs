@@ -6,7 +6,7 @@ public record ProdutoModel
 {
   public Guid Id { get; set; }
   public string Nome { get; set; } = string.Empty;
-  public Guid UserId { get; set; }
+  public Guid OwnerId { get; set; }
 
   public static ProdutoModel FromDomain(Produto produto)
   {
@@ -14,7 +14,7 @@ public record ProdutoModel
     {
       Id = produto.Id,
       Nome = produto.Nome,
-      UserId = produto.UserId
+      OwnerId = produto.OwnerId
     };
   }
 }

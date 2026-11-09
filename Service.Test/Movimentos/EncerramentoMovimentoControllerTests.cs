@@ -15,7 +15,7 @@ public class EncerramentoMovimentoControllerTests
 {
     private readonly Mock<IEncerrarMovimentoCommand> _encerrar = new();
     private readonly Mock<IReativarMovimentoCommand> _reativar = new();
-    private readonly Guid _userId = Guid.NewGuid();
+    private readonly Guid _ownerId = Guid.NewGuid();
     private readonly EncerramentoMovimentoController _controller;
 
     public EncerramentoMovimentoControllerTests()
@@ -24,7 +24,7 @@ public class EncerramentoMovimentoControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
-        _controller.HttpContext.Items["UserId"] = _userId.ToString();
+        _controller.HttpContext.Items["UserId"] = _ownerId.ToString();
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class EncerramentoMovimentoControllerTests
         Assert.IsType<NoContentResult>(result);
         _encerrar.Verify(c => c.ExecuteAsync(
             It.Is<MovimentoModelForEncerramento>(m => m.Motivo == dto.Motivo && m.Data == dto.Data),
-            _userId,
+            _ownerId,
             id,
             cts.Token), Times.Once);
     }
@@ -54,7 +54,7 @@ public class EncerramentoMovimentoControllerTests
 
         _encerrar.Verify(c => c.ExecuteAsync(
             It.Is<MovimentoModelForEncerramento>(m => m.Motivo == null && m.Data == null),
-            _userId,
+            _ownerId,
             id,
             CancellationToken.None), Times.Once);
     }
@@ -68,7 +68,7 @@ public class EncerramentoMovimentoControllerTests
         var result = await _controller.Reativar(id, cts.Token);
 
         Assert.IsType<NoContentResult>(result);
-        _reativar.Verify(c => c.ExecuteAsync(_userId, id, cts.Token), Times.Once);
+        _reativar.Verify(c => c.ExecuteAsync(_ownerId, id, cts.Token), Times.Once);
     }
 
     [Theory]
