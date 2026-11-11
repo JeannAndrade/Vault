@@ -2,7 +2,6 @@ using Application.Dashboards.Consolidado;
 using Application.Dashboards.Queries.GetConsolidado;
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.Validators;
-using LumiaFoundation.Logger.Contracts;
 using Moq;
 using Persistence.Managment;
 using Persistence.Movimentos;
@@ -12,7 +11,6 @@ namespace Application.Test.Dashboards.Queries.GetConsolidado;
 public class GetConsolidadoQueryTests
 {
     private readonly Mock<IMovimentoRepository> _movimentos = new();
-    private readonly Mock<ILoggerManager> _logger = new();
     private readonly Guid _ownerId = Guid.NewGuid();
     private readonly GetConsolidadoQuery _query;
 
@@ -20,7 +18,7 @@ public class GetConsolidadoQueryTests
     {
         var repository = new Mock<IRepositoryManager>();
         repository.SetupGet(r => r.Movimento).Returns(_movimentos.Object);
-        _query = new GetConsolidadoQuery(repository.Object, _logger.Object);
+        _query = new GetConsolidadoQuery(repository.Object);
     }
 
     [Fact]
@@ -83,7 +81,7 @@ public class GetConsolidadoQueryTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_FalhaDoRepositorio_LogaERelanca()
+    public async Task ExecuteAsync_FalhaDoRepositorio_Relanca()
     {
         var falha = new InvalidOperationException("falha");
         _movimentos.Setup(r => r.GetConsolidadoAsync(It.IsAny<Guid>(), It.IsAny<ConsolidadoFiltro>(), It.IsAny<CancellationToken>()))
@@ -93,17 +91,15 @@ public class GetConsolidadoQueryTests
             _ownerId, new ConsolidadoParameters { ProdutoId = Guid.NewGuid() }, default));
 
         Assert.Same(falha, lancada);
-        _logger.Verify(l => l.LogError(It.Is<string>(m => m.Contains(nameof(GetConsolidadoQuery)))), Times.Once);
     }
 
     [Fact]
-    public async Task ExecuteAsync_CancelamentoRelancaSemLogar()
+    public async Task ExecuteAsync_CancelamentoRelanca()
     {
         _movimentos.Setup(r => r.GetConsolidadoAsync(It.IsAny<Guid>(), It.IsAny<ConsolidadoFiltro>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OperationCanceledException());
 
         await Assert.ThrowsAsync<OperationCanceledException>(() => _query.ExecuteAsync(
             _ownerId, new ConsolidadoParameters { ProdutoId = Guid.NewGuid() }, default));
-        _logger.Verify(l => l.LogError(It.IsAny<string>()), Times.Never);
     }
 }

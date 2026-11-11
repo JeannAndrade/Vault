@@ -1,20 +1,16 @@
 using Application.Movimentos.AtualizacaoPorCotacao;
-using LumiaFoundation.Logger.Contracts;
 using Persistence.Managment;
 
 namespace Application.Movimentos.Queries.GetAtualizacaoPorCotacao;
 
 public class GetAtualizacaoPorCotacaoQuery(
-    IRepositoryManager repositoryManager,
-    ILoggerManager logger) : IGetAtualizacaoPorCotacaoQuery
+    IRepositoryManager repositoryManager
+    ) : IGetAtualizacaoPorCotacaoQuery
 {
     private readonly IRepositoryManager _repository = repositoryManager;
-    private readonly ILoggerManager _logger = logger;
 
     public async Task<List<PapelParaCotacaoModel>> ExecuteAsync(Guid ownerId, CancellationToken cancellationToken)
     {
-        try
-        {
             var papeis = await _repository.Movimento.GetPapeisPorCotacaoAsync(ownerId, cancellationToken);
 
             if (papeis.Count == 0)
@@ -32,11 +28,6 @@ public class GetAtualizacaoPorCotacaoQuery(
                 })
                 .OrderBy(x => x.Papel, StringComparer.OrdinalIgnoreCase)
                 .ToList();
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError($"Falha em {nameof(GetAtualizacaoPorCotacaoQuery)}: {ex}");
-            throw;
-        }
+
     }
 }

@@ -1,15 +1,14 @@
 using Application.Dashboards.Consolidado;
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.Validators;
-using LumiaFoundation.Logger.Contracts;
 using Persistence.Managment;
 using Persistence.Movimentos;
 
 namespace Application.Dashboards.Queries.GetConsolidado;
 
 public class GetConsolidadoQuery(
-    IRepositoryManager repositoryManager,
-    ILoggerManager logger) : IGetConsolidadoQuery
+    IRepositoryManager repositoryManager
+    ) : IGetConsolidadoQuery
 {
     public async Task<ConsolidadoModel> ExecuteAsync(
         Guid ownerId, ConsolidadoParameters parametros, CancellationToken cancellationToken)
@@ -19,8 +18,6 @@ public class GetConsolidadoQuery(
         if (!filtro.TemFiltro && parametros.AgruparPor is null)
             throw new CommandValidationException("Informe ao menos um filtro ou um agrupamento.");
 
-        try
-        {
             if (parametros.AgruparPor is null)
             {
                 var agregado = await repositoryManager.Movimento.GetConsolidadoAsync(ownerId, filtro, cancellationToken);
@@ -38,12 +35,7 @@ public class GetConsolidadoQuery(
 
             return new ConsolidadoModel(
                 new ConsolidadoLinhaModel(null, null, quantidade, aportado, liquido, liquido == 0 ? 0 : 1), linhas);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            logger.LogError($"Algo deu errado no método de serviço {nameof(GetConsolidadoQuery)}: {ex}");
-            throw;
-        }
+
     }
 
     private static ConsolidadoLinhaModel CriarLinha(

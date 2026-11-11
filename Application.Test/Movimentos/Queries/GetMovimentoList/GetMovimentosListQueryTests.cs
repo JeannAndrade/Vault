@@ -3,7 +3,6 @@ using Application.Pagination;
 using Domain.Movimentos;
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.Pagination;
-using LumiaFoundation.Logger.Contracts;
 using Moq;
 using Persistence.Managment;
 using Persistence.Movimentos;
@@ -13,7 +12,6 @@ namespace Application.Test.Movimentos.Queries.GetMovimentoList;
 public class GetMovimentosListQueryTests
 {
     private readonly Mock<IMovimentoRepository> _movimentoRepository = new();
-    private readonly Mock<ILoggerManager> _logger = new();
     private readonly GetMovimentosListQuery _query;
     private readonly Guid _ownerId = Guid.NewGuid();
 
@@ -21,7 +19,7 @@ public class GetMovimentosListQueryTests
     {
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(r => r.Movimento).Returns(_movimentoRepository.Object);
-        _query = new GetMovimentosListQuery(repositoryManager.Object, _logger.Object);
+        _query = new GetMovimentosListQuery(repositoryManager.Object);
     }
 
     [Fact]
@@ -118,7 +116,7 @@ public class GetMovimentosListQueryTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_QuandoRepositorioFalha_LogaERelanca()
+    public async Task ExecuteAsync_QuandoRepositorioFalha_Relanca()
     {
         var falha = new InvalidOperationException("falha");
         _movimentoRepository
@@ -129,11 +127,10 @@ public class GetMovimentosListQueryTests
             () => _query.ExecuteAsync(_ownerId, new PaginationParameters(), CancellationToken.None));
 
         Assert.Same(falha, lancada);
-        _logger.Verify(l => l.LogError(It.Is<string>(m => m.Contains(nameof(GetMovimentosListQuery)))), Times.Once);
     }
 
     [Fact]
-    public async Task ExecuteAsync_QuandoCancelada_RelancaSemLogarComoErro()
+    public async Task ExecuteAsync_QuandoCancelada_Relanca()
     {
         _movimentoRepository
             .Setup(r => r.GetPagedWithRelatedEntitiesAsync(It.IsAny<Guid>(), It.IsAny<MovimentoFiltro>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -142,6 +139,5 @@ public class GetMovimentosListQueryTests
         await Assert.ThrowsAsync<OperationCanceledException>(
             () => _query.ExecuteAsync(_ownerId, new PaginationParameters(), CancellationToken.None));
 
-        _logger.Verify(l => l.LogError(It.IsAny<string>()), Times.Never);
     }
 }

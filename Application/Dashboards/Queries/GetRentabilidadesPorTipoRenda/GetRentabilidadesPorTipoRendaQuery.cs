@@ -1,14 +1,13 @@
 using Application.Dashboards.Rentabilidade;
 using Domain.Movimentos.Rentabilidade;
 using LumiaFoundation.Core.Validators;
-using LumiaFoundation.Logger.Contracts;
 using Persistence.Managment;
 
 namespace Application.Dashboards.Queries.GetRentabilidadesPorTipoRenda;
 
 public class GetRentabilidadesPorTipoRendaQuery(
-    IRepositoryManager repositoryManager,
-    ILoggerManager logger) : IGetRentabilidadesPorTipoRendaQuery
+    IRepositoryManager repositoryManager
+    ) : IGetRentabilidadesPorTipoRendaQuery
 {
     public async Task<List<RentabilidadeGrupoModel>> ExecuteAsync(
         Guid ownerId,
@@ -17,8 +16,6 @@ public class GetRentabilidadesPorTipoRendaQuery(
     {
         CommandValidator.Validate(parametros);
 
-        try
-        {
             var movimentos = await repositoryManager.Movimento
                 .GetAtivosParaRankingAsync(ownerId, cancellationToken);
 
@@ -46,11 +43,6 @@ public class GetRentabilidadesPorTipoRendaQuery(
                         .Take(parametros.Top)
                         .Select(item => RentabilidadeItemModel.FromDomain(item.Movimento, item.Rentabilidade!))]))
                 .ToList();
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            logger.LogError($"Algo deu errado no método de serviço {nameof(GetRentabilidadesPorTipoRendaQuery)}: {ex}");
-            throw;
-        }
+
     }
 }

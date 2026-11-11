@@ -1,7 +1,6 @@
 using Application.Objetivos.Queries.GetResumoObjetivosList;
 using Domain.Movimentos;
 using Domain.Objetivos;
-using LumiaFoundation.Logger.Contracts;
 using LumiaFoundation.Core.TimeService;
 using Moq;
 using Persistence.Managment;
@@ -38,8 +37,7 @@ public class GetResumoObjetivosListQueryTests
             .ReturnsAsync(objetivos);
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
-        var logger = new Mock<ILoggerManager>();
-        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, logger.Object, Mock.Of<IDateTimeProvider>());
+        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, Mock.Of<IDateTimeProvider>());
 
         var result = await query.ExecuteAsync(ownerId, CancellationToken.None);
 
@@ -65,7 +63,7 @@ public class GetResumoObjetivosListQueryTests
             .ReturnsAsync(new[] { objetivo });
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
-        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, Mock.Of<ILoggerManager>(), Mock.Of<IDateTimeProvider>());
+        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, Mock.Of<IDateTimeProvider>());
 
         var result = await query.ExecuteAsync(ownerId, CancellationToken.None);
 
@@ -88,7 +86,7 @@ public class GetResumoObjetivosListQueryTests
             .ReturnsAsync([objetivoAtivo, objetivoInativo]);
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
-        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, Mock.Of<ILoggerManager>(), Mock.Of<IDateTimeProvider>());
+        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, Mock.Of<IDateTimeProvider>());
 
         var result = await query.ExecuteAsync(ownerId, CancellationToken.None);
 
@@ -97,7 +95,7 @@ public class GetResumoObjetivosListQueryTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_WhenRepositoryThrows_LogsAndRethrows()
+    public async Task ExecuteAsync_WhenRepositoryThrows_Rethrows()
     {
         var ownerId = Guid.NewGuid();
         var exception = new InvalidOperationException("Falha ao consultar objetivos");
@@ -107,33 +105,10 @@ public class GetResumoObjetivosListQueryTests
             .ThrowsAsync(exception);
         var repositoryManager = new Mock<IRepositoryManager>();
         repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
-        var logger = new Mock<ILoggerManager>();
-        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, logger.Object, Mock.Of<IDateTimeProvider>());
+        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, Mock.Of<IDateTimeProvider>());
 
         var actualException = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ExecuteAsync(ownerId, CancellationToken.None));
 
         Assert.Same(exception, actualException);
-        logger.Verify(
-            log => log.LogError(It.Is<string>(message => message.Contains(nameof(GetResumoObjetivosListQuery)))),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task ExecuteAsync_WhenCancelled_RethrowsWithoutLoggingAsError()
-    {
-        var ownerId = Guid.NewGuid();
-        var cancellationToken = new CancellationToken(canceled: true);
-        var objetivoRepository = new Mock<IObjetivoRepository>();
-        objetivoRepository
-            .Setup(repository => repository.GetAllWithRelatedEntitiesAsync(ownerId, cancellationToken))
-            .ThrowsAsync(new OperationCanceledException(cancellationToken));
-        var repositoryManager = new Mock<IRepositoryManager>();
-        repositoryManager.SetupGet(repository => repository.Objetivo).Returns(objetivoRepository.Object);
-        var logger = new Mock<ILoggerManager>();
-        var query = new GetResumoObjetivosListQuery(repositoryManager.Object, logger.Object, Mock.Of<IDateTimeProvider>());
-
-        await Assert.ThrowsAsync<OperationCanceledException>(() => query.ExecuteAsync(ownerId, cancellationToken));
-
-        logger.Verify(log => log.LogError(It.IsAny<string>()), Times.Never);
     }
 }

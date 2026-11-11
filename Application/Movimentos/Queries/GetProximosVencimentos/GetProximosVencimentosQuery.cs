@@ -1,26 +1,17 @@
-using LumiaFoundation.Logger.Contracts;
 using Persistence.Managment;
 
 namespace Application.Movimentos.Queries.GetProximosVencimentos;
 
-public class GetProximosVencimentosQuery(IRepositoryManager repositoryManager, ILoggerManager logger) : IGetProximosVencimentosQuery
+public class GetProximosVencimentosQuery(IRepositoryManager repositoryManager) : IGetProximosVencimentosQuery
 {
     private const int QuantidadeMaxima = 12;
     private readonly IRepositoryManager _repository = repositoryManager;
-    private readonly ILoggerManager _logger = logger;
 
     public async Task<List<ProximoVencimentoModel>> ExecuteAsync(Guid ownerId, CancellationToken cancellationToken)
     {
-        try
-        {
             var movimentos = await _repository.Movimento.GetProximosVencimentosAsync(ownerId, QuantidadeMaxima, cancellationToken);
 
             return [.. movimentos.Select(ProximoVencimentoModel.FromDomain)];
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError($"Algo deu errado no método de serviço {nameof(GetProximosVencimentosQuery)}: {ex}");
-            throw;
-        }
+
     }
 }
