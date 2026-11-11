@@ -55,8 +55,7 @@ builder.Services.AddControllers();
 
 #region Configurando comportamento tratamento de exceções
 builder.Services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
-builder.Services.AddExceptionHandler<DomainExceptionHandler>();
-builder.Services.AddExceptionHandler<UnhandledExceptionHandler>();
+builder.Services.AddExceptionHandlers();
 #endregion
 
 #region Configurando OpenAPI
