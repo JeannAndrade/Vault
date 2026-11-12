@@ -7,13 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Context;
 using Application.Repositories;
-using Persistence.Corretoras;
-using Persistence.Cotacoes;
-using Persistence.Emissores;
-using Persistence.Movimentos;
-using Persistence.Objetivos;
-using Persistence.Produtos;
-using Persistence.TiposRenda;
 using Persistence.Management;
 
 namespace Persistence.Extensions;
@@ -25,13 +18,6 @@ public static class ServiceExtensions
         services.ConfigureDatabase(configuration);
         services.ConfigureIdentityDatabase(configuration);
         services.AddScoped<IRepositoryManager, RepositoryManager>();
-        services.AddScoped<ICorretoraRepository, CorretoraRepository>();
-        services.AddScoped<ICotacaoRepository, CotacaoRepository>();
-        services.AddScoped<IEmissorRepository, EmissorRepository>();
-        services.AddScoped<IObjetivoRepository, ObjetivoRepository>();
-        services.AddScoped<IProdutoRepository, ProdutoRepository>();
-        services.AddScoped<ITipoRendaRepository, TipoRendaRepository>();
-        services.AddScoped<IMovimentoRepository, MovimentoRepository>();
         return services;
     }
 
