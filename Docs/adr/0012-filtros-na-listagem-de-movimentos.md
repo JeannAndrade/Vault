@@ -1,6 +1,6 @@
 # ADR 0012 — Filtros na listagem de Movimentos
 
-**Status:** Aceita (2026-10-12)
+**Status:** Aceita (2026-10-12). Atualizado em 2026-11-11 pelo [ADR 0023](0023-inversao-da-persistencia-e-pacotes.md): o filtro do repositório (`MovimentoFiltro`) passou da Persistence para a Application (porta em `Application.Repositories`).
 
 ## Contexto
 
@@ -23,7 +23,7 @@ Requisitos funcionais:
 
 Restrições herdadas do projeto:
 
-- Clean Architecture: Service → Application → Persistence → Domain; Persistence não enxerga Application.
+- Clean Architecture (ADR 0023): dependências apontam para dentro. Service → Application e Persistence; Persistence → Application → Domain. A Application define as portas (interfaces de repositório e tipos de filtro) e não enxerga a Persistence.
 - Web nunca acessa o banco; só a Api, por contrato HTTP.
 - Multi-tenant: todo acesso é escopado por `UserId`.
 - Sem mudança de schema nem de LumiaFoundation sem discussão prévia.
@@ -40,13 +40,13 @@ Restrições herdadas do projeto:
 - A Api **não valida a existência** dos IDs: apenas filtra, sempre escopada por `UserId`. ID inexistente (ou de outro usuário, ou `Guid.Empty`) resulta em lista vazia. Isso evita enumeração de IDs.
 - Os filtros combinam com `E`. `TotalCount`/`TotalPages` refletem o conjunto filtrado.
 
-### Um tipo de filtro por camada (D6)
+### Um tipo de filtro por fronteira (D6)
 
 | Camada | Tipo | Observação |
 |---|---|---|
 | Service | `MovimentoFiltroDto` | Binding da query string |
 | Application | `MovimentoFiltroParameters` | Segue o padrão de `PaginationParameters` |
-| Persistence | `MovimentoFiltro` | Consumido pelo repositório |
+| Application (porta) | `MovimentoFiltro` | Em `Application.Repositories`; consumido pelo repositório, implementado na Persistence |
 | Presentation (Web) | `MovimentoFiltro` (record selado, próprio) | Usado por `IMovimentoApi` |
 
 Conversões explícitas com métodos `ToXxx()` entre camadas. Nenhuma camada referencia o tipo de outra camada "para fora".

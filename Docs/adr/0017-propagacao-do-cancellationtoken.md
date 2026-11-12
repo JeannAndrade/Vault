@@ -1,6 +1,6 @@
 # ADR 0017: Propagação do CancellationToken
 
-- Status: Aceita (2026-10-19)
+- Status: Aceita (2026-10-19). A regra do `catch ... when` foi superada pelo [ADR 0024](0024-fim-do-log-e-relancamento-nas-queries.md) (2026-11-11); o restante permanece.
 
 ## Contexto
 
@@ -24,7 +24,7 @@ Foi verificado no código-fonte (LumiaFoundation e ASP.NET Core 10) que:
 - Todo método assíncrono de I/O de `I*Repository`, `I*Query`, `I*Command` e do validator de referências recebe `CancellationToken cancellationToken` como **último parâmetro, obrigatório**: sem `= default` e sem sobrecarga.
 - As assinaturas são trocadas diretamente, e os testes e fakes são ajustados no mesmo commit. A regra "sobrecarga, nunca opcional" continua valendo para a LumiaFoundation, que é publicada; Application e Persistence não são bibliotecas publicadas.
 - O token é repassado até o `SaveAsync(cancellationToken)` e às chamadas do EF Core. Nenhum método descarta o token disponível.
-- Queries e commands que fazem `catch (Exception ex)` passam a usar `catch (Exception ex) when (ex is not OperationCanceledException)`, como `GetMovimentosDesatualizadosQuery`. Cancelamento não é erro e não é logado como erro.
+- ~~Queries e commands que fazem `catch (Exception ex)` passam a usar `catch (Exception ex) when (ex is not OperationCanceledException)`.~~ **Superado pelo ADR 0024:** queries e commands não capturam mais exceções para registrar e relançar; sem `catch`, o cancelamento propaga e o middleware responde 499. Cancelamento continua não sendo erro nem sendo logado como erro.
 
 ### Controllers da Api
 
@@ -45,7 +45,7 @@ Foi verificado no código-fonte (LumiaFoundation e ASP.NET Core 10) que:
 
 ### Salvaguardas contra regressão (sem dependência nova)
 
-- **Teste de reflexão** (xUnit, no `Service.Test`, que já referencia Service, Application e Persistence): exige `CancellationToken` como último parâmetro em todo método assíncrono de `I*Query`, `I*Command`, `I*Repository` e `IMovimentoReferenciasValidator`. Parte de uma **allowlist de pendências que encolhe a cada fatia** e termina vazia; o teste também falha se um item da allowlist já estiver em conformidade (para a lista não apodrecer).
+- **Teste de reflexão** (xUnit, no `Service.Test`, que referencia Service, Application e Persistence; desde o ADR 0023 as interfaces `I*Repository` são varridas na Application): exige `CancellationToken` como último parâmetro em todo método assíncrono de `I*Query`, `I*Command`, `I*Repository` e `IMovimentoReferenciasValidator`. Parte de uma **allowlist de pendências que encolhe a cada fatia** e termina vazia; o teste também falha se um item da allowlist já estiver em conformidade (para a lista não apodrecer).
 - **`CA2016`** (`Forward the CancellationToken parameter`) com `dotnet_diagnostic.CA2016.severity = warning` no `.editorconfig`, para avisar quando um token disponível não é repassado.
 
 ### Execução
