@@ -3,7 +3,7 @@ using Application.Dashboards.Queries.GetConsolidado;
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.Validators;
 using Moq;
-using Persistence.Managment;
+using Persistence.Management;
 using Persistence.Movimentos;
 
 namespace Application.Test.Dashboards.Queries.GetConsolidado;

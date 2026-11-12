@@ -3,7 +3,7 @@ using Domain.Movimentos;
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.TimeService;
 using Moq;
-using Persistence.Managment;
+using Persistence.Management;
 using Persistence.Movimentos;
 
 namespace Application.Test.Movimentos.Commands.UpdateValorLiquidoMovimento;

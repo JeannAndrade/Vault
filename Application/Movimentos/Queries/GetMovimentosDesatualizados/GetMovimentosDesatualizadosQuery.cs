@@ -1,5 +1,5 @@
 using LumiaFoundation.Core.TimeService;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Movimentos.Queries.GetMovimentosDesatualizados;
 

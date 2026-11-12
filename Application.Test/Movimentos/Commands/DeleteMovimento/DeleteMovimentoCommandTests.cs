@@ -2,7 +2,7 @@ using Application.Movimentos.Commands.DeleteMovimento;
 using Domain.Movimentos;
 using LumiaFoundation.Core.Domain.Exceptions;
 using Moq;
-using Persistence.Managment;
+using Persistence.Management;
 using Persistence.Movimentos;
 
 namespace Application.Test.Movimentos.Commands.DeleteMovimento;

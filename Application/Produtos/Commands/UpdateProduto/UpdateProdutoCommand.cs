@@ -1,6 +1,6 @@
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.Validators;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Produtos.Commands.UpdateProduto;
 

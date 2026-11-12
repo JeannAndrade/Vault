@@ -1,7 +1,7 @@
 using Application.Movimentos.Validation;
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.Validators;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Movimentos.Commands.UpdateMovimento;
 

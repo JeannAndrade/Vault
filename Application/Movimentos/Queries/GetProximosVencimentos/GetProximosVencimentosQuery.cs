@@ -1,4 +1,4 @@
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Movimentos.Queries.GetProximosVencimentos;
 

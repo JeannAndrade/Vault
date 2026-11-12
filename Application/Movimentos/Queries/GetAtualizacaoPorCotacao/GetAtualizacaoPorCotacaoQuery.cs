@@ -1,5 +1,5 @@
 using Application.Movimentos.AtualizacaoPorCotacao;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Movimentos.Queries.GetAtualizacaoPorCotacao;
 

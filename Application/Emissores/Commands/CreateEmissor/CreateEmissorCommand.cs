@@ -1,5 +1,5 @@
 using LumiaFoundation.Core.Validators;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Emissores.Commands.CreateEmissor;
 

@@ -9,7 +9,7 @@ using Persistence.Objetivos;
 using Persistence.Produtos;
 using Persistence.TiposRenda;
 
-namespace Persistence.Managment;
+namespace Persistence.Management;
 
 public class RepositoryManager(VaultDbContext repositoryContext) : BaseRepositoryManager(repositoryContext), IRepositoryManager
 {

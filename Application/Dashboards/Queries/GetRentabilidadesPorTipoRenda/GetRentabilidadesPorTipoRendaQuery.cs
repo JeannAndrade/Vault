@@ -1,7 +1,7 @@
 using Application.Dashboards.Rentabilidade;
 using Domain.Movimentos.Rentabilidade;
 using LumiaFoundation.Core.Validators;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Dashboards.Queries.GetRentabilidadesPorTipoRenda;
 

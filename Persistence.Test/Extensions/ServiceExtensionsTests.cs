@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Context;
 using Persistence.Extensions;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Persistence.Test;
 

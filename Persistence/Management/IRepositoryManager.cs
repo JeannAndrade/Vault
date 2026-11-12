@@ -8,7 +8,7 @@ using Persistence.Objetivos;
 using Persistence.Produtos;
 using Persistence.TiposRenda;
 
-namespace Persistence.Managment;
+namespace Persistence.Management;
 
 public interface IRepositoryManager : IBaseRepositoryManager
 {

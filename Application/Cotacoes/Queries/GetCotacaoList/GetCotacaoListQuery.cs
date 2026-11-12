@@ -1,7 +1,7 @@
 using Application.Pagination;
 using LumiaFoundation.Core.Pagination;
 using LumiaFoundation.Core.Validators;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Cotacoes.Queries.GetCotacaoList;
 

@@ -3,7 +3,7 @@ using Domain.Movimentos;
 using Domain.Objetivos;
 using LumiaFoundation.Core.TimeService;
 using Moq;
-using Persistence.Managment;
+using Persistence.Management;
 using Persistence.Objetivos;
 
 namespace Application.Test.Objetivos.Queries.GetResumoObjetivosList;

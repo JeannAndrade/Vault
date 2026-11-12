@@ -13,7 +13,7 @@ using LumiaFoundation.Core.TimeService;
 using LumiaFoundation.Logger.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Service.Test.Registro;
 

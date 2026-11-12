@@ -2,7 +2,7 @@ using Application.Produtos.Commands.DeleteProduto;
 using Domain.Produtos;
 using LumiaFoundation.Core.Domain.Exceptions;
 using Moq;
-using Persistence.Managment;
+using Persistence.Management;
 using Persistence.Movimentos;
 using Persistence.Produtos;
 

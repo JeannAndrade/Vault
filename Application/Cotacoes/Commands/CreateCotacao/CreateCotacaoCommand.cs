@@ -1,7 +1,7 @@
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.TimeService;
 using LumiaFoundation.Core.Validators;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Cotacoes.Commands.CreateCotacao;
 

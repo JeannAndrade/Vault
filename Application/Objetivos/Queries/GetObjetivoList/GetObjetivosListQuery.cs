@@ -1,4 +1,4 @@
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Application.Objetivos.Queries.GetObjetivoList;
 

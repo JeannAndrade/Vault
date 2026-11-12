@@ -1,7 +1,7 @@
 using Persistence.Corretoras;
 using Persistence.Cotacoes;
 using Persistence.Emissores;
-using Persistence.Managment;
+using Persistence.Management;
 using Persistence.Movimentos;
 using Persistence.Objetivos;
 using Persistence.Produtos;

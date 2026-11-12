@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Context;
-using Persistence.Managment;
+using Persistence.Management;
 
 namespace Persistence.Extensions;
 

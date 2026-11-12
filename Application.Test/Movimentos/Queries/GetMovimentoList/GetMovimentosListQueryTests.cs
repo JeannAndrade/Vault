@@ -4,7 +4,7 @@ using Domain.Movimentos;
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.Pagination;
 using Moq;
-using Persistence.Managment;
+using Persistence.Management;
 using Persistence.Movimentos;
 
 namespace Application.Test.Movimentos.Queries.GetMovimentoList;

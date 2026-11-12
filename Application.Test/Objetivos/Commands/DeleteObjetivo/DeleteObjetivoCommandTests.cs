@@ -2,7 +2,7 @@ using Application.Objetivos.Commands.DeleteObjetivo;
 using Domain.Objetivos;
 using LumiaFoundation.Core.Domain.Exceptions;
 using Moq;
-using Persistence.Managment;
+using Persistence.Management;
 using Persistence.Movimentos;
 using Persistence.Objetivos;
 

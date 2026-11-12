@@ -3,7 +3,7 @@ using Domain.Emissores;
 using LumiaFoundation.Core.Domain.Exceptions;
 using Moq;
 using Persistence.Emissores;
-using Persistence.Managment;
+using Persistence.Management;
 using Persistence.Movimentos;
 
 namespace Application.Test.Emissores.Commands.DeleteEmissor;
