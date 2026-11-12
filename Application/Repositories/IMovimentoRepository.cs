@@ -1,7 +1,7 @@
 using Domain.Movimentos;
 using LumiaFoundation.Core.Pagination;
 
-namespace Persistence.Movimentos;
+namespace Application.Repositories;
 
 public interface IMovimentoRepository
 {

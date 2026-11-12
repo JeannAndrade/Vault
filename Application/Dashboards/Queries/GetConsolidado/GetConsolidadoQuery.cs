@@ -1,8 +1,7 @@
 using Application.Dashboards.Consolidado;
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.Validators;
-using Persistence.Management;
-using Persistence.Movimentos;
+using Application.Repositories;
 
 namespace Application.Dashboards.Queries.GetConsolidado;
 

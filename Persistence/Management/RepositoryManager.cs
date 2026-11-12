@@ -1,6 +1,7 @@
 
 using LumiaFoundation.EFRepository.Repository;
 using Persistence.Context;
+using Application.Repositories;
 using Persistence.Corretoras;
 using Persistence.Cotacoes;
 using Persistence.Emissores;

@@ -91,7 +91,7 @@ public class CancellationTokenTests
         var assemblies = new[]
         {
             typeof(Application.Movimentos.Queries.GetMovimentoList.IGetMovimentosListQuery).Assembly,
-            typeof(Persistence.Corretoras.ICorretoraRepository).Assembly
+            typeof(Application.Repositories.ICorretoraRepository).Assembly
         };
 
         return assemblies

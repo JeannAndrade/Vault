@@ -1,6 +1,6 @@
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.Validators;
-using Persistence.Management;
+using Application.Repositories;
 
 namespace Application.Emissores.Commands.UpdateEmissor;
 

@@ -1,5 +1,5 @@
 using LumiaFoundation.Core.Validators;
-using Persistence.Management;
+using Application.Repositories;
 
 namespace Application.Corretoras.Commands.CreateCorretora;
 

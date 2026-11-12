@@ -1,6 +1,6 @@
 using Domain.Emissores;
 
-namespace Persistence.Emissores;
+namespace Application.Repositories;
 
 public interface IEmissorRepository
 {

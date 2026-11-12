@@ -1,3 +1,4 @@
+using Application.Repositories;
 using Domain.Cotacoes;
 using LumiaFoundation.Core.Pagination;
 using LumiaFoundation.EFRepository.Extensions;

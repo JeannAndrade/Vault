@@ -1,4 +1,4 @@
-namespace Persistence.Movimentos;
+namespace Application.Repositories;
 
 public sealed record ConsolidadoFiltro
 {

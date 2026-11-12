@@ -2,8 +2,7 @@ using Application.Movimentos.Queries.GetMovimentosDesatualizados;
 using Domain.Movimentos;
 using LumiaFoundation.Core.TimeService;
 using Moq;
-using Persistence.Management;
-using Persistence.Movimentos;
+using Application.Repositories;
 
 namespace Application.Test.Movimentos.Queries.GetMovimentosDesatualizados;
 

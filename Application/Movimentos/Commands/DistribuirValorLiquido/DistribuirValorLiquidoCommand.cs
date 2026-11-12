@@ -4,7 +4,7 @@ using Domain.Movimentos.Distribuicao;
 using LumiaFoundation.Core.Domain.Exceptions;
 using LumiaFoundation.Core.TimeService;
 using LumiaFoundation.Core.Validators;
-using Persistence.Management;
+using Application.Repositories;
 namespace Application.Movimentos.Commands.DistribuirValorLiquido;
 public class DistribuirValorLiquidoCommand(IRepositoryManager repository, IDateTimeProvider clock) : IDistribuirValorLiquidoCommand
 {

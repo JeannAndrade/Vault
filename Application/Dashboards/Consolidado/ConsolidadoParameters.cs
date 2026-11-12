@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Persistence.Movimentos;
+using Application.Repositories;
 
 namespace Application.Dashboards.Consolidado;
 

@@ -2,9 +2,7 @@ using Application.TiposRenda.Commands.DeleteTipoRenda;
 using Domain.TiposRenda;
 using LumiaFoundation.Core.Domain.Exceptions;
 using Moq;
-using Persistence.Management;
-using Persistence.Movimentos;
-using Persistence.TiposRenda;
+using Application.Repositories;
 
 namespace Application.Test.TiposRenda.Commands.DeleteTipoRenda;
 

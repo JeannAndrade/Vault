@@ -1,4 +1,4 @@
-using Persistence.Management;
+using Application.Repositories;
 
 namespace Application.Emissores.Queries.GetEmissorList;
 

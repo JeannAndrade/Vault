@@ -2,7 +2,7 @@ using Application.Movimentos.DistribuicaoValorLiquido;
 using Domain.Movimentos.Distribuicao;
 using LumiaFoundation.Core.TimeService;
 using LumiaFoundation.Core.Validators;
-using Persistence.Management;
+using Application.Repositories;
 
 namespace Application.Movimentos.Queries.SimularDistribuicaoValorLiquido;
 public class SimularDistribuicaoValorLiquidoQuery(IRepositoryManager repository, IDateTimeProvider clock) : ISimularDistribuicaoValorLiquidoQuery

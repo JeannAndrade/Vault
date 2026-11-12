@@ -7,6 +7,7 @@ using Domain.TiposRenda;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 using Persistence.Movimentos;
+using Application.Repositories;
 
 namespace Persistence.Test.Movimentos;
 

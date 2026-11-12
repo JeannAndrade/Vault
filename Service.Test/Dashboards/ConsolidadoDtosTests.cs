@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Application.Dashboards.Consolidado;
-using Persistence.Movimentos;
+using Application.Repositories;
 using Service.Dashboards.DTOs;
 
 namespace Service.Test.Dashboards;

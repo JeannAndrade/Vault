@@ -1,6 +1,6 @@
 using Domain.Corretoras;
 
-namespace Persistence.Corretoras;
+namespace Application.Repositories;
 
 public interface ICorretoraRepository
 {

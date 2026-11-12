@@ -2,9 +2,7 @@ using Application.Corretoras.Commands.DeleteCorretora;
 using Domain.Corretoras;
 using LumiaFoundation.Core.Domain.Exceptions;
 using Moq;
-using Persistence.Corretoras;
-using Persistence.Management;
-using Persistence.Movimentos;
+using Application.Repositories;
 
 namespace Application.Test.Corretoras.Commands.DeleteCorretora;
 

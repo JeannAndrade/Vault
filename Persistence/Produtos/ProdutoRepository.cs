@@ -1,3 +1,4 @@
+using Application.Repositories;
 using Domain.Produtos;
 using LumiaFoundation.EFRepository.Repository;
 using Microsoft.EntityFrameworkCore;

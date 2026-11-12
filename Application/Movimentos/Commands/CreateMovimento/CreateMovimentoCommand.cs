@@ -1,7 +1,7 @@
 using Application.Movimentos.Validation;
 using LumiaFoundation.Core.TimeService;
 using LumiaFoundation.Core.Validators;
-using Persistence.Management;
+using Application.Repositories;
 
 namespace Application.Movimentos.Commands.CreateMovimento;
 

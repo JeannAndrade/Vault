@@ -1,7 +1,7 @@
 using Application.Dashboards.FluxoMensal;
 using Domain.Movimentos.FluxoMensal;
 using LumiaFoundation.Core.TimeService;
-using Persistence.Management;
+using Application.Repositories;
 
 namespace Application.Dashboards.Queries.GetRetornoMensal;
 

@@ -1,6 +1,6 @@
 using Domain.Movimentos;
 using LumiaFoundation.Core.Pagination;
-using Persistence.Movimentos;
+using Application.Repositories;
 
 namespace Application.Test.Movimentos.TestDoubles;
 

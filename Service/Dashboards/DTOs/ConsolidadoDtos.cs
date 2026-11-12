@@ -1,5 +1,5 @@
 using Application.Dashboards.Consolidado;
-using Persistence.Movimentos;
+using Application.Repositories;
 
 namespace Service.Dashboards.DTOs;
 

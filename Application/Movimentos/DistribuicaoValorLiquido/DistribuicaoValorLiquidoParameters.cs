@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using LumiaFoundation.Core.ValidationAttributes;
-using Persistence.Movimentos;
+using Application.Repositories;
 
 namespace Application.Movimentos.DistribuicaoValorLiquido;
 

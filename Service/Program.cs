@@ -18,16 +18,14 @@ var builder = WebApplication.CreateBuilder(args);
 // sendo lido só do ambiente: não o coloque em arquivos de configuração.
 var configuration = builder.Configuration;
 
-# region Configure Domain Database
-builder.Services.ConfigureDatabase(configuration);
-builder.Services.ConfigureRepositoryManager();
+# region Configure Persistence
+builder.Services.AddPersistence(configuration);
 #endregion
 
 builder.Services.AddValidationFilters();
 
 #region Authentication and Authorization
 builder.Services.ConfigureIdentity();
-builder.Services.ConfigureIdentityDatabase(configuration);
 builder.Services.ConfigureIdentityServiceManager();
 var appConfigurationParameter = new AppConfigurationParameter(configuration);
 builder.Services.ConfigureAppSettingsReader(appConfigurationParameter);

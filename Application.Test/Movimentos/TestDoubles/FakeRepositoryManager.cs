@@ -1,11 +1,4 @@
-using Persistence.Corretoras;
-using Persistence.Cotacoes;
-using Persistence.Emissores;
-using Persistence.Management;
-using Persistence.Movimentos;
-using Persistence.Objetivos;
-using Persistence.Produtos;
-using Persistence.TiposRenda;
+using Application.Repositories;
 
 namespace Application.Test.Movimentos.TestDoubles;
 

@@ -1,6 +1,6 @@
 using Domain.Produtos;
 
-namespace Persistence.Produtos;
+namespace Application.Repositories;
 
 public interface IProdutoRepository
 {

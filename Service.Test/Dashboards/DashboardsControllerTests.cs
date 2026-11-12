@@ -4,7 +4,7 @@ using Application.Dashboards.Queries.GetInvestidoMensal;
 using Application.Dashboards.Queries.GetConsolidado;
 using Application.Dashboards.Rentabilidade;
 using Application.Dashboards.Consolidado;
-using Persistence.Movimentos;
+using Application.Repositories;
 using LumiaFoundation.AspNetCore.ActionFilters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

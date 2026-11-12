@@ -1,5 +1,5 @@
 using LumiaFoundation.Core.Domain.Exceptions;
-using Persistence.Management;
+using Application.Repositories;
 
 namespace Application.TiposRenda.Queries.GetTipoRenda;
 

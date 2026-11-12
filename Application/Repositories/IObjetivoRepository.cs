@@ -1,6 +1,6 @@
 using Domain.Objetivos;
 
-namespace Persistence.Objetivos;
+namespace Application.Repositories;
 
 public interface IObjetivoRepository
 {

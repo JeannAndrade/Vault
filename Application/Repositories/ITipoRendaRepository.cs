@@ -1,6 +1,6 @@
 using Domain.TiposRenda;
 
-namespace Persistence.TiposRenda;
+namespace Application.Repositories;
 
 public interface ITipoRendaRepository
 {

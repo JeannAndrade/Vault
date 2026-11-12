@@ -1,7 +1,7 @@
 using Domain.Cotacoes;
 using LumiaFoundation.Core.Pagination;
 
-namespace Persistence.Cotacoes;
+namespace Application.Repositories;
 
 public interface ICotacaoRepository
 {

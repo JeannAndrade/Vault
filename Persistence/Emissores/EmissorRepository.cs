@@ -1,3 +1,4 @@
+using Application.Repositories;
 using Domain.Emissores;
 using LumiaFoundation.EFRepository.Repository;
 using Microsoft.EntityFrameworkCore;

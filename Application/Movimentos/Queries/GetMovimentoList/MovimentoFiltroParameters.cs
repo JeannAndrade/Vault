@@ -1,4 +1,4 @@
-using Persistence.Movimentos;
+using Application.Repositories;
 
 namespace Application.Movimentos.Queries.GetMovimentoList;
 
