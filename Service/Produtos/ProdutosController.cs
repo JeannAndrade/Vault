@@ -4,7 +4,7 @@ using Application.Produtos.Commands.UpdateProduto;
 using Application.Produtos.Queries.GetProduto;
 using Application.Produtos.Queries.GetProdutoList;
 using LumiaFoundation.Abstractions.ErrorModel;
-using LumiaFoundation.AspNetCore.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Api.Commons.BaseControllers;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

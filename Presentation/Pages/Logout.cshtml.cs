@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using LumiaFoundation.AspNetCore.ClientAuthentication;
+using LumiaFoundation.AspNetCore.Web.ClientAuthentication;
 
 namespace Presentation.Pages;
 

@@ -1,4 +1,4 @@
-using LumiaFoundation.AspNetCore.Commons.Exceptions;
+using LumiaFoundation.AspNetCore.Api.Commons.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Service.Extensions;

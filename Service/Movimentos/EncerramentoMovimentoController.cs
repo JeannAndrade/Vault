@@ -1,8 +1,8 @@
 using Application.Movimentos.Commands.EncerrarMovimento;
 using Application.Movimentos.Commands.ReativarMovimento;
 using LumiaFoundation.Abstractions.ErrorModel;
-using LumiaFoundation.AspNetCore.ActionFilters;
-using LumiaFoundation.AspNetCore.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Api.ActionFilters;
+using LumiaFoundation.AspNetCore.Api.Commons.BaseControllers;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

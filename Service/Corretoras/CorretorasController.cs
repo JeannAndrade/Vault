@@ -4,7 +4,7 @@ using Application.Corretoras.Commands.UpdateCorretora;
 using Application.Corretoras.Queries.GetCorretora;
 using Application.Corretoras.Queries.GetCorretoraList;
 using LumiaFoundation.Abstractions.ErrorModel;
-using LumiaFoundation.AspNetCore.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Api.Commons.BaseControllers;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

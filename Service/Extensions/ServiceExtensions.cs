@@ -1,4 +1,4 @@
-using LumiaFoundation.AspNetCore.HealthChecks;
+using LumiaFoundation.AspNetCore.Api.HealthChecks;
 using LumiaFoundation.EFRepository.Extensions;
 using Persistence.Context;
 

@@ -9,7 +9,7 @@ using Application.Movimentos.Queries.GetMovimentosDesatualizados;
 using Application.Movimentos.Queries.GetProximosVencimentos;
 using Application.Pagination;
 using LumiaFoundation.Abstractions.Pagination;
-using LumiaFoundation.AspNetCore.ActionFilters;
+using LumiaFoundation.AspNetCore.Api.ActionFilters;
 using LumiaFoundation.Core.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

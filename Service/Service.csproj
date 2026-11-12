@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lumia.Foundation.AspNetCore" Version="0.31.0" />
+    <PackageReference Include="Lumia.Foundation.AspNetCore.Api" Version="0.32.1" />
     <PackageReference Include="Lumia.Foundation.Logger" Version="0.5.1" />
   </ItemGroup>
 

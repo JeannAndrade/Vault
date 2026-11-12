@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using LumiaFoundation.AspNetCore.ClientAuthentication;
+using LumiaFoundation.AspNetCore.Web.ClientAuthentication;
 using LumiaFoundation.Http.Client.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

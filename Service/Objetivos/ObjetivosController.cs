@@ -5,7 +5,7 @@ using Application.Objetivos.Queries.GetObjetivo;
 using Application.Objetivos.Queries.GetObjetivoList;
 using Application.Objetivos.Queries.GetResumoObjetivosList;
 using LumiaFoundation.Abstractions.ErrorModel;
-using LumiaFoundation.AspNetCore.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Api.Commons.BaseControllers;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

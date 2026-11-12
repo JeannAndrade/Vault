@@ -1,4 +1,4 @@
-using LumiaFoundation.AspNetCore.ActionFilters;
+using LumiaFoundation.AspNetCore.Api.ActionFilters;
 using Service.Movimentos;
 
 namespace Service.Test.Movimentos;

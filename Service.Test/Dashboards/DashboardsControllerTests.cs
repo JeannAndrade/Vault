@@ -5,7 +5,7 @@ using Application.Dashboards.Queries.GetConsolidado;
 using Application.Dashboards.Rentabilidade;
 using Application.Dashboards.Consolidado;
 using Application.Repositories;
-using LumiaFoundation.AspNetCore.ActionFilters;
+using LumiaFoundation.AspNetCore.Api.ActionFilters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

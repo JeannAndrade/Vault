@@ -4,7 +4,7 @@ using Application.Emissores.Commands.UpdateEmissor;
 using Application.Emissores.Queries.GetEmissor;
 using Application.Emissores.Queries.GetEmissorList;
 using LumiaFoundation.Abstractions.ErrorModel;
-using LumiaFoundation.AspNetCore.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Api.Commons.BaseControllers;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

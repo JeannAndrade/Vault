@@ -1,6 +1,6 @@
-using LumiaFoundation.AspNetCore.ActionFilters;
-using LumiaFoundation.AspNetCore.Commons.BaseControllers;
-using LumiaFoundation.AspNetCore.Commons.Exceptions;
+using LumiaFoundation.AspNetCore.Api.ActionFilters;
+using LumiaFoundation.AspNetCore.Api.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Api.Commons.Exceptions;
 using LumiaFoundation.Auth.DTO;
 using LumiaFoundation.Auth.Persistence;
 using Microsoft.AspNetCore.Mvc;

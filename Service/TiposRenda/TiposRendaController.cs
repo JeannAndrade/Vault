@@ -4,7 +4,7 @@ using Application.TiposRenda.Commands.UpdateTipoRenda;
 using Application.TiposRenda.Queries.GetTipoRenda;
 using Application.TiposRenda.Queries.GetTiposRendaList;
 using LumiaFoundation.Abstractions.ErrorModel;
-using LumiaFoundation.AspNetCore.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Api.Commons.BaseControllers;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -6,7 +6,7 @@ using Moq;
 using Service.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using LumiaFoundation.AspNetCore.Commons.Exceptions;
+using LumiaFoundation.AspNetCore.Api.Commons.Exceptions;
 
 namespace Service.Test.Auth;
 

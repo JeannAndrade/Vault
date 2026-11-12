@@ -1,6 +1,6 @@
 using Application.Movimentos.Commands.AtualizarPorCotacao;
 using Application.Movimentos.Queries.GetAtualizacaoPorCotacao;
-using LumiaFoundation.AspNetCore.Commons.BaseControllers;
+using LumiaFoundation.AspNetCore.Api.Commons.BaseControllers;
 using LumiaFoundation.Auth.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -8,7 +8,7 @@ using Application.Movimentos.Commands.ReativarMovimento;
 using Application.Movimentos.Commands.UpdateValorLiquidoMovimento;
 using Application.Movimentos.Queries.GetMovimentosDesatualizados;
 using Application.Movimentos.Queries.SimularDistribuicaoValorLiquido;
-using LumiaFoundation.AspNetCore.Commons.Extensions;
+using LumiaFoundation.AspNetCore.Api.Commons.Extensions;
 using LumiaFoundation.Core.TimeService;
 using LumiaFoundation.Logger.Contracts;
 using Microsoft.Extensions.DependencyInjection;

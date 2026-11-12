@@ -1,4 +1,4 @@
-using LumiaFoundation.AspNetCore.ActionFilters;
+using LumiaFoundation.AspNetCore.Api.ActionFilters;
 using LumiaFoundation.Auth.DTO;
 using LumiaFoundation.Auth.Persistence;
 using Microsoft.AspNetCore.Mvc;

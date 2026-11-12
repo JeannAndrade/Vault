@@ -1,4 +1,4 @@
-using LumiaFoundation.AspNetCore.HealthChecks;
+using LumiaFoundation.AspNetCore.Api.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;

@@ -1,4 +1,4 @@
-using LumiaFoundation.AspNetCore.ClientAuthentication;
+using LumiaFoundation.AspNetCore.Web.ClientAuthentication;
 using LumiaFoundation.Core.TimeService;
 using LumiaFoundation.Http.Client.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;

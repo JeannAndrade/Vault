@@ -1,5 +1,5 @@
-using LumiaFoundation.AspNetCore.ClientAuthentication;
-using LumiaFoundation.AspNetCore.Commons.Extensions;
+using LumiaFoundation.AspNetCore.Web.ClientAuthentication;
+using LumiaFoundation.AspNetCore.Web.Commons.Extensions;
 using LumiaFoundation.Http.Client.Extensions;
 using LumiaFoundation.Logger.Extensions;
 using LumiaFoundation.Logger.LoggerService;

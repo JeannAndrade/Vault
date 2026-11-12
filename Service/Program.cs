@@ -1,6 +1,6 @@
 using Application.Corretoras.Queries.GetCorretora;
-using LumiaFoundation.AspNetCore.Commons.Extensions;
-using LumiaFoundation.AspNetCore.ExceptionHandlers;
+using LumiaFoundation.AspNetCore.Api.Commons.Extensions;
+using LumiaFoundation.AspNetCore.Api.ExceptionHandlers;
 using LumiaFoundation.Auth.Config;
 using LumiaFoundation.Auth.Extensions;
 using LumiaFoundation.Logger.Extensions;
