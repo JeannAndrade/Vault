@@ -60,12 +60,13 @@ ENTRYPOINT ["dotnet", "Service.dll"]
 # ---------------------------------------------------------------------------
 # Geração dos migration bundles: um executável autossuficiente por contexto.
 # Em tempo de build o bundle não conecta ao banco; em execução, ele usa as
-# IDesignTimeDbContextFactory do projeto, que leem as variáveis de ambiente.
+# IDesignTimeDbContextFactory do projeto, que carregam a configuração local de
+# desenvolvimento e permitem que as variáveis de ambiente a sobrescrevam.
 # ---------------------------------------------------------------------------
 FROM build AS migrations-build
 ARG TARGETARCH
 
-RUN dotnet tool install --tool-path /tools dotnet-ef --version 10.0.12
+RUN dotnet tool install --tool-path /tools dotnet-ef --version 10.0.15
 
 # Identificador de runtime compatível com a arquitetura da imagem
 RUN case "$TARGETARCH" in \
