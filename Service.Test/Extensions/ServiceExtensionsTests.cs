@@ -36,7 +36,13 @@ public class ServiceExtensionsTests
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["DBHOST"] = "127.0.0.1",
-                ["DBPORT"] = "1"
+                ["DBPORT"] = "1",
+                ["VAULT_DB_USER"] = "test-user",
+                ["VAULT_DB_PASS"] = "test-password",
+                ["VAULT_DB_NAME"] = "test-database",
+                ["DBMAJORVERSION"] = "12",
+                ["DBMINORVERSION"] = "3",
+                ["DBBUILDVERSION"] = "3"
             })
             .Build();
         var services = new ServiceCollection();

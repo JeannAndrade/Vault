@@ -45,13 +45,19 @@ public static class ServiceExtensions
 
     private static DbConnectionHelper BuildDbConnectionHelper(IConfiguration configuration) =>
     new(
-        host: configuration["DBHOST"] ?? "localhost",
-        port: configuration["DBPORT"] ?? "3307",
-        user: configuration["VAULT_DB_USER"] ?? "example-user",
-        password: configuration["VAULT_DB_PASS"] ?? "my_cool_secret",
-        database: configuration["VAULT_DB_NAME"] ?? "my_database",
-        majorVersion: ParseHelper.ToIntOrDefault(configuration["DBMAJORVERSION"] ?? "", 12),
-        minorVersion: ParseHelper.ToIntOrDefault(configuration["DBMINORVERSION"] ?? "", 3),
-        buildVersion: ParseHelper.ToIntOrDefault(configuration["DBBUILDVERSION"] ?? "", 3)
+        host: GetRequired(configuration, "DBHOST"),
+        port: GetRequired(configuration, "DBPORT"),
+        user: GetRequired(configuration, "VAULT_DB_USER"),
+        password: GetRequired(configuration, "VAULT_DB_PASS"),
+        database: GetRequired(configuration, "VAULT_DB_NAME"),
+        majorVersion: ParseHelper.ToIntOrDefault(GetRequired(configuration, "DBMAJORVERSION"), 0),
+        minorVersion: ParseHelper.ToIntOrDefault(GetRequired(configuration, "DBMINORVERSION"), 0),
+        buildVersion: ParseHelper.ToIntOrDefault(GetRequired(configuration, "DBBUILDVERSION"), 0)
     );
+
+    private static string GetRequired(IConfiguration configuration, string key) =>
+        configuration[key] is { Length: > 0 } value
+            ? value
+            : throw new InvalidOperationException(
+                $"A configuração obrigatória '{key}' não foi definida.");
 }
