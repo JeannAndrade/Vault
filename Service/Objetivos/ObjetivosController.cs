@@ -74,7 +74,7 @@ public class ObjetivosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<ObjetivoDto>> CreateObjetivo([FromBody] ObjetivoForCreationDto objetivo, CancellationToken cancellationToken)
     {
-        var createdObjetivo = await _createObjetivoCommand.ExecuteAsync(objetivo.ToCreateObjetivoCommand(GetCurrentUserId()), cancellationToken);
+        var createdObjetivo = await _createObjetivoCommand.ExecuteAsync(objetivo.ToCreateObjetivoCommand(), GetCurrentUserId(), cancellationToken);
 
         return CreatedAtRoute("ObjetivoById", new { id = createdObjetivo.Id }, ObjetivoDto.FromApplication(createdObjetivo));
     }

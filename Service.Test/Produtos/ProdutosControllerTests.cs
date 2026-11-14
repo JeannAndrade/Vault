@@ -69,7 +69,7 @@ public class ProdutosControllerTests
     {
         var created = new ProdutoModel { Id = Guid.NewGuid(), Nome = "Tesouro Selic", OwnerId = _ownerId };
         _createProdutoCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<ProdutoModelForCreation>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.ExecuteAsync(It.IsAny<ProdutoModelForCreation>(), _ownerId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
         var result = await _controller.CreateProduto(new ProdutoForCreationDto("Tesouro Selic"), CancellationToken.None);
@@ -77,6 +77,10 @@ public class ProdutosControllerTests
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<ProdutoDto>(createdResult.Value);
         Assert.Equal("Tesouro Selic", dto.Nome);
+        _createProdutoCommand.Verify(c => c.ExecuteAsync(
+            It.Is<ProdutoModelForCreation>(m => m.Nome == "Tesouro Selic"),
+            _ownerId,
+            CancellationToken.None), Times.Once);
     }
 
     [Fact]

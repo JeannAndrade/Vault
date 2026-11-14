@@ -7,11 +7,11 @@ public class CreateProdutoCommand(IRepositoryManager repositoryManager) : ICreat
 {
   private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-    public async Task<ProdutoModel> ExecuteAsync(ProdutoModelForCreation produtoModel, CancellationToken cancellationToken)
+    public async Task<ProdutoModel> ExecuteAsync(ProdutoModelForCreation produtoModel, Guid ownerId, CancellationToken cancellationToken)
   {
     CommandValidator.Validate(produtoModel);
 
-    var produto = produtoModel.ToDomain();
+    var produto = produtoModel.ToDomain(ownerId);
     _repositoryManager.Produto.Create(produto);
         await _repositoryManager.SaveAsync(cancellationToken);
 

@@ -7,11 +7,11 @@ public class CreateObjetivoCommand(IRepositoryManager repositoryManager) : ICrea
 {
   private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-  public async Task<ObjetivoModel> ExecuteAsync(ObjetivoModelForCreation objetivoModel, CancellationToken cancellationToken)
+  public async Task<ObjetivoModel> ExecuteAsync(ObjetivoModelForCreation objetivoModel, Guid ownerId, CancellationToken cancellationToken)
   {
     CommandValidator.Validate(objetivoModel);
 
-    var objetivo = objetivoModel.ToDomain();
+    var objetivo = objetivoModel.ToDomain(ownerId);
     _repositoryManager.Objetivo.Create(objetivo);
     await _repositoryManager.SaveAsync(cancellationToken);
 

@@ -7,11 +7,11 @@ public class CreateTipoRendaCommand(IRepositoryManager repositoryManager) : ICre
 {
   private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-  public async Task<TipoRendaModel> ExecuteAsync(TipoRendaModelForCreation tipoRendaModel, CancellationToken cancellationToken)
+  public async Task<TipoRendaModel> ExecuteAsync(TipoRendaModelForCreation tipoRendaModel, Guid ownerId, CancellationToken cancellationToken)
   {
     CommandValidator.Validate(tipoRendaModel);
 
-    var tipoRenda = tipoRendaModel.ToDomain();
+    var tipoRenda = tipoRendaModel.ToDomain(ownerId);
     _repositoryManager.TipoRenda.Create(tipoRenda);
     await _repositoryManager.SaveAsync(cancellationToken);
 

@@ -7,11 +7,11 @@ public class CreateEmissorCommand(IRepositoryManager repositoryManager) : ICreat
 {
   private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-  public async Task<EmissorModel> ExecuteAsync(EmissorModelForCreation emissorModel, CancellationToken cancellationToken)
+  public async Task<EmissorModel> ExecuteAsync(EmissorModelForCreation emissorModel, Guid ownerId, CancellationToken cancellationToken)
   {
     CommandValidator.Validate(emissorModel);
 
-    var emissor = emissorModel.ToDomain();
+    var emissor = emissorModel.ToDomain(ownerId);
     _repositoryManager.Emissor.Create(emissor);
     await _repositoryManager.SaveAsync(cancellationToken);
 

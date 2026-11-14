@@ -2,5 +2,5 @@ namespace Application.TiposRenda.Commands.CreateTipoRenda;
 
 public interface ICreateTipoRendaCommand
 {
-  Task<TipoRendaModel> ExecuteAsync(TipoRendaModelForCreation tipoRendaModel, CancellationToken cancellationToken);
+  Task<TipoRendaModel> ExecuteAsync(TipoRendaModelForCreation tipoRendaModel, Guid ownerId, CancellationToken cancellationToken);
 }

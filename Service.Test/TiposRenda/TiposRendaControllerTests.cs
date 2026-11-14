@@ -69,7 +69,7 @@ public class TiposRendaControllerTests
     {
         var created = new TipoRendaModel { Id = Guid.NewGuid(), Nome = "CDB", OwnerId = _ownerId };
         _createTipoRendaCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<TipoRendaModelForCreation>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.ExecuteAsync(It.IsAny<TipoRendaModelForCreation>(), _ownerId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
         var result = await _controller.CreateTipoRenda(new TipoRendaForCreationDto("CDB"), CancellationToken.None);
@@ -77,6 +77,10 @@ public class TiposRendaControllerTests
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<TipoRendaDto>(createdResult.Value);
         Assert.Equal("CDB", dto.Nome);
+        _createTipoRendaCommand.Verify(c => c.ExecuteAsync(
+            It.Is<TipoRendaModelForCreation>(m => m.Nome == "CDB"),
+            _ownerId,
+            CancellationToken.None), Times.Once);
     }
 
     [Fact]

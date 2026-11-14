@@ -111,7 +111,7 @@ public class ObjetivosControllerTests
     {
         var created = new ObjetivoModel { Id = Guid.NewGuid(), Nome = "Reserva de emergência", OwnerId = _ownerId };
         _createObjetivoCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<ObjetivoModelForCreation>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.ExecuteAsync(It.IsAny<ObjetivoModelForCreation>(), _ownerId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
         var result = await _controller.CreateObjetivo(new ObjetivoForCreationDto(
@@ -120,6 +120,10 @@ public class ObjetivosControllerTests
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<ObjetivoDto>(createdResult.Value);
         Assert.Equal("Reserva de emergência", dto.Nome);
+        _createObjetivoCommand.Verify(c => c.ExecuteAsync(
+            It.Is<ObjetivoModelForCreation>(m => m.Nome == "Reserva de emergência"),
+            _ownerId,
+            CancellationToken.None), Times.Once);
     }
 
     [Fact]

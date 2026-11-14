@@ -4,5 +4,5 @@ namespace Service.TiposRenda.DTOs;
 
 public record TipoRendaForCreationDto(string Nome)
 {
-  public TipoRendaModelForCreation ToCreateTipoRendaCommand(Guid ownerId) => new(Nome, ownerId);
+  public TipoRendaModelForCreation ToCreateTipoRendaCommand() => new(Nome);
 }

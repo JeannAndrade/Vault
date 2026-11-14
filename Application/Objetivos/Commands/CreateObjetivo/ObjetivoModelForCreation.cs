@@ -27,10 +27,7 @@ public record ObjetivoModelForCreation(
     [property: MaxLength(100, ErrorMessage = "Onde aplicar não deve exceder 100 caracteres")]
     string OndeAplicar,
 
-    bool EstaAtivo,
-
-    [NotEmptyGuid]
-    Guid OwnerId) : IValidatableObject
+    bool EstaAtivo) : IValidatableObject
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -55,7 +52,7 @@ public record ObjetivoModelForCreation(
                 new[] { nameof(AporteMensal) });
     }
 
-    public Objetivo ToDomain() => new()
+    public Objetivo ToDomain(Guid ownerId) => new()
     {
         Nome = Nome,
         Descricao = Descricao,
@@ -64,6 +61,6 @@ public record ObjetivoModelForCreation(
         AporteMensal = AporteMensal,
         OndeAplicar = OndeAplicar,
         EstaAtivo = EstaAtivo,
-        OwnerId = OwnerId
+        OwnerId = ownerId
     };
 }

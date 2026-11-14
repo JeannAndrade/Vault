@@ -60,7 +60,7 @@ public class EmissoresController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<EmissorDto>> CreateEmissor([FromBody] EmissorForCreationDto emissor, CancellationToken cancellationToken)
     {
-        var createdEmissor = await _createEmissorCommand.ExecuteAsync(emissor.ToCreateEmissorCommand(GetCurrentUserId()), cancellationToken);
+        var createdEmissor = await _createEmissorCommand.ExecuteAsync(emissor.ToCreateEmissorCommand(), GetCurrentUserId(), cancellationToken);
 
         return CreatedAtRoute("EmissorById", new { id = createdEmissor.Id }, EmissorDto.FromApplication(createdEmissor));
     }

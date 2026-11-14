@@ -11,13 +11,12 @@ public record ObjetivoForCreationDto(
     string OndeAplicar,
     bool EstaAtivo)
 {
-  public ObjetivoModelForCreation ToCreateObjetivoCommand(Guid ownerId) => new(
+  public ObjetivoModelForCreation ToCreateObjetivoCommand() => new(
       Nome,
       Descricao,
       Meta,
       FontePagadora,
       AporteMensal,
       OndeAplicar,
-      EstaAtivo,
-      ownerId);
+      EstaAtivo);
 }

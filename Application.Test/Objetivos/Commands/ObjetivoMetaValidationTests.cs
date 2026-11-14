@@ -16,8 +16,7 @@ public class ObjetivoMetaValidationTests
             "Salário",
             100m,
             "Poupança",
-            true,
-            Guid.NewGuid());
+            true);
 
         Assert.Empty(Validate(model));
     }
@@ -34,8 +33,7 @@ public class ObjetivoMetaValidationTests
             "Salário",
             100m,
             "Poupança",
-            true,
-            Guid.NewGuid());
+            true);
 
         Assert.NotEmpty(Validate(model));
     }
@@ -65,8 +63,7 @@ public class ObjetivoMetaValidationTests
             "Salário",
             9999999999999999.99m,
             "Poupança",
-            true,
-            Guid.NewGuid());
+            true);
 
         Assert.Empty(Validate(model));
     }
@@ -83,8 +80,7 @@ public class ObjetivoMetaValidationTests
             "Salário",
             decimal.Parse(aporteMensal, System.Globalization.CultureInfo.InvariantCulture),
             "Poupança",
-            true,
-            Guid.NewGuid());
+            true);
 
         Assert.Contains(Validate(model), error => error.MemberNames.Contains(nameof(model.AporteMensal)));
     }

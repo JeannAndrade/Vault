@@ -60,7 +60,7 @@ public class ProdutosController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<ProdutoDto>> CreateProduto([FromBody] ProdutoForCreationDto produto, CancellationToken cancellationToken)
     {
-        var createdProduto = await _createProdutoCommand.ExecuteAsync(produto.ToCreateProdutoCommand(GetCurrentUserId()), cancellationToken);
+        var createdProduto = await _createProdutoCommand.ExecuteAsync(produto.ToCreateProdutoCommand(), GetCurrentUserId(), cancellationToken);
 
         return CreatedAtRoute("ProdutoById", new { id = createdProduto.Id }, ProdutoDto.FromApplication(createdProduto));
     }

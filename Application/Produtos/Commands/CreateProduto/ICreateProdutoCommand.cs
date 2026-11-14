@@ -2,5 +2,5 @@ namespace Application.Produtos.Commands.CreateProduto;
 
 public interface ICreateProdutoCommand
 {
-  Task<ProdutoModel> ExecuteAsync(ProdutoModelForCreation produtoModel, CancellationToken cancellationToken);
+  Task<ProdutoModel> ExecuteAsync(ProdutoModelForCreation produtoModel, Guid ownerId, CancellationToken cancellationToken);
 }

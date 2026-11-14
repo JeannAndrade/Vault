@@ -69,7 +69,7 @@ public class EmissoresControllerTests
     {
         var created = new EmissorModel { Id = Guid.NewGuid(), Nome = "Tesouro Nacional", OwnerId = _ownerId };
         _createEmissorCommand
-            .Setup(c => c.ExecuteAsync(It.IsAny<EmissorModelForCreation>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.ExecuteAsync(It.IsAny<EmissorModelForCreation>(), _ownerId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
         var result = await _controller.CreateEmissor(new EmissorForCreationDto("Tesouro Nacional"), CancellationToken.None);
@@ -77,6 +77,10 @@ public class EmissoresControllerTests
         var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
         var dto = Assert.IsType<EmissorDto>(createdResult.Value);
         Assert.Equal("Tesouro Nacional", dto.Nome);
+        _createEmissorCommand.Verify(c => c.ExecuteAsync(
+            It.Is<EmissorModelForCreation>(m => m.Nome == "Tesouro Nacional"),
+            _ownerId,
+            CancellationToken.None), Times.Once);
     }
 
     [Fact]

@@ -59,7 +59,7 @@ public class TiposRendaController(
     [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<TipoRendaDto>> CreateTipoRenda([FromBody] TipoRendaForCreationDto tipoRenda, CancellationToken cancellationToken)
     {
-        var createdTipoRenda = await _createTipoRendaCommand.ExecuteAsync(tipoRenda.ToCreateTipoRendaCommand(GetCurrentUserId()), cancellationToken);
+        var createdTipoRenda = await _createTipoRendaCommand.ExecuteAsync(tipoRenda.ToCreateTipoRendaCommand(), GetCurrentUserId(), cancellationToken);
 
         return CreatedAtRoute("TipoRendaById", new { id = createdTipoRenda.Id }, TipoRendaDto.FromApplication(createdTipoRenda));
     }
