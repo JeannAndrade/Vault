@@ -13,7 +13,7 @@ public class UpdateCorretoraCommand(IRepositoryManager repositoryManager) : IUpd
         CommandValidator.Validate(corretoraModel);
 
         var corretora = await _repositoryManager.Corretora.GetAsync(ownerId, corretoraId, trackChanges: true, cancellationToken)
-        ?? throw new EntityNotFoundException("Corretora not found");
+        ?? throw new EntityNotFoundException("Corretora não encontrada");
 
         _repositoryManager.Corretora.Update(corretoraModel.UpdateDomain(corretora));
         await _repositoryManager.SaveAsync(cancellationToken);

@@ -13,7 +13,7 @@ public class UpdateProdutoCommand(IRepositoryManager repositoryManager) : IUpdat
     CommandValidator.Validate(produtoModel);
 
     var produto = await _repositoryManager.Produto.GetAsync(ownerId, produtoId, trackChanges: true, cancellationToken)
-    ?? throw new EntityNotFoundException("Produto not found");
+    ?? throw new EntityNotFoundException("Produto não encontrado");
 
     _repositoryManager.Produto.Update(produtoModel.UpdateDomain(produto));
     await _repositoryManager.SaveAsync(cancellationToken);

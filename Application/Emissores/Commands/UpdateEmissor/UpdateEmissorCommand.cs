@@ -13,7 +13,7 @@ public class UpdateEmissorCommand(IRepositoryManager repositoryManager) : IUpdat
     CommandValidator.Validate(emissorModel);
 
     var emissor = await _repositoryManager.Emissor.GetAsync(ownerId, emissorId, trackChanges: true, cancellationToken)
-    ?? throw new EntityNotFoundException("Emissor not found");
+    ?? throw new EntityNotFoundException("Emissor não encontrado");
 
     _repositoryManager.Emissor.Update(emissorModel.UpdateDomain(emissor));
     await _repositoryManager.SaveAsync(cancellationToken);

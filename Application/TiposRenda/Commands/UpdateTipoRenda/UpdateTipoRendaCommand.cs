@@ -13,7 +13,7 @@ public class UpdateTipoRendaCommand(IRepositoryManager repositoryManager) : IUpd
     CommandValidator.Validate(tipoRendaModel);
 
     var tipoRenda = await _repositoryManager.TipoRenda.GetAsync(ownerId, tipoRendaId, trackChanges: true, cancellationToken)
-    ?? throw new EntityNotFoundException("Tipo de Renda not found");
+    ?? throw new EntityNotFoundException("Tipo de renda não encontrado");
 
     _repositoryManager.TipoRenda.Update(tipoRendaModel.UpdateDomain(tipoRenda));
     await _repositoryManager.SaveAsync(cancellationToken);

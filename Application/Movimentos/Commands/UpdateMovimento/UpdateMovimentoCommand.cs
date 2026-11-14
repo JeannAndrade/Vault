@@ -26,7 +26,7 @@ public class UpdateMovimentoCommand(
             cancellationToken);
 
         var movimento = await _repositoryManager.Movimento.GetAsync(ownerId, movimentoId, trackChanges: true, cancellationToken)
-            ?? throw new EntityNotFoundException("Movimento not found");
+            ?? throw new EntityNotFoundException("Movimento não encontrado");
 
         if (movimento.MotivoEncerramento is not null && movimento.DataEncerramento is not null && movimentoModel.DataInvestimento.Date > movimento.DataEncerramento.Value.Date)
             throw new CommandValidationException("A data do investimento não pode ser posterior à data de encerramento. Reclassifique o encerramento antes.");

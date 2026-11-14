@@ -43,7 +43,7 @@ public class MovimentoReferenciasValidatorTests
             Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None));
 
         // Assert
-        Assert.Equal("Objetivo not found", exception.Message);
+        Assert.Equal("Objetivo não encontrado", exception.Message);
         Assert.Equal(["Objetivo"], chamadas);
     }
 
@@ -59,7 +59,7 @@ public class MovimentoReferenciasValidatorTests
             Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None));
 
         // Assert
-        Assert.Equal("Emissor not found", exception.Message);
+        Assert.Equal("Emissor não encontrado", exception.Message);
         Assert.Equal(["Objetivo", "TipoRenda", "Corretora", "Produto", "Emissor"], chamadas);
     }
 
@@ -83,7 +83,7 @@ public class MovimentoReferenciasValidatorTests
         {
             chamadas.Add("Objetivo");
             return deveFalhar
-                ? throw new EntityNotFoundException("Objetivo not found")
+                ? throw new EntityNotFoundException("Objetivo não encontrado")
                 : Task.FromResult(new ObjetivoModel { Id = objetivoId, OwnerId = ownerId });
         }
     }
@@ -94,7 +94,7 @@ public class MovimentoReferenciasValidatorTests
         {
             chamadas.Add("TipoRenda");
             return deveFalhar
-                ? throw new EntityNotFoundException("Tipo de renda not found")
+                ? throw new EntityNotFoundException("Tipo de renda não encontrado")
                 : Task.FromResult(new TipoRendaModel { Id = tipoRendaId, OwnerId = ownerId });
         }
     }
@@ -105,7 +105,7 @@ public class MovimentoReferenciasValidatorTests
         {
             chamadas.Add("Corretora");
             return deveFalhar
-                ? throw new EntityNotFoundException("Corretora not found")
+                ? throw new EntityNotFoundException("Corretora não encontrada")
                 : Task.FromResult(new CorretoraModel { Id = corretoraId, OwnerId = ownerId });
         }
     }
@@ -116,7 +116,7 @@ public class MovimentoReferenciasValidatorTests
         {
             chamadas.Add("Produto");
             return deveFalhar
-                ? throw new EntityNotFoundException("Produto not found")
+                ? throw new EntityNotFoundException("Produto não encontrado")
                 : Task.FromResult(new ProdutoModel { Id = produtoId, OwnerId = ownerId });
         }
     }
@@ -127,7 +127,7 @@ public class MovimentoReferenciasValidatorTests
         {
             chamadas.Add("Emissor");
             return deveFalhar
-                ? throw new EntityNotFoundException("Emissor not found")
+                ? throw new EntityNotFoundException("Emissor não encontrado")
                 : Task.FromResult(new EmissorModel { Id = emissorId, OwnerId = ownerId });
         }
     }

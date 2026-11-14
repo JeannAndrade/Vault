@@ -11,7 +11,7 @@ internal sealed class FakeMovimentoReferenciasValidator(bool deveFalhar = false)
     {
         Chamado = true;
         return deveFalhar
-            ? throw new EntityNotFoundException("Objetivo not found")
+            ? throw new EntityNotFoundException("Objetivo não encontrado")
             : Task.CompletedTask;
     }
 }

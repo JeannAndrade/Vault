@@ -13,7 +13,7 @@ public class UpdateObjetivoCommand(IRepositoryManager repositoryManager) : IUpda
     CommandValidator.Validate(objetivoModel);
 
     var objetivo = await _repositoryManager.Objetivo.GetAsync(ownerId, objetivoId, trackChanges: true, cancellationToken)
-    ?? throw new EntityNotFoundException("Objetivo not found");
+    ?? throw new EntityNotFoundException("Objetivo não encontrado");
 
     _repositoryManager.Objetivo.Update(objetivoModel.UpdateDomain(objetivo));
     await _repositoryManager.SaveAsync(cancellationToken);
