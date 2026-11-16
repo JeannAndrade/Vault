@@ -35,8 +35,8 @@ public class ServiceExtensionsTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["DBHOST"] = "127.0.0.1",
-                ["DBPORT"] = "1",
+                ["VAULT_DB_HOST"] = "127.0.0.1",
+                ["VAULT_DB_PORT"] = "1",
                 ["VAULT_DB_USER"] = "test-user",
                 ["VAULT_DB_PASS"] = "test-password",
                 ["VAULT_DB_NAME"] = "test-database",

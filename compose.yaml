@@ -33,8 +33,8 @@ services:
     networks: [data]
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      DBHOST: db
-      DBPORT: "3306"
+      VAULT_DB_HOST: db
+      VAULT_DB_PORT: "3306"
       VAULT_DB_USER: ${VAULT_DB_USER:?Defina VAULT_DB_USER}
       VAULT_DB_PASS: ${VAULT_DB_PASS:?Defina VAULT_DB_PASS}
       VAULT_DB_NAME: ${VAULT_DB_NAME:?Defina VAULT_DB_NAME}
@@ -56,8 +56,8 @@ services:
       - api-logs:/app/logs
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      DBHOST: db
-      DBPORT: "3306"
+      VAULT_DB_HOST: db
+      VAULT_DB_PORT: "3306"
       VAULT_DB_USER: ${VAULT_DB_USER:?Defina VAULT_DB_USER}
       VAULT_DB_PASS: ${VAULT_DB_PASS:?Defina VAULT_DB_PASS}
       VAULT_DB_NAME: ${VAULT_DB_NAME:?Defina VAULT_DB_NAME}

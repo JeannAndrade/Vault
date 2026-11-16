@@ -66,6 +66,18 @@ ENTRYPOINT ["dotnet", "Service.dll"]
 FROM build AS migrations-build
 ARG TARGETARCH
 
+# O bundle é gerado durante o build, antes de o Compose aplicar o ambiente do
+# serviço migrations. Estes valores são apenas placeholders de design-time;
+# na execução, o container recebe a configuração real pelo compose.yaml.
+ENV VAULT_DB_HOST=localhost \
+  VAULT_DB_PORT=3307 \
+  VAULT_DB_USER=build-user \
+  VAULT_DB_PASS=build-password \
+  VAULT_DB_NAME=build-database \
+  DBMAJORVERSION=12 \
+  DBMINORVERSION=3 \
+  DBBUILDVERSION=3
+
 RUN dotnet tool install --tool-path /tools dotnet-ef --version 10.0.15
 
 # Identificador de runtime compatível com a arquitetura da imagem

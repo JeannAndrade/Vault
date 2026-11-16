@@ -45,8 +45,8 @@ public static class ServiceExtensions
 
     private static DbConnectionHelper BuildDbConnectionHelper(IConfiguration configuration) =>
     new(
-        host: GetRequired(configuration, "DBHOST"),
-        port: GetRequired(configuration, "DBPORT"),
+        host: GetRequired(configuration, "VAULT_DB_HOST"),
+        port: GetRequired(configuration, "VAULT_DB_PORT"),
         user: GetRequired(configuration, "VAULT_DB_USER"),
         password: GetRequired(configuration, "VAULT_DB_PASS"),
         database: GetRequired(configuration, "VAULT_DB_NAME"),
