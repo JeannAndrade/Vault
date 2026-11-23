@@ -46,7 +46,7 @@ As páginas capturam `ApiException` somente quando conseguem apresentar uma falh
 
 O padrão é preencher uma propriedade como `ErrorMessage` e retornar `Page()`. A view exibe essa propriedade em um alerta Bootstrap, normalmente com `role="alert"`. Assim, a falha vira uma mensagem de tela, formulário ou seção, conforme o contexto.
 
-Em geral, uma falha de API recebe uma mensagem amigável e fixa, por exemplo: “Não foi possível salvar o movimento agora. Tente novamente em instantes.”. Há uma exceção deliberada para respostas 422 em alguns formulários: nesses casos, a mensagem da `ApiException` é exibida quando ela representa a mensagem de validação devolvida pela API. Esse comportamento aparece, por exemplo, em `Movimentos/Create.cshtml.cs` e `Movimentos/Encerrar.cshtml.cs`.
+Em geral, uma falha de API recebe uma mensagem amigável e fixa, por exemplo: “Não foi possível salvar o movimento agora. Tente novamente em instantes.”. Quando a página decide preservar `ApiException.Message`, isso vale para qualquer status HTTP, inclusive 409 e 404, e não apenas para 422. A `ApiException` recebe sua mensagem do corpo `ErrorDetails` sempre que a resposta contém um JSON reconhecível com `Message`; se o corpo não for reconhecível, o cliente usa uma mensagem técnica padrão baseada no status. O uso atual dessa mensagem diretamente na tela ainda é seletivo e aparece, por exemplo, em `Movimentos/Create.cshtml.cs` e `Movimentos/Encerrar.cshtml.cs` para 422.
 
 Uma `ApiUnauthorizedException` não deve ser capturada por esses `catch` genéricos: ela representa expiração ou ausência de sessão e deve seguir o handler global de autenticação.
 
@@ -79,12 +79,38 @@ Quando a API devolve 422, algumas páginas usam apenas `ApiException.Message` co
 
 Não existe atualmente uma estratégia implementada para converter propriedades de `ErrorDetails` em `ModelState` por nome de campo. Se essa experiência for necessária, ela deve ser implementada em um ponto compartilhado do cliente HTTP ou em um helper de página, preservando uma mensagem geral para erros sem campo.
 
+## 6. Tratamento de exceções na API e persistência
+
+O `Vault.Service` registra `builder.Services.AddExceptionHandlers()` em `Service/Program.cs` e executa `app.UseExceptionHandler(...)`. Essa extensão vem da `Lumia.Foundation.AspNetCore` e registra, nesta ordem, o `DomainExceptionHandler` e o `UnhandledExceptionHandler`.
+
+- Exceções de domínio que herdam de `DomainBaseException` são tratadas pelo `DomainExceptionHandler`. No contrato atual da Foundation, `EntityNotFoundException` resulta em 404, enquanto `EntityInUseException` e `CommandValidationException` resultam em 422. A resposta é `ErrorDetails`.
+- Exceções não mapeadas seguem para `UnhandledExceptionHandler`, são registradas como falhas de servidor e resultam em 500 com `ErrorDetails`.
+- `DbUpdateException` não possui tratamento específico no `Vault.Service` nem na estratégia atual da Foundation. Portanto, uma falha de persistência desse tipo segue o caminho de exceção não mapeada e resulta em 500. A documentação do guia registra a tradução de violação de unicidade como uma pendência, não como comportamento implementado.
+
+Essa decisão e a ordem dos handlers estão registradas em [ADR 0024 — Fim do “loga e relança” nas queries](adr/0024-fim-do-log-e-relancamento-nas-queries.md). A documentação geral da Foundation está em `LumiaFoundation.AspNetCore/docs/readme.md`.
+
+## 7. `SaveAsync` e D2-B
+
+Na versão da Foundation usada pelo Vault, `LumiaFoundation.EFRepository.Repository.BaseRepositoryManager.SaveAsync(CancellationToken)` é público e **não é `virtual`**. A implementação apenas delega para `RepositoryContext.SaveChangesAsync(cancellationToken)`.
+
+Consequentemente, uma estratégia que dependa de sobrescrever `SaveAsync` (D2-B) não pode ser aplicada por herança direta nessa versão. O contrato usado pelo Vault é `Application/Repositories/IRepositoryManager`, que declara `Task SaveAsync(CancellationToken)`; qualquer comportamento adicional precisa ser implementado por composição, decorator, alteração da Foundation ou outro ponto explícito de extensão.
+
+## 8. Origem e dependência do `ApiUnauthorizedExceptionHandler`
+
+`ApiUnauthorizedExceptionHandler` vem da Foundation, no pacote `Lumia.Foundation.AspNetCore.Web`, namespace `LumiaFoundation.AspNetCore.Web.ClientAuthentication`. Ele não é implementado pelo Vault.
+
+O handler reconhece `ApiException` com status 401, resolve `IApiSignInService` pelo `HttpContext.RequestServices`, chama `SignOutAsync` e redireciona para o caminho configurado (por padrão, o login). Portanto, ele depende da infraestrutura de autenticação/sessão registrada pelo host, embora não acesse `ISession` diretamente.
+
+No Vault, essa dependência é montada por `AddSessionTokenStore()`, `AddApiSessionCookie()`, `AddApiSignInService()` e pelo middleware `UseSession()` antes de `UseExceptionHandler()`. O `SessionTokenStore` da Foundation usa a sessão para guardar o token; o handler encerra essa sessão por meio do `IApiSignInService`. A documentação correspondente está em `LumiaFoundation.AspNetCore/docs/readme.md`, na seção “Consumindo uma API protegida por Lumia.Auth”.
+
 ## Resumo por tópico
 
 | Tópico | Orientação atual |
 | --- | --- |
-| `ApiException` | Captura local nas Razor Pages; mensagem geral em `ErrorMessage`; 401 segue o handler global. |
+| `ApiException` | Captura local nas Razor Pages; mensagem geral em `ErrorMessage`; `Message` pode vir de `ErrorDetails` em qualquer status; 401 segue o handler global. |
 | Cliente tipado | `Program.cs` registra `AddLumiaApiClient`; `PresentationExtensions` registra clientes de recurso baseados em `IApiConnection`. |
 | Sessão e refresh | `SessionTokenStore`, cookie `Vault.Auth`, refresh em `/api/token/refresh` e `ApiUnauthorizedExceptionHandler`. |
 | Exceção/status | Existe `/Error`; não existe `StatusCodePages` nem página específica por status. |
 | `ErrorDetails` | Contrato existe na API, mas a Presentation atualmente o apresenta como mensagem geral, não por campo. |
+| Exceções da API | `DomainBaseException` mapeada pelo handler de domínio; exceções não mapeadas e `DbUpdateException` resultam em 500. |
+| `SaveAsync` | `BaseRepositoryManager.SaveAsync(CancellationToken)` existe, mas não é `virtual`. |
